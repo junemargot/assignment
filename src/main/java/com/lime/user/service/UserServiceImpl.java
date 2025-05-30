@@ -25,11 +25,22 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void insertUser(UserVO userVO) {
-		String hashedPw = pwEncoder.encode(userVO.getPwd());
-		userVO.setPwd(hashedPw);
+	public boolean insertUser(UserVO user) {
 		
-		userDAO.insertUser(userVO);
+		try {
+			String hashedPw = pwEncoder.encode(user.getPwd());
+			user.setPwd(hashedPw);
+			
+			userDAO.insertUser(user);
+			return true;
+		
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		
+		
 	}
 	
 }

@@ -8,5 +8,5 @@ public interface UserService {
 	public boolean checkUserId(String userId);
 	
 	// 회원가입 처리
-	public void insertUser(UserVO userVO);
+	public boolean insertUser(UserVO user);
 }
