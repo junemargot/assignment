@@ -1,0 +1,16 @@
+# macOS 관련 불필요한 파일
+.DS_Store
+
+# Eclipse 관련 불필요한 파일
+.classpath
+.project
+.settings/
+
+# 빌드 결과물
+/bin/
+/target/
+/build/
+
+# IDE 자동 설정 파일들
+*.iml
+.idea/

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lime.user.dao.UserDAO">
+
+    <!-- 회원가입: 사용자 정보 저장 -->
+    <insert id="insertUser" parameterType="com.lime.user.vo.UserVO">
+        INSERT INTO user (
+            user_id,
+            pwd,
+            user_name,
+            reg_dt
+        ) VALUES (
+            #{userId},
+            #{pwd},
+            #{userName},
+            NOW()
+        )
+    </insert>
+
+    <!-- ID 중복 체크 -->
+    <select id="countByUserId" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>
