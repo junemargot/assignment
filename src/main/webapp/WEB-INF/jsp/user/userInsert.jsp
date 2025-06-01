@@ -24,7 +24,7 @@ function validateUserId() {
 		$('#userIdError').text('아이디는 6글자 이상이어야 합니다.').css('color', 'red');
 		return false;
 	}
-	$('#userIdError').text('사용 가능한 ID입니다.').css('color', 'blue');
+	$('#userIdError').text('');
 	return true;
 }
 
@@ -74,8 +74,10 @@ function checkUserId() {
 		success: function(response) {
 			if(response.duplicate) {
 				$('#userIdChecked').val('false');
+				$('#userIdError').text('이미 사용 중인 아이디입니다.').css('color', 'red');
 			} else {
 				$('#userIdChecked').val('true');
+				$('#userIdError').text('사용 가능한 ID입니다.').css('color', 'blue');
 			}
 		},
 		error: function(xhr, status, error) {

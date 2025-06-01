@@ -20,8 +20,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean checkUserId(String userId) {
 		
-		// userId가 존재하면 true, 아니면 false 반환
-		return userDAO.countByUserId(userId) > 0;
+		int count = userDAO.countByUserId(userId);
+	    System.out.println("중복 체크 결과 (count): " + count); // 로그 확인
+
+	    // userId가 존재하면 true, 아니면 false 반환
+		return count > 0;
 	}
 
 	@Override
@@ -38,9 +41,5 @@ public class UserServiceImpl implements UserService {
 			e.printStackTrace();
 			return false;
 		}
-		
-		
-		
 	}
-	
 }
