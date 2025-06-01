@@ -175,5 +175,3 @@ $(document).ready(function() {
 	    </script>
 	</c:if>
 </div>
-
-

@@ -1,21 +1,28 @@
 package com.lime.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.lime.user.dao.UserDAO;
 import com.lime.user.vo.UserVO;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
-
 	
-	@Autowired
-	private BCryptPasswordEncoder pwEncoder;
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	
-	@Autowired
-	private UserDAO userDAO;
+	private final BCryptPasswordEncoder pwEncoder;
+	private final UserDAO userDAO;
+	
+	public UserServiceImpl(BCryptPasswordEncoder pwEncoder, UserDAO userDAO) {
+		this.pwEncoder = pwEncoder;
+		this.userDAO = userDAO;
+	}
 
 	@Override
 	public boolean checkUserId(String userId) {
@@ -31,15 +38,34 @@ public class UserServiceImpl implements UserService {
 	public boolean insertUser(UserVO user) {
 		
 		try {
+			// 입력값 검증
+			if(user == null || user.getUserId() == null || user.getPwd() == null) {
+				log.warn("회원가입 실패: 필수값 누락");
+				return false;
+			}
+			
 			String hashedPw = pwEncoder.encode(user.getPwd());
 			user.setPwd(hashedPw);
-			
 			userDAO.insertUser(user);
+			
+			log.info("회원가입 성공: {}", user.getUserId());
 			return true;
 		
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error("회원가입 처리 중 오류 발생:", e);
 			return false;
 		}
+	}
+
+	@Override
+	public UserVO findUserById(String userId) {
+		
+		return userDAO.selectByUserId(userId);
+	}
+
+	@Override
+	public boolean matchesPassword(String rawPwd, String encodedPwd) {
+		
+		return pwEncoder.matches(rawPwd, encodedPwd);
 	}
 }

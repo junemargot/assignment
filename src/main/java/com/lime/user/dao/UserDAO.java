@@ -12,4 +12,6 @@ public interface UserDAO {
 	
 	// 회원가입 처리
 	public void insertUser(UserVO userVO);
+	
+	public UserVO selectByUserId(String userId);
 }
