@@ -5,6 +5,12 @@
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 	    <property name="dataSource" ref="dataSource"/>
 	    <property name="configLocation" value="classpath:mybatis-config.xml"/>
+	    <!-- MyBatis 설정 직접 주입 -->
+<!-- 	    <property name="configuration">
+	        <bean class="org.apache.ibatis.session.Configuration">
+	            <property name="mapUnderscoreToCamelCase" value="true"/>
+	        </bean>
+	    </property> -->
 	    <property name="mapperLocations" value="classpath:mapper/*.xml"/>
 	</bean>
 	

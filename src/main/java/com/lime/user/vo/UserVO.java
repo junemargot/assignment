@@ -8,10 +8,10 @@ public class UserVO {
 	private String userName  ;
 	private String regDt  ;
 
-	public String getUsrrSeq() {
+	public String getUserSeq() {
 		return userSeq;
 	}
-	public void setUsrrSeq(String usrrSeq) {
+	public void setUserSeq(String usrrSeq) {
 		this.userSeq = usrrSeq;
 	}
 	public String getUserId() {
@@ -38,10 +38,10 @@ public class UserVO {
 	public void setRegDt(String regDt) {
 		this.regDt = regDt;
 	}
-
-
-
-
-
+	@Override
+	public String toString() {
+		return "UserVO [userSeq=" + userSeq + ", userId=" + userId + ", pwd=" + pwd + ", userName=" + userName
+				+ ", regDt=" + regDt + "]";
+	}
 
 }
