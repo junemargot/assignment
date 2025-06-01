@@ -62,10 +62,4 @@ public class UserServiceImpl implements UserService {
 		
 		return userDAO.selectByUserId(userId);
 	}
-
-	@Override
-	public boolean matchesPassword(String rawPwd, String encodedPwd) {
-		
-		return pwEncoder.matches(rawPwd, encodedPwd);
-	}
 }

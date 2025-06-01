@@ -10,7 +10,7 @@ public interface UserService {
 	// 회원가입 처리
 	public boolean insertUser(UserVO user);
 	
-	UserVO findUserById(String userId);
+	// 회원 정보 조회
+	public UserVO findUserById(String userId);
 	
-	boolean matchesPassword(String rawPwd, String encodedPwd);
 }
