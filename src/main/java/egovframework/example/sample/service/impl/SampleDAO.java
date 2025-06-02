@@ -21,6 +21,7 @@ import egovframework.example.sample.service.SampleDefaultVO;
 import egovframework.example.sample.service.SampleVO;
 
 import egovframework.rte.psl.dataaccess.EgovAbstractDAO;
+import egovframework.rte.psl.dataaccess.EgovAbstractMapper;
 
 import org.springframework.stereotype.Repository;
 
@@ -42,7 +43,7 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository("sampleDAO")
-public class SampleDAO extends EgovAbstractDAO {
+public class SampleDAO extends EgovAbstractMapper {
 
 	/**
 	 * 글을 등록한다.
@@ -50,8 +51,8 @@ public class SampleDAO extends EgovAbstractDAO {
 	 * @return 등록 결과
 	 * @exception Exception
 	 */
-	public String insertSample(SampleVO vo) throws Exception {
-		return (String) insert("sampleDAO.insertSample", vo);
+	public int insertSample(SampleVO vo) throws Exception {
+	    return insert("sampleDAO.insertSample", vo); 
 	}
 
 	/**
@@ -81,7 +82,7 @@ public class SampleDAO extends EgovAbstractDAO {
 	 * @exception Exception
 	 */
 	public SampleVO selectSample(SampleVO vo) throws Exception {
-		return (SampleVO) select("sampleDAO.selectSample", vo);
+		return (SampleVO) selectOne("sampleDAO.selectSample", vo);
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class SampleDAO extends EgovAbstractDAO {
 	 * @exception
 	 */
 	public int selectSampleListTotCnt(SampleDefaultVO searchVO) {
-		return (Integer) select("sampleDAO.selectSampleListTotCnt", searchVO);
+		return (Integer) selectOne("sampleDAO.selectSampleListTotCnt", searchVO);
 	}
 
 }

@@ -11,5 +11,4 @@ public interface LoginService {
 
 	public UserVO login(String userId, String userPassword) throws LoginFailException;
 	
-    public void logout(HttpSession session);
 }

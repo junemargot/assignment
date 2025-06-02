@@ -64,12 +64,13 @@ public class LoginController {
 			HttpSession session = request.getSession();
 			session.setAttribute("loginUser", user);
 			
-			log.info("로그인 성공 - {} 세션 생성 완료", user.getUserName());
+			log.info("로그인 성공 - {} 세션 생성 완료", user);
 			
 			return "redirect:/account/accountList.do";
 		
 		} catch(LoginFailException e) {
 			log.warn("로그인 실패: {}", e.getMessage());
+			
 			model.addAttribute("errorMsg", e.getMessage());
 			
 			return "/login/login";
@@ -80,20 +81,20 @@ public class LoginController {
 	@RequestMapping(value="/login/logout.do", method={RequestMethod.GET, RequestMethod.POST})
 	public String logout(HttpServletRequest request) {
 	    
-		loginService.logout(request.getSession(false));
+		HttpSession session = request.getSession(false);
+		
+		if(session != null) {
+			session.invalidate();
+		}
 		
 		return "redirect:/login/login.do";
 	}
+
 	
 	@RequestMapping(value="/login/idCkedAjax.do")
 	public ModelAndView idCkedAjax(HttpServletRequest request ) throws Exception {
 		Map<String, Object> inOutMap  = CommUtils.getFormParam(request);
 
-
-
 		return new ModelAndView(jsonView, inOutMap);
 	}
-
-
-
-}// end of class
+}

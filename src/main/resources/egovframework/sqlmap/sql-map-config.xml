@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <mappers>
+        <mapper resource="egovframework/sqlmap/mappers/login/Login_SQL.xml"/>
+        <mapper resource="egovframework/sqlmap/mappers/common/Common_SQL.xml"/>
+    </mappers>
+</configuration>
+ 
+
+<!-- 
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
 
 <sqlMapConfig>
 	<sqlMap resource="egovframework/sqlmap/mappers/login/Login_SQL.xml"/>
 	<sqlMap resource="egovframework/sqlmap/mappers/common/Common_SQL.xml"/>
 </sqlMapConfig>
+ -->
+ 

@@ -43,16 +43,4 @@ public class LoginServiceImpl implements LoginService{
 		
 		return user;
 	}
-
-
-	@Override
-	public void logout(HttpSession session) {
-		
-		if(session != null) {
-			session.invalidate();
-		}
-		
-	}
-	
-
 }
