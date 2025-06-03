@@ -47,7 +47,7 @@ public class LoginController {
 		this.loginService = loginService;
 	}
 
-	@RequestMapping(value="/login/login.do")
+	@GetMapping("/login/login.do")
 	public String loginview(HttpServletRequest request ) {
 
 		return "/login/login";

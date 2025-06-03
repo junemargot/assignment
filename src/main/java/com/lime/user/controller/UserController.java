@@ -24,14 +24,14 @@ public class UserController {
 	}
 	
 	// [GET] 회원가입 페이지 요청 처리
-	@GetMapping(value="/user/userInsert.do")
+	@GetMapping("/user/userInsert.do")
 	public String userInsert() {
 		
 		return "/user/userInsert";
 	}
 	
 	// [POST] 회원가입 폼 제출 처리
-    @PostMapping(value="/user/userInsert.do")
+    @PostMapping("/user/userInsert.do")
     public String userInsert(@ModelAttribute UserVO user, Model model) {
         
     	// 서버사이드 검증
@@ -59,7 +59,7 @@ public class UserController {
     }
     
     // [POST] ID 중복 체크 AJAX 요청 처리
-    @PostMapping(value="/user/checkUserId.do")
+    @PostMapping("/user/checkUserId.do")
     @ResponseBody // JSON 형식으로 결과를 응답
     public Map<String, Object> checkUserId(@RequestParam String userId) {
         
