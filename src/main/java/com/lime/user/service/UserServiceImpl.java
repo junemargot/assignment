@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class UserServiceImpl implements UserService {
 	
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	private final BCryptPasswordEncoder pwEncoder;
 	private final UserDAO userDAO;
@@ -28,9 +28,9 @@ public class UserServiceImpl implements UserService {
 	public boolean checkUserId(String userId) {
 		
 		int count = userDAO.countByUserId(userId);
-	    System.out.println("중복 체크 결과 (count): " + count); // 로그 확인
+		log.info("중복 체크 결과 {}", count);
 
-	    // userId가 존재하면 true, 아니면 false 반환
+		// userId가 존재하면 true, 아니면 false 반환
 		return count > 0;
 	}
 
