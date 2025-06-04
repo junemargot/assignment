@@ -24,10 +24,8 @@
 		<c:choose>
 			<c:when test="${not empty sessionScope.loginUser}">
 				<li class="dropdown active">
-					<span>
-						<font size="2px" color="white"><br />
+					<span style="font-size: 12px; color: white; display: block; margin-top: 15px;">
 						${sessionScope.loginUser.userName}님
-						</font>
 					</span>
 				</li>
 				<li class="active">
@@ -38,7 +36,7 @@
 			</c:when>
 			<c:otherwise>
 				<li class="dropdown active">
-				  <span style="font-size: 12px; color: white; display: block; margin-top: 5px;">
+				  <span style="font-size: 12px; color: white; display: block; margin-top: 15px;">
 					로그인해주세요
 				  </span>
 				</li>
