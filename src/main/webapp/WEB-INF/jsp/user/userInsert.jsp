@@ -7,14 +7,14 @@
 
 <script type="text/javascript">
 function initValidationEvents() {
-	$('#pwd').on('keyup', function() {
+	$('#pwd').on('keyup', function() { // pwd의 영역을 선택하는 선택자. keyup 입력이 끝났을때
 		validatePassword();
 		validatePasswordConfirm();
 	});
 	
-	$('#pwdck').on('keyup', function() {
-		validatePasswordConfirm();
-	});
+	// $('#pwdck').on('keyup', function() {
+	// 	validatePasswordConfirm();
+	// });
 }
 
 // ID 유효성 검증
@@ -47,7 +47,7 @@ function validatePasswordConfirm() {
 	var passwordConfirm = $('#pwdck').val();
 	
 	if(passwordConfirm === '') {
-		$('#passwordConfirmError').text('비밀번호를 한번 더 입해주세요').css('color', 'red');
+		$('#passwordConfirmError').text('비밀번호를 한번 더 입력해주세요').css('color', 'red');
 		return false;
 	}
 	
@@ -72,8 +72,8 @@ function checkUserId() {
 		data: { userId: userId },
 		dataType: 'json',
 		success: function(response) {
-			if(response.duplicate) {
-				$('#userIdChecked').val('false');
+			if(response.duplicate) { // object
+				// $('#userIdChecked').val('false'); // 중복
 				$('#userIdError').text('이미 사용 중인 아이디입니다.').css('color', 'red');
 			} else {
 				$('#userIdChecked').val('true');
@@ -87,7 +87,7 @@ function checkUserId() {
 }
 
 // 회원가입 폼 제출 시 전체 유효성 검증
-function validateForm() {
+function validateForm() { // ajax로 바꾸기
 	var isValid = true;
 	
 	if(!validateUserId()) isValid = false;
@@ -108,6 +108,8 @@ function validateForm() {
 	
 	return isValid;
 }
+
+// 데이터가 많아지게 되면 ajax가 효율적이다.
 
 $(document).ready(function() {
     $('#userId').on('blur', validateUserId);

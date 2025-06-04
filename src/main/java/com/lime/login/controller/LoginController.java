@@ -20,8 +20,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import com.lime.common.service.CommonService;
 import com.lime.login.exception.LoginFailException;
 import com.lime.login.service.LoginService;
-import com.lime.user.service.UserService;
-import com.lime.user.service.UserServiceImpl;
 import com.lime.user.vo.UserVO;
 import com.lime.util.CommUtils;
 
@@ -30,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 public class LoginController {
-	
-    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
 	@Resource(name = "jsonView")
 	private MappingJackson2JsonView jsonView;
@@ -39,20 +35,20 @@ public class LoginController {
 	@Resource(name="commonService")
 	private CommonService commonService;
 	
-	private UserService userService;
-	private LoginService loginService;
+	private final LoginService loginService;
 	
-	public LoginController(UserService userService, LoginService loginService) {
-		this.userService = userService;
+	public LoginController(LoginService loginService) {
 		this.loginService = loginService;
 	}
 
+	// [GET] 로그인 페이지 요청
 	@GetMapping("/login/login.do")
 	public String loginview(HttpServletRequest request ) {
 
 		return "/login/login";
 	}
-	
+
+	// [POST] 로그인 처리
 	@PostMapping("/login/loginProc.do")
 	public String loginProc(HttpServletRequest request, Model model) {
 		String userId = request.getParameter("userId");
@@ -60,7 +56,8 @@ public class LoginController {
 		
 		try {
 			UserVO user = loginService.login(userId, userPassword);
-			
+
+			// 세션 생성 및 사용자 정보 세션에 저장
 			HttpSession session = request.getSession();
 			session.setAttribute("loginUser", user);
 			
@@ -70,21 +67,20 @@ public class LoginController {
 		
 		} catch(LoginFailException e) {
 			log.warn("로그인 실패: {}", e.getMessage());
-			
 			model.addAttribute("errorMsg", e.getMessage());
 			
 			return "/login/login";
 		}		
 	}
 	
-	// GET, POST 모두 처리
+	// [GET, POST] 로그아웃 처리
 	@RequestMapping(value="/login/logout.do", method={RequestMethod.GET, RequestMethod.POST})
 	public String logout(HttpServletRequest request) {
 	    
 		HttpSession session = request.getSession(false);
 		
 		if(session != null) {
-			session.invalidate();
+			session.invalidate(); // 세션 무효화
 		}
 		
 		return "redirect:/login/login.do";

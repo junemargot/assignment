@@ -38,17 +38,20 @@ public class UserServiceImpl implements UserService {
 	public boolean insertUser(UserVO user) {
 		
 		try {
-			// 입력값 검증
+			// 서버사이드 필수값 검증
 			if(user == null || user.getUserId() == null || user.getPwd() == null) {
 				log.warn("회원가입 실패: 필수값 누락");
 				return false;
 			}
-			
+
+			// 비밀번호 암호화
 			String hashedPw = pwEncoder.encode(user.getPwd());
 			user.setPwd(hashedPw);
+
+			// DB 저장
 			userDAO.insertUser(user);
-			
 			log.info("회원가입 성공: {}", user.getUserId());
+
 			return true;
 		
 		} catch(Exception e) {

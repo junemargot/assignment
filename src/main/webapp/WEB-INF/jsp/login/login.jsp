@@ -43,17 +43,17 @@ document.addEventListener('DOMContentLoaded', function() {
 	    document.getElementById('userPasswordError').textContent = '';
 	    
 	    if(userId === '') {
-	        document.getElementById('userIdError').textContent = '아이디를 입력해주세요';
-	    	valid = false;
+			document.getElementById('userIdError').textContent = '아이디를 입력해주세요';
+			valid = false;
 	    }
 	    
 	    if(userPassword === '') {
-	    	document.getElementById('userPasswordError').textContent = '비밀번호를 입력해주세요';
-	    	valid = false;
+			document.getElementById('userPasswordError').textContent = '비밀번호를 입력해주세요';
+			valid = false;
 	    }
 	    
 	    if(!valid) {
-	    	e.preventDefault();
+			e.preventDefault(); // 검증 실패 시 제출 방지
 	    }
 	});
 });

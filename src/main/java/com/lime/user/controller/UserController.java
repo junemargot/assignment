@@ -34,24 +34,26 @@ public class UserController {
 	@PostMapping("/user/userInsert.do")
 	public String userInsert(@ModelAttribute UserVO user, Model model) {
 
-		// 서버사이드 검증
+		// 1. 서버사이드 입력값 검증
 		if(user.getUserId() == null || user.getUserId().length() < 6) {
 			model.addAttribute("errorMsg", "아이디는 6글자 이상이어야 합니다");
 			return "user/userInsert";
 		}
 
+		// 2. ID 중복 체크
 		if(userService.checkUserId(user.getUserId())) {
 			model.addAttribute("errorMsg", "이미 사용 중인 아이디입니다");
 			return "user/userInsert";
 		}
 
+		// 3. 회원 정보 DB 저장 시도
 		boolean success = userService.insertUser(user);
 
 		if(success) {
-			// 회원가입 성공 시, JSP에서 alert 처리 위한 플래그 전달
+			// 성공 시 플래그 전달 (JSP에서 alert 처리)
 			model.addAttribute("insertSuccess", true);
 		} else {
-			// 실패 시 오류 메시지를 model에 담아 JSP에서 출력
+			// 실패 시 오류 메시지 전달
 			model.addAttribute("errorMsg", "회원가입에 실패했습니다.");
 		}
 
@@ -63,11 +65,11 @@ public class UserController {
 	@ResponseBody // JSON 형식으로 결과를 응답
 	public Map<String, Object> checkUserId(@RequestParam String userId) {
 
-		boolean isDuplicate = userService.checkUserId(userId);
+		boolean isDuplicate = userService.checkUserId(userId); // 서비스로직을 호출해 응답받은 결과값을 할당
 
-			Map<String, Object> result = new HashMap<>();
-			result.put("duplicate", isDuplicate); // JS에서 duplicate를 기준으로 판단
+		Map<String, Object> result = new HashMap<>();
+		result.put("duplicate", isDuplicate); // JS에서 duplicate key값으로 판단,
 
-			return result;
+		return result;
 	}
 }
