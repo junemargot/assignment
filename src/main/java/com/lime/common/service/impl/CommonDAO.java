@@ -16,5 +16,4 @@ public class CommonDAO extends EgovAbstractMapper{
 	public List<EgovMap> selectCombo(Map<String, Object> inOutMap) throws EgovBizException{
 		return selectList("Common.selectCombo", inOutMap);
 	}
-
 }
