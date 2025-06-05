@@ -233,8 +233,8 @@ function saveCostData() {
 						<input class="form-control"  name="transactionMoney" type="text" value="" title="금액">
 					</div>
 					<label for="disabledInput" class="col-sm-1 control-label"><font size="1px">거래일자</font></label>
-					<div class="col-sm-3">
-						<input class="form-contro col-sm-2"  name="transactionDate" type="text" value="" style="width: 80%" title="거래일자">
+					<div class="col-sm-3 datepicker-wrapper">
+						<input class="form-control datepicker" name="transactionDate" type="text" value="" style="width: 80%" title="거래일자" readonly />
 					</div>
 				</div>
 
@@ -248,9 +248,6 @@ function saveCostData() {
 		<button type="button" class="btn btn-primary" onclick="saveCostData()">저장</button>
 		<button type="button" class="btn btn-default" onclick="location.href='/cost/list.do'">목록</button>
 	</div>
-
-	<!-- 거래일자 input 수정 -->
-	<input class="form-control datepicker" name="transactionDate" type="text" value="" style="width: 80%" title="거래일자" readonly />
 </div>
 
 <!-- 비용 END -->
