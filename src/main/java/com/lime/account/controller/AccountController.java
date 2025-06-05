@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.lime.user.vo.UserVO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -54,12 +55,21 @@ public class AccountController {
 		Map<String, Object> result = new HashMap<>();
 
 		try {
-			// 1. 세션에서 작성자 정보 추출
-			String writer = (String) session.getAttribute("userId");
+			// 1. 세션에서 UserVO 객체 추출
+			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+			if (loginUser == null) {
+				throw new Exception("로그인이 필요합니다.");
+			}
+
+			// 2. 작성자 정보 설정(UserVO에서 userId 추출)
+			String writer = loginUser.getUserId();
 			params.put("writer", writer);
 
 			// 2. 금액 처리(콤마 제거 및 숫자 변환)
 			String moneyStr = (String) params.get("transactionMoney");
+			if (moneyStr == null || moneyStr.isEmpty()) {
+				throw new IllegalArgumentException("금액을 입력해주세요.");
+			}
 			int transactionMoney = Integer.parseInt(moneyStr.replaceAll(",", ""));
 			params.put("transactionMoney", transactionMoney);
 
@@ -69,6 +79,10 @@ public class AccountController {
 			// 4. 생성된 시퀀스 반환 (MyBatis selectKey 활용)
 			result.put("success", true);
 			result.put("seq", params.get("ACCOUNT_SEQ"));
+
+		} catch (NumberFormatException e) {
+			result.put("success", false);
+			result.put("message", "금액 형식이 올바르지 않습니다.");
 
 		} catch (Exception e) {
       result.put("success", false);
