@@ -74,41 +74,47 @@ $(document).ready(function(){
 // AJAX로 하위 카테고리 로드
 function loadSubCategory(parentCode, targetSelect) {
 	$.ajax({
-		url: '/common/getSubCategory.do',
+		url: '/account/getSubCategory.do',
 		type: 'POST',
 		data: { category: parentCode },
 		dataType: 'json',
 		success: function(data) {
-			var options = '<option value="">선택</option>';
+			var options = '';
+			var disable = false;
 			if(data && data.length > 0) {
+				options = '<option value="">선택</option>';
 				$.each(data, function(index, item) {
 					options += '<option value="' + item.code + '">' + item.comKor + '</option>';
 				});
 			} else {
 				options = '<option value="0">해당없음</option>';
+				disable = true;
 			}
 			$(targetSelect).html(options);
+			$(targetSelect).prop('disabled', disable);
 		},
 		error: function() {
 			alert('목록 조회 중 오류가 발생했습니다.');
 			$(targetSelect).html('<option value="0">해당없음</option>');
+			$(targetSelect).prop('disabled', true);
 		}
 	});
 }
 
-// 하위 select들 초기화
+// 하위 select들 초기화 함수
 function resetLowerSelects(selectArray) {
 	$.each(selectArray, function(index, selector) {
 		$(selector).html('<option value="0">해당없음</option>');
+		$(selector).prop('disabled', true);
 	});
 }
 
 // 전체 하위 select 초기화
 function resetAllLowerSelects() {
-	$('#bigGroup').html('<option value="">선택</option>');
-	$('select[name="middleGroup"]').html('<option value="0">해당없음</option>');
-	$('select[name="smallGroup"]').html('<option value="0">해당없음</option>');
-	$('select[name="comment1"]').html('<option value="0">해당없음</option>');
+	$('#bigGroup').html('<option value="">선택</option>').prop('disabled', true);
+	$('select[name="middleGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+	$('select[name="smallGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+	$('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
 }
 
 // 저장 함수
@@ -168,6 +174,17 @@ function saveCostData() {
 		}
 	});
 }
+
+$(document).ready(function() {
+	// 모든 select 박스 중, "해당없음"만 있으면 비활성화
+	$('select').each(function() {
+		var $select = $(this);
+		var $options = $select.find('option');
+		if ($options.length === 1 && $options.val() === '0') {
+			$select.prop('disabled', true);
+		}
+	});
+});
 
 </script>
 

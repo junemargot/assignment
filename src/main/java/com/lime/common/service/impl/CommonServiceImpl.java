@@ -22,8 +22,4 @@ public class CommonServiceImpl implements CommonService {
 	public List<EgovMap> selectCombo(Map<String, Object> inOutMap) throws Exception {
 		return commonDAO.selectCombo(inOutMap);
 	}
-
-
-
-
 }
