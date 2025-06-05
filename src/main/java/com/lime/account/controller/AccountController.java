@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +46,77 @@ public class AccountController {
 		return commonService.selectCombo(paramMap);
 	}
 
+	// [POST] 저장
+	@PostMapping("save.do")
+	@ResponseBody
+	public Map<String, Object> saveAccount(@RequestParam Map<String, Object> params, HttpSession session) {
+
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			// 1. 세션에서 작성자 정보 추출
+			String writer = (String) session.getAttribute("userId");
+			params.put("writer", writer);
+
+			// 2. 금액 처리(콤마 제거 및 숫자 변환)
+			String moneyStr = (String) params.get("transactionMoney");
+			int transactionMoney = Integer.parseInt(moneyStr.replaceAll(",", ""));
+			params.put("transactionMoney", transactionMoney);
+
+			// 3. 저장 실행
+			accountService.insertAccount(params);
+
+			// 4. 생성된 시퀀스 반환 (MyBatis selectKey 활용)
+			result.put("success", true);
+			result.put("seq", params.get("ACCOUNT_SEQ"));
+
+		} catch (Exception e) {
+      result.put("success", false);
+			result.put("message", e.getMessage());
+    }
+
+		return result;
+  }
+
+	// [GET] 수정 페이지
+	@GetMapping("edit.do")
+	public String editAccount(@RequestParam int seq, ModelMap modelMap) throws Exception {
+
+		// 1. 기존 저장된 데이터 조회
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("seq", seq);
+		EgovMap accountData = accountService.selectAccount(paramMap); // 단건 조회
+
+		// 2. 첫 번째 select 박스용 데이터(수익/비용)
+		Map<String, Object> categoryMap = new HashMap<>();
+		categoryMap.put("category", "A000000");
+		List<EgovMap> resultMap = commonService.selectCombo(categoryMap);
+
+		modelMap.addAttribute("accountData", accountData);
+		modelMap.addAttribute("resultMap", resultMap);
+
+		return "/account/accountEdit"; // 수정 폼 JSP
+	}
+
+	// [POST] 수정 저장 처리
+	@PostMapping("update.do")
+	@ResponseBody
+	public Map<String, Object> updateAccount(
+					@RequestParam Map<String, Object> params,
+					HttpSession session) {
+
+		Map<String, Object> result = new HashMap<>();
+		try {
+			// 수정 처리
+			accountService.updateAccount(params);
+			result.put("success", true);
+		} catch(Exception e) {
+			result.put("success", false);
+			result.put("message", e.getMessage());
+		}
+		return result;
+	}
+
 	/**
 	 *
 	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO
@@ -81,7 +153,6 @@ public class AccountController {
 
 		return "/account/accountInsert";
 	}
-
 
 	/**
 	 *

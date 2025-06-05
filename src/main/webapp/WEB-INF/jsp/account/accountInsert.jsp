@@ -145,25 +145,26 @@ function saveCostData() {
 	}
 
 	var formData = {
-		profitCostCode: $('#profitCost').val(),
-		bigGroupCode: $('#bigGroup').val(),
-		middleGroupCode: $('select[name="middleGroup"]').val() || '0',
-		smallGroupCode: $('select[name="smallGroup"]').val() || '0',
-		comment1Code: $('select[name="comment1"]').val() || '0',
-		commentText: $('input[name="comment"]').val() || '',
-		transactionMoney: $('input[name="transactionMoney"]').val().replace(/,/g, ''), // 콤마 제거
+		profitCost: $('#profitCost').val(),
+		bigGroup: $('#bigGroup').val(),
+		middleGroup: $('select[name="middleGroup"]').val() || '0',
+		smallGroup: $('select[name="smallGroup"]').val() || '0',
+		detailGroup: $('select[name="comment1"]').val() || '0',
+		comments: $('input[name="comment"]').val() || '',
+		transactionMoney: $('input[name="transactionMoney"]').val().replace(/,/g, ''),
 		transactionDate: $('input[name="transactionDate"]').val()
 	};
 
 	$.ajax({
-		url: '/cost/save.do',
+		// url: '/cost/save.do',
+		url: '/account/save.do',
 		type: 'POST',
 		data: formData,
 		dataType: 'json',
 		success: function(result) {
 			if(result.success) {
 				alert('저장되었습니다.');
-				location.href = '/cost/edit.do?seq=' + result.seq;
+				location.href = '/account/edit.do?seq=' + result.seq;
 
 			} else {
 				alert('저장 중 오류가 발생했습니다: ' + (result.message || ''));
