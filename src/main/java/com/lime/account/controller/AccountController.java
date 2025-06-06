@@ -131,42 +131,15 @@ public class AccountController {
 		return result;
 	}
 
+	// [GET] 회계 목록 조회
 	@GetMapping("accountList.do")
 	public String selectAccountList(ModelMap modelMap) throws Exception {
 		List<EgovMap> accountList = accountService.selectAccountList();
 
-		// 데이터 확인용
-		for(EgovMap account : accountList) {
-			System.out.println("DETAIL_GROUP_NM: " + account.get("DETAIL_GROUP_NM"));
-			System.out.println("detailGroupNm: " + account.get("detailGroupNm"));
-		}
 		modelMap.addAttribute("accountList", accountList);
 		return "/account/accountList";
 	}
 
-	/**
-	 *
-	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO
-	 * @param model
-	 * @return "egovSampleList"
-	 * @exception Exception
-	 */
-	// [GET] 회계 목록 조회
-//	@GetMapping("accountList.do")
-//	public String selectSampleList(HttpServletRequest request, ModelMap model) throws Exception {
-//
-//		Map<String, Object> inOutMap  = CommUtils.getFormParam(request);
-//		model.put("inOutMap", inOutMap);
-//
-//		return "/account/accountList";
-//	}
-
-	/**
-	 *
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
 	// [GET] 회계 입력 폼
 	@RequestMapping("accountInsert.do")
 	public String accountInsert(HttpServletRequest request, ModelMap model) throws Exception{
@@ -181,12 +154,6 @@ public class AccountController {
 		return "/account/accountInsert";
 	}
 
-	/**
-	 *
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
 	// [POST] 콤보박스 데이터 조회
 	@PostMapping("selectCombo.do")
 	public ModelAndView ajaxtest(HttpServletRequest request) throws Exception{
@@ -197,10 +164,20 @@ public class AccountController {
 		return new ModelAndView(jsonView, inOutMap);
 	}
 
-
-
-
-
-
+	/**
+	 *
+	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO
+	 * @param model
+	 * @return "egovSampleList"
+	 * @exception Exception
+	 */
+//	@GetMapping("accountList.do")
+//	public String selectSampleList(HttpServletRequest request, ModelMap model) throws Exception {
+//
+//		Map<String, Object> inOutMap  = CommUtils.getFormParam(request);
+//		model.put("inOutMap", inOutMap);
+//
+//		return "/account/accountList";
+//	}
 
 }// end of calss

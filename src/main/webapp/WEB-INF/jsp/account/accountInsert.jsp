@@ -264,7 +264,7 @@ $(document).ready(function() {
 	<!-- 저장 버튼 추가 -->
 	<div class="col-sm-12" style="text-align: center; margin-top: 20px;">
 		<button type="button" class="btn btn-primary" onclick="saveCostData()">저장</button>
-		<button type="button" class="btn btn-default" onclick="location.href='/cost/list.do'">목록</button>
+		<button type="button" class="btn btn-default" onclick="location.href='/account/accountList.do'">목록</button>
 	</div>
 </div>
 
