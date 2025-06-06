@@ -117,9 +117,7 @@ public class AccountController {
 	// [POST] 수정 저장 처리
 	@PostMapping("update.do")
 	@ResponseBody
-	public Map<String, Object> updateAccount(
-					@RequestParam Map<String, Object> params,
-					HttpSession session) {
+	public Map<String, Object> updateAccount(@RequestParam Map<String, Object> params, HttpSession session) {
 
 		Map<String, Object> result = new HashMap<>();
 		try {
@@ -133,6 +131,19 @@ public class AccountController {
 		return result;
 	}
 
+	@GetMapping("accountList.do")
+	public String selectAccountList(ModelMap modelMap) throws Exception {
+		List<EgovMap> accountList = accountService.selectAccountList();
+
+		// 데이터 확인용
+		for(EgovMap account : accountList) {
+			System.out.println("DETAIL_GROUP_NM: " + account.get("DETAIL_GROUP_NM"));
+			System.out.println("detailGroupNm: " + account.get("detailGroupNm"));
+		}
+		modelMap.addAttribute("accountList", accountList);
+		return "/account/accountList";
+	}
+
 	/**
 	 *
 	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO
@@ -141,14 +152,14 @@ public class AccountController {
 	 * @exception Exception
 	 */
 	// [GET] 회계 목록 조회
-	@GetMapping("accountList.do")
-	public String selectSampleList(HttpServletRequest request, ModelMap model) throws Exception {
-
-		Map<String, Object> inOutMap  = CommUtils.getFormParam(request);
-		model.put("inOutMap", inOutMap);
-
-		return "/account/accountList";
-	}
+//	@GetMapping("accountList.do")
+//	public String selectSampleList(HttpServletRequest request, ModelMap model) throws Exception {
+//
+//		Map<String, Object> inOutMap  = CommUtils.getFormParam(request);
+//		model.put("inOutMap", inOutMap);
+//
+//		return "/account/accountList";
+//	}
 
 	/**
 	 *

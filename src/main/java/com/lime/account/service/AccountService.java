@@ -11,5 +11,7 @@ public interface AccountService {
 
   EgovMap selectAccount(Map<String, Object> paramMap) throws Exception;
 
+  List<EgovMap> selectAccountList() throws Exception;
+
   void updateAccount(Map<String, Object> paramMap) throws Exception;
 }

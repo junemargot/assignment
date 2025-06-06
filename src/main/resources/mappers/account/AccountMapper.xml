@@ -26,6 +26,23 @@
         WHERE ACCOUNT_SEQ = #{seq}
     </select>
 
+    <!-- 목록 조회, 뷰 테이블 사용 -->
+    <select id="selectAccountList" resultType="egovMap">
+        SELECT
+            ACCOUNT_SEQ,
+            PROFIT_COST, PROFIT_COST_NM,
+            BIG_GROUP, BIG_GROUP_NM,
+            MIDDLE_GROUP, MIDDLE_GROUP_NM,
+            SMALL_GROUP, SMALL_GROUP_NM,
+            DETAIL_GROUP, DETAIL_GROUP_NM,
+            COMMENTS,
+            TRANSACTION_MONEY,
+            WRITER,
+            REG_DATE
+        FROM VW_ACCOUNT_TB
+        ORDER BY ACCOUNT_SEQ DESC
+    </select>
+
     <!-- 수정 -->
     <update id="updateAccount" parameterType="map">
         UPDATE ACCOUNT_TB SET

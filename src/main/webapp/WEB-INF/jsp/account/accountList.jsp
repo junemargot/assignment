@@ -21,22 +21,33 @@
 			</div>
 		</div>
 	    <br/>
-		<table class="table table-hover">
+		<table class="table table-hover" style="margin-left: auto; margin-right: auto; text-align: center;">
 		    <thead>
 		      <tr align="center">
-		        <th style="text-align: center;" >수익/비용</th>
-		        <th style="text-align: center;" >관</th>
-		        <th style="text-align: center;" >항</th>
-		        <th style="text-align: center;" >목</th>
-		        <th style="text-align: center;" >과</th>
-		        <th style="text-align: center;" >금액</th>
-		        <th style="text-align: center;" >등록일</th>
-		        <th style="text-align: center;" >작성자</th>
+		        <th style="text-align: center;">수익/비용</th>
+		        <th style="text-align: center;">관</th>
+		        <th style="text-align: center;">항</th>
+		        <th style="text-align: center;">목</th>
+		        <th style="text-align: center;">과</th>
+		        <th style="text-align: center;">금액</th>
+		        <th style="text-align: center;">등록일</th>
+		        <th style="text-align: center;">작성자</th>
 		      </tr>
 		    </thead>
-		    <tbody>
-
-		    </tbody>
+				<tbody>
+					<c:forEach var="account" items="${accountList}">
+						<tr>
+							<td>${account.profitCostNm}</td>
+							<td>${account.bigGroupNm}</td>
+							<td>${account.middleGroupNm}</td>
+							<td>${account.smallGroupNm}</td>
+							<td>${account.detailGroupNm}</td>
+							<td>${account.transactionMoney}</td>
+							<td>${account.regDate}</td>
+							<td>${account.writer}</td>
+						</tr>
+					</c:forEach>
+				</tbody>
 		</table>
 	</div>
 </form>

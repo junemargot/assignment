@@ -21,6 +21,10 @@ public class AccountDAO extends EgovAbstractMapper{
     return selectOne("Account.selectAccount", paramMap);
   }
 
+  public List<EgovMap> selectAccountList() throws Exception{
+    return selectList("Account.selectAccountList");
+  }
+
   public void updateAccount(Map<String, Object> paramMap) throws Exception{
     update("Account.updateAccount", paramMap);
   }
