@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.lime.user.vo.UserVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -22,7 +23,7 @@ import com.lime.util.CommUtils;
 
 import egovframework.rte.psl.dataaccess.util.EgovMap;
 
-
+@Slf4j
 @Controller
 @RequestMapping("/account")
 public class AccountController {
@@ -100,6 +101,7 @@ public class AccountController {
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("seq", seq);
 		EgovMap accountData = accountService.selectAccount(paramMap); // 단건 조회
+		log.info("accountData = {}", accountData); // 값 확인
 
 		// 2. 첫 번째 select 박스용 데이터(수익/비용)
 		Map<String, Object> categoryMap = new HashMap<>();
