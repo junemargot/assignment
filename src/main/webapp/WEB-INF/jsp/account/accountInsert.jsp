@@ -12,11 +12,11 @@ $(document).ready(function(){
 
 	// 금액 필드 - 숫자만 입력 허용
 	$('input[name="transactionMoney"]').on('input', function(){
-	this.value = this.value.replace(/[^0-9]/g, '');
-	// 3자리마다 콤마 추가
-	if(this.value) {
-	this.value = Number(this.value).toLocaleString();
-	}
+		this.value = this.value.replace(/[^0-9]/g, '');
+		// 3자리마다 콤마 추가
+		if(this.value) {
+		this.value = Number(this.value).toLocaleString();
+		}
 	});
 
 	// 1차 select (수익/비용) 변경 이벤트
@@ -185,6 +185,12 @@ $(document).ready(function() {
 			$select.prop('disabled', true);
 		}
 	});
+
+	// 페이지 진입 시 대분류(수익/비용) select를 제외한 모든 하위 select 비활성화
+	$('#bigGroup').prop('disabled', true);
+	$('select[name="middleGroup"]').prop('disabled', true);
+	$('select[name="smallGroup"]').prop('disabled', true);
+	$('select[name="comment1"]').prop('disabled', true);
 });
 
 </script>
@@ -202,7 +208,7 @@ $(document).ready(function() {
 				<div class="col-sm-12">
 					<div class="col-sm-3">
 						<select class="form-control" id="profitCost" name="profitCost" title="비용">
-							<option value="">대분류 선택</option>
+							<option value="">대분류선택</option>
 							<c:forEach var="list" items="${resultMap}" varStatus="cnt">
 								<option value="${list.code}">${list.comKor}</option>
 							</c:forEach>
