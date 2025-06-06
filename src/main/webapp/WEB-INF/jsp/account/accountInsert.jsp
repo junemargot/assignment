@@ -156,7 +156,6 @@ function saveCostData() {
 	};
 
 	$.ajax({
-		// url: '/cost/save.do',
 		url: '/account/save.do',
 		type: 'POST',
 		data: formData,

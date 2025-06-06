@@ -102,11 +102,11 @@ function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
 }
 
 // 수정 저장 함수
-function updateCostData() {
+function updateAccountData() {
     // 유효성 검사 (기존과 동일)
 
   var formData = {
-    seq: '${accountData.ACCOUNT_SEQ}',
+    seq: '${accountData.accountSeq}',
     profitCost: $('#profitCost').val(),
     bigGroup: $('#bigGroup').val(),
     middleGroup: $('select[name="middleGroup"]').val() || '0',
@@ -116,6 +116,7 @@ function updateCostData() {
     transactionMoney: $('input[name="transactionMoney"]').val().replace(/,/g, ''),
     transactionDate: $('input[name="transactionDate"]').val()
   };
+  console.log("수정 formData: ", formData);
 
   $.ajax({
     url: '/account/update.do',
@@ -186,7 +187,7 @@ function updateCostData() {
 
   <!-- 수정 버튼 -->
   <div class="col-sm-12" style="text-align: center; margin-top: 20px;">
-    <button type="button" class="btn btn-primary" onclick="updateCostData()">수정</button>
+    <button type="button" class="btn btn-primary" onclick="updateAccountData()">수정</button>
     <button type="button" class="btn btn-default" onclick="location.href='/account/accountList.do'">목록</button>
   </div>
 </div>
