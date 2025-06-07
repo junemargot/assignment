@@ -4,7 +4,6 @@
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
-
 <script>
 $(document).ready(function(){
 	// 거래일자 datepicker 설정 (common.js 함수 활용)
@@ -15,7 +14,7 @@ $(document).ready(function(){
 		this.value = this.value.replace(/[^0-9]/g, '');
 		// 3자리마다 콤마 추가
 		if(this.value) {
-		this.value = Number(this.value).toLocaleString();
+			this.value = Number(this.value).toLocaleString();
 		}
 	});
 
@@ -117,9 +116,9 @@ function resetAllLowerSelects() {
 	$('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
 }
 
-// 저장 함수
-function saveAccountData() {
-	// 필수값 검증
+// 공통 유효성 검증 함수(saveAccountDta, updateAccountData에서 사용)
+function validateAccountForm() {
+	// 1. 필수 입력값 검증
 	if(!$('#profitCost').val()) {
 		alert('[수익/비용]을 선택해주세요.');
 		$('#profitCost').focus();
@@ -132,7 +131,7 @@ function saveAccountData() {
 		return false;
 	}
 
-	// 항/목/과는 "0"(해당없음) 허용, 빈 값만 체크
+	// 2. 하위 분류는 "0"(해당없음) 허용, 빈 값만 체크
 	var middleGroupVal = $('select[name="middleGroup"]').val();
 	var smallGroupVal = $('select[name="smallGroup"]').val();
 	var detailGroupVal = $('select[name="comment1"]').val();
@@ -155,6 +154,7 @@ function saveAccountData() {
 		return false;
 	}
 
+	// 3. 금액, 거래일자 체크
 	if(!$('input[name="transactionMoney"]').val()) {
 		alert('[금액]을 입력해주세요.');
 		$('input[name="transactionMoney"]').focus();
@@ -166,6 +166,13 @@ function saveAccountData() {
 		$('input[name="transactionDate"]').focus();
 		return false;
 	}
+
+	return true; // 모든 검증 통과
+}
+
+// 비용 등록 함수
+function saveAccountData() {
+	if(!validateAccountForm()) return false;
 
 	var formData = {
 		profitCost: $('#profitCost').val(),
