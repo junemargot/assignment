@@ -17,19 +17,107 @@ $(document).ready(function(){
   // 기존 데이터로 select 박스들 설정
   loadExistingData();
 
-  // select 박스 change 이벤트들 (기존과 동일)
+  // // 1차 select (수익/비용) 변경 이벤트
+  // $('#profitCost').change(function() {
+  //   var selectedCode = $(this).val();
+  //
+  //   if(selectedCode) {
+  //     loadSubCategory(selectedCode, '#bigGroup');
+  //     resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+  //   } else {
+  //     resetAllLowerSelects();
+  //   }
+  // });
+  //
+  // // 2차 select (관) 변경 이벤트
+  // $('#bigGroup').change(function() {
+  //   var selectedCode = $(this).val();
+  //
+  //   if(selectedCode) {
+  //     loadSubCategory(selectedCode, 'select[name="middleGroup"]');
+  //     resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+  //
+  //   } else {
+  //     resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+  //   }
+  // });
+  //
+  // // 3차 select (항) 변경 이벤트
+  // $('select[name="middleGroup"]').change(function() {
+  //   var selectedCode = $(this).val();
+  //
+  //   if(selectedCode && selectedCode !== '0') {
+  //     loadSubCategory(selectedCode, 'select[name="smallGroup"]');
+  //     resetLowerSelects(['select[name="comment1"]']);
+  //
+  //   } else {
+  //     resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+  //   }
+  // });
+  //
+  // // 4차 select (목) 변경 이벤트
+  // $('select[name="smallGroup"]').change(function() {
+  //   var selectedCode = $(this).val();
+  //
+  //   if(selectedCode && selectedCode !== '0') {
+  //     loadSubCategory(selectedCode, 'select[name="comment1"]');
+  //
+  //   } else {
+  //     resetLowerSelects(['select[name="comment1"]']);
+  //   }
+  // });
+
+  // 수정22
+  // 1차 select (수익/비용) 변경 이벤트
   $('#profitCost').change(function(){
-    var selectedCode = $(this).val();
-    if(selectedCode) {
-      loadSubCategory(selectedCode, '#bigGroup');
-      resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-    }
+      var selectedCode = $(this).val();
+      if(selectedCode) {
+          loadSubCategoryWithCallback(selectedCode, '#bigGroup', function() {
+            $('#bigGroup').prop('disabled', false);
+          });
+      } else {
+          resetAllLowerSelects();
+      }
   });
 
-  // 나머지 change 이벤트들도 동일하게 구현
+  // 2차 select (관) 변경 이벤트
+  $('#bigGroup').change(function(){
+      var selectedCode = $(this).val();
+      if(selectedCode) {
+          loadSubCategoryWithCallback(selectedCode, 'select[name="middleGroup"]', function() {
+              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
+          });
+      } else {
+          resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+      }
+  });
+
+  // 3차 select (항) 변경 이벤트
+  $('select[name="middleGroup"]').change(function(){
+      var selectedCode = $(this).val();
+      if(selectedCode && selectedCode !== '0') {
+          loadSubCategoryWithCallback(selectedCode, 'select[name="smallGroup"]', function() {
+              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
+          });
+      } else {
+          resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+      }
+  });
+
+  // 4차 select (목) 변경 이벤트
+  $('select[name="smallGroup"]').change(function(){
+      var selectedCode = $(this).val();
+      if(selectedCode && selectedCode !== '0') {
+          loadSubCategoryWithCallback(selectedCode, 'select[name="comment1"]', function() {
+              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
+          });
+      } else {
+          resetLowerSelects(['select[name="comment1"]']);
+      }
+  });
 });
 
-// 기존 데이터로 select 박스들 설정
+// 기존 데이터로 select 박스들 설정 -> (trigger('change') 없이 콜백 체인으로 처리)
 function loadExistingData() {
   var profitCost = '${accountData.profitCost}';
   var bigGroup = '${accountData.bigGroup}';
@@ -37,30 +125,23 @@ function loadExistingData() {
   var smallGroup = '${accountData.smallGroup}';
   var detailGroup = '${accountData.detailGroup}';
 
-  console.log("=== 기존 데이터 클라이언트 값 확인 ===");
-  console.log("PROFIT_COST:", profitCost);
-  console.log("BIG_GROUP:", bigGroup);
-  console.log("MIDDLE_GROUP:", middleGroup);
-  console.log("SMALL_GROUP:", smallGroup);
-  console.log("DETAIL_GROUP:", detailGroup);
-
   // 1차 select 설정
   $('#profitCost').val(profitCost);
 
   // 2차 select 로딩 및 설정
   if(profitCost) {
     loadSubCategoryWithCallback(profitCost, '#bigGroup', function() {
-      $('#bigGroup').val(bigGroup).trigger('change');
+      $('#bigGroup').val(bigGroup);
 
       // 3차 select 로딩 및 설정
       if(bigGroup) {
         loadSubCategoryWithCallback(bigGroup, 'select[name="middleGroup"]', function() {
-          $('select[name="middleGroup"]').val(middleGroup).trigger('change');
+          $('select[name="middleGroup"]').val(middleGroup);
 
           // 4차 select 로딩 및 설정
           if(middleGroup && middleGroup !== '0') {
             loadSubCategoryWithCallback(middleGroup, 'select[name="smallGroup"]', function() {
-              $('select[name="smallGroup"]').val(smallGroup).trigger('change');
+              $('select[name="smallGroup"]').val(smallGroup);
 
               // 5차 select 로딩 및 설정
               if(smallGroup && smallGroup !== '0') {
@@ -76,7 +157,6 @@ function loadExistingData() {
   }
 }
 
-
 // 콜백 함수를 지원하는 loadSubCategory
 function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
   $.ajax({
@@ -85,15 +165,21 @@ function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
     data: { category: parentCode },
     dataType: 'json',
     success: function(data) {
-      var options = '<option value="">선택</option>';
+      var options = '';
+      var disable = false;
+
       if(data && data.length > 0) {
-          $.each(data, function(index, item) {
-              options += '<option value="' + item.code + '">' + item.comKor + '</option>';
-          });
+        options = '<option value="">선택</option>';
+        $.each(data, function(index, item) {
+          options += '<option value="' + item.code + '">' + item.comKor + '</option>';
+        });
+
       } else {
-          options = '<option value="0">해당없음</option>';
+        options = '<option value="0">해당없음</option>';
+        disable = true;
       }
       $(targetSelect).html(options);
+      $(targetSelect).prop('disabled', disable);
 
       // 콜백 함수 실행
       if(callback) callback();
@@ -101,9 +187,78 @@ function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
   });
 }
 
+// 하위 select들 초기화 함수 (상위 select가 비어있을 때만 사용)
+function resetLowerSelects(selectArray) {
+  $.each(selectArray, function(index, selector) {
+    $(selector).html('<option value="0">해당없음</option>');
+    $(selector).prop('disabled', true);
+  });
+}
+
+// 전체 하위 select 초기화
+function resetAllLowerSelects() {
+  $('#bigGroup').html('<option value="">선택</option>').prop('disabled', true);
+  $('select[name="middleGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+  $('select[name="smallGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+  $('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+}
+
+function validateAccountForm() {
+  // 1. 필수 입력값 검증
+  if(!$('#profitCost').val()) {
+      alert('[수익/비용]을 선택해주세요.');
+      $('#profitCost').focus();
+      return false;
+  }
+
+  if(!$('#bigGroup').val()) {
+      alert('[앞서 선택한 분류]에 해당하는 대분류를 선택해주세요.');
+      $('#bigGroup').focus();
+      return false;
+  }
+
+  // 2. 하위 분류는 "0"(해당없음) 허용, 빈 값만 체크
+  var middleGroupVal = $('select[name="middleGroup"]').val();
+  var smallGroupVal = $('select[name="smallGroup"]').val();
+  var detailGroupVal = $('select[name="comment1"]').val();
+
+  if(middleGroupVal === "" || middleGroupVal === null) {
+      alert('[앞서 선택한 분류]의 중간 분류를 선택해주세요.');
+      $('#middleGroup').focus();
+      return false;
+  }
+
+  if(smallGroupVal === "" || smallGroupVal === null) {
+      alert('[앞서 선택한 분류]의 세부 항목을 선택해주세요.');
+      $('#smallGroup').focus();
+      return false;
+  }
+
+  if(detailGroupVal === "" || detailGroupVal === null) {
+      alert('[앞서 선택한 분류]의 최종 항목을 선택해주세요.');
+      $('#detailGroup').focus();
+      return false;
+  }
+
+  // 3. 금액, 거래일자 체크
+  if(!$('input[name="transactionMoney"]').val()) {
+      alert('[금액]을 입력해주세요.');
+      $('input[name="transactionMoney"]').focus();
+      return false;
+  }
+
+  if(!$('input[name="transactionDate"]').val()) {
+      alert('[거래일자]를 선택해주세요.');
+      $('input[name="transactionDate"]').focus();
+      return false;
+  }
+
+  return true; // 모든 검증 통과
+}
+
 // 수정 저장 함수
 function updateAccountData() {
-    // 유효성 검사 (기존과 동일)
+  if(!validateAccountForm()) return false;
 
   var formData = {
     seq: '${accountData.accountSeq}',

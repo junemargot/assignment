@@ -25,7 +25,6 @@ $(document).ready(function(){
 		if(selectedCode) {
 			loadSubCategory(selectedCode, '#bigGroup');
 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-
 		} else {
 			resetAllLowerSelects();
 		}
