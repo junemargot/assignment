@@ -118,28 +118,51 @@ function resetAllLowerSelects() {
 }
 
 // 저장 함수
-function saveCostData() {
+function saveAccountData() {
 	// 필수값 검증
 	if(!$('#profitCost').val()) {
-		alert('수익/비용을 선택해주세요.');
+		alert('[수익/비용]을 선택해주세요.');
 		$('#profitCost').focus();
 		return false;
 	}
 
 	if(!$('#bigGroup').val()) {
-		alert('관을 선택해주세요.');
+		alert('[앞서 선택한 분류]에 해당하는 대분류를 선택해주세요.');
 		$('#bigGroup').focus();
 		return false;
 	}
 
+	// 항/목/과는 "0"(해당없음) 허용, 빈 값만 체크
+	var middleGroupVal = $('select[name="middleGroup"]').val();
+	var smallGroupVal = $('select[name="smallGroup"]').val();
+	var detailGroupVal = $('select[name="comment1"]').val();
+
+	if(middleGroupVal === "" || middleGroupVal === null) {
+		alert('[앞서 선택한 분류]의 중간 분류를 선택해주세요.');
+		$('#middleGroup').focus();
+		return false;
+	}
+
+	if(smallGroupVal === "" || smallGroupVal === null) {
+		alert('[앞서 선택한 분류]의 세부 항목을 선택해주세요.');
+		$('#smallGroup').focus();
+		return false;
+	}
+
+	if(detailGroupVal === "" || detailGroupVal === null) {
+		alert('[앞서 선택한 분류]의 최종 항목을 선택해주세요.');
+		$('#detailGroup').focus();
+		return false;
+	}
+
 	if(!$('input[name="transactionMoney"]').val()) {
-		alert('금액을 입력해주세요.');
+		alert('[금액]을 입력해주세요.');
 		$('input[name="transactionMoney"]').focus();
 		return false;
 	}
 
 	if(!$('input[name="transactionDate"]').val()) {
-		alert('거래일자를 선택해주세요.');
+		alert('[거래일자]를 선택해주세요.');
 		$('input[name="transactionDate"]').focus();
 		return false;
 	}
@@ -268,7 +291,7 @@ $(document).ready(function() {
 	</div>
 	<!-- 저장 버튼 추가 -->
 	<div class="col-sm-12" style="text-align: center; margin-top: 20px;">
-		<button type="button" class="btn btn-primary" onclick="saveCostData()">저장</button>
+		<button type="button" class="btn btn-primary" onclick="saveAccountData()">저장</button>
 		<button type="button" class="btn btn-default" onclick="location.href='/account/accountList.do'">목록</button>
 	</div>
 </div>
