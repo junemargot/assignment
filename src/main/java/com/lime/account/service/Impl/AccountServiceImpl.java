@@ -33,11 +33,6 @@ public class AccountServiceImpl implements AccountService {
 		return accountDAO.selectAccountList(searchVO);
 	}
 
-//	@Override
-//	public List<EgovMap> selectAccountList() throws Exception {
-//		return accountDAO.selectAccountList();
-//	}
-
 	@Override
 	public void updateAccount(Map<String, Object> paramMap) throws Exception {
 		accountDAO.updateAccount(paramMap);
@@ -45,6 +40,6 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public int selectAccountTotalCount(SampleDefaultVO searchVO) throws Exception {
-		return 0;
+		return accountDAO.selectAccountTotalCount(searchVO);
 	}
 }

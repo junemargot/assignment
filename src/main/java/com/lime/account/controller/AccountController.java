@@ -115,6 +115,7 @@ public class AccountController {
 
 		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
 		int totalCount = accountService.selectAccountTotalCount(searchVO);
+		System.out.println("totalCount:" + totalCount);
 
 		paginationInfo.setTotalRecordCount(totalCount);
 

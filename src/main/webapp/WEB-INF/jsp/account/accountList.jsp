@@ -5,17 +5,30 @@
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
-<script type="text/javascript">
+<style>
+	.pagination {
+		display: flex;
+		justify-content: center;
+		margin-top: 70px;
+		font-size: 14px;
+	}
+</style>
 
+<script type="text/javascript">
+function goPage(pageNo) {
+	document.getElementById("pageIndex").value = pageNo;
+	document.getElementById("sendForm").submit();
+}
 
 </script>
 
-<form name="sendForm" id="sendForm" method="post" onsubmit="return false;">
+<form:form modelAttribute="searchVO" name="sendForm" id="sendForm" method="get" onsubmit="return false;">
+	<form:hidden path="pageIndex" />
 	<input type="hidden" id="situSeq" name="situSeq" value="">
 	<input type="hidden" id="mode" name="mode" value="Cre">
-	<div id="wrap"  class="col-md-offset-1 col-sm-10">
+	<div id="wrap" class="col-md-offset-1 col-sm-10" style="margin-top: 50px;">
 		<div align="center"><h2>회계정보리스트</h2></div>
-		<div class="form_box2 col-md-offset-7" align="right">
+		<div class="form_box2 col-md-offset-7" align="right" style="margin-bottom: 10px;">
 			<div class="right">
 				<button class="btn btn-primary" onclick="location.href='/account/accountInsert.do'">등록</button>
 				<button class="btn btn-primary" onclick="location.href='/account/listToExcel.do'">엑셀 다운</button>
@@ -55,7 +68,10 @@
 					</c:forEach>
 				</tbody>
 		</table>
+		<div class="pagination" style="text-align: center;">
+			<ui:pagination paginationInfo="${paginationInfo}" type="text" jsFunction="goPage" />
+		</div>
 	</div>
-</form>
+</form:form>
 
 

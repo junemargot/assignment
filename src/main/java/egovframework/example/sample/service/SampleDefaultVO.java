@@ -54,19 +54,19 @@ public class SampleDefaultVO implements Serializable {
 	/** 현재페이지 */
 	private int pageIndex = 1;
 
-	/** 페이지갯수 */
+	/** 페이지네이션에 표시할 페이지 번호 개수 */
 	private int pageUnit = 10;
 
-	/** 페이지사이즈 */
+	/** 한 번에 보여줄 페이지네이션 블록의 크기 */
 	private int pageSize = 10;
 
-	/** firstIndex */
+	/** 현재 페이지의 첫 번째 데이터 인덱스 */
 	private int firstIndex = 1;
 
-	/** lastIndex */
+	/** 현재 페이지의 마지막 데이터 인덱스 */
 	private int lastIndex = 1;
 
-	/** recordCountPerPage */
+	/** 한 페이지에 보여줄 데이터(레코드) 개수 */
 	private int recordCountPerPage = 10;
 
 	public int getFirstIndex() {
