@@ -3,6 +3,7 @@ package com.lime.account.service.Impl;
 import java.util.List;
 import java.util.Map;
 
+import egovframework.example.sample.service.SampleDefaultVO;
 import org.springframework.stereotype.Repository;
 
 import egovframework.rte.fdl.cmmn.exception.EgovBizException;
@@ -25,7 +26,15 @@ public class AccountDAO extends EgovAbstractMapper{
     return selectList("Account.selectAccountList");
   }
 
+  public List<EgovMap> selectAccountList(SampleDefaultVO searchVO) throws Exception{
+    return selectList("Account.selectAccountListPaging", searchVO);
+  }
+
   public void updateAccount(Map<String, Object> paramMap) throws Exception{
     update("Account.updateAccount", paramMap);
+  }
+
+  public int selectAccountTotalCount(SampleDefaultVO searchVO) throws Exception{
+    return selectOne("Account.selectAccountTotalCount", searchVO);
   }
 }

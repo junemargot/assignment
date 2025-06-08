@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.lime.user.vo.UserVO;
+import egovframework.example.sample.service.SampleDefaultVO;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -98,6 +100,30 @@ public class AccountController {
 		return result;
   }
 
+	@GetMapping("accountList.json")
+	@ResponseBody
+	public Map<String, Object> getAccountListJson(@ModelAttribute SampleDefaultVO searchVO) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(searchVO.getRecordCountPerPage());
+		paginationInfo.setPageSize(searchVO.getPageSize());
+
+		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
+		int totalCount = accountService.selectAccountTotalCount(searchVO);
+
+		paginationInfo.setTotalRecordCount(totalCount);
+
+		result.put("list", accountList);
+		result.put("pagination", paginationInfo);
+
+		return result;
+	}
+
 	// [GET] 수정 페이지
 	@GetMapping("edit.do")
 	public String editAccount(@RequestParam int seq, ModelMap modelMap) throws Exception {
@@ -138,10 +164,27 @@ public class AccountController {
 
 	// [GET] 회계 목록 조회
 	@GetMapping("accountList.do")
-	public String selectAccountList(ModelMap modelMap) throws Exception {
-		List<EgovMap> accountList = accountService.selectAccountList();
+	public String selectAccountList(@ModelAttribute("searchVO") SampleDefaultVO searchVO, ModelMap modelMap) throws Exception {
+
+		// 페이징 설정
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(searchVO.getRecordCountPerPage());
+		paginationInfo.setPageSize(searchVO.getPageSize());
+
+		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		searchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		// 데이터 조회
+		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
+		int totalCount = accountService.selectAccountTotalCount(searchVO);
+
+		paginationInfo.setTotalRecordCount(totalCount);
 
 		modelMap.addAttribute("accountList", accountList);
+		modelMap.addAttribute("paginationInfo", paginationInfo);
+
 		return "/account/accountList";
 	}
 
@@ -172,7 +215,12 @@ public class AccountController {
 	// [GET] 비용 리스트 엑셀 다운로드
 	@GetMapping("listToExcel.do")
 	public void downloadExcel(HttpServletResponse response) throws Exception {
-		List<EgovMap> accountList = accountService.selectAccountList();
+		SampleDefaultVO searchVO = new SampleDefaultVO();
+		searchVO.setPageIndex(1);
+		searchVO.setRecordCountPerPage(Integer.MAX_VALUE);
+		searchVO.setPageSize(1);
+
+		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
 
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("회계비용 리스트");

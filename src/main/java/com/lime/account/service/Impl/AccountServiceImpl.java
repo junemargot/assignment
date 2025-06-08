@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import egovframework.example.sample.service.SampleDefaultVO;
 import org.springframework.stereotype.Service;
 
 import com.lime.account.service.AccountService;
@@ -28,12 +29,22 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<EgovMap> selectAccountList() throws Exception {
-		return accountDAO.selectAccountList();
+	public List<EgovMap> selectAccountList(SampleDefaultVO searchVO) throws Exception {
+		return accountDAO.selectAccountList(searchVO);
 	}
+
+//	@Override
+//	public List<EgovMap> selectAccountList() throws Exception {
+//		return accountDAO.selectAccountList();
+//	}
 
 	@Override
 	public void updateAccount(Map<String, Object> paramMap) throws Exception {
 		accountDAO.updateAccount(paramMap);
+	}
+
+	@Override
+	public int selectAccountTotalCount(SampleDefaultVO searchVO) throws Exception {
+		return 0;
 	}
 }
