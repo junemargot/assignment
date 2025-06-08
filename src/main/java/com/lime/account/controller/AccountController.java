@@ -6,10 +6,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.lime.user.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -164,6 +169,44 @@ public class AccountController {
 		return new ModelAndView(jsonView, inOutMap);
 	}
 
+	// [GET] 비용 리스트 엑셀 다운로드
+	@GetMapping("listToExcel.do")
+	public void downloadExcel(HttpServletResponse response) throws Exception {
+		List<EgovMap> accountList = accountService.selectAccountList();
+
+		Workbook workbook = new XSSFWorkbook();
+		Sheet sheet = workbook.createSheet("회계비용 리스트");
+
+		Row header = sheet.createRow(0);
+		header.createCell(0).setCellValue("수익/비용");
+		header.createCell(1).setCellValue("관");
+		header.createCell(2).setCellValue("항");
+		header.createCell(3).setCellValue("목");
+		header.createCell(4).setCellValue("과");
+		header.createCell(5).setCellValue("비용상세");
+		header.createCell(6).setCellValue("금액");
+		header.createCell(7).setCellValue("등록일");
+		header.createCell(8).setCellValue("작성자");
+
+		int rowNum = 1;
+		for(EgovMap account : accountList) {
+			Row row = sheet.createRow(rowNum++);
+			row.createCell(0).setCellValue((String) account.get("profitCostNm"));
+			row.createCell(1).setCellValue((String) account.get("bigGroupNm"));
+			row.createCell(2).setCellValue((String) account.get("middleGroupNm"));
+			row.createCell(3).setCellValue((String) account.get("smallGroupNm"));
+			row.createCell(4).setCellValue((String) account.get("detailGroupNm"));
+			row.createCell(5).setCellValue((String) account.get("comments"));
+			row.createCell(6).setCellValue(account.get("transactionMoney").toString());
+			row.createCell(7).setCellValue(account.get("regDate").toString());
+			row.createCell(8).setCellValue((String) account.get("writer"));
+		}
+
+		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		response.setHeader("Content-Disposition", "attachment; filename=account_list.xlsx");
+		workbook.write(response.getOutputStream());
+		workbook.close();
+	}
 	/**
 	 *
 	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO

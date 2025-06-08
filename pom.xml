@@ -156,7 +156,7 @@
 	        <groupId>org.antlr</groupId>
 	        <artifactId>antlr</artifactId>
 	        <version>3.5</version>
-   		</dependency>
+		</dependency>
 
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -250,7 +250,7 @@
             <artifactId>ojdbc</artifactId>
             <version>14</version>
             <scope>system</scope>
-   			<systemPath>/Users/margotinjune/Downloads/사내교육자료/boardAjax/src/main/webapp/WEB-INF/lib/ojdbc14.jar</systemPath>
+			<systemPath>/Users/margotinjune/Downloads/사내교육자료/boardAjax/src/main/webapp/WEB-INF/lib/ojdbc14.jar</systemPath>
         </dependency>
         
         <!-- 비밀번호 암호화 -->
@@ -336,14 +336,31 @@
 		    <groupId>org.springmodules</groupId>
 		    <artifactId>spring-modules-validation</artifactId>
 		    <version>0.9</version>
-		   	<scope>system</scope>
-		   	<systemPath>/Users/margotinjune/Downloads/사내교육자료/boardAjax/src/main/webapp/WEB-INF/lib/spring-modules-validation-0.9.jar</systemPath>
+			<scope>system</scope>
+			<systemPath>/Users/margotinjune/Downloads/사내교육자료/boardAjax/src/main/webapp/WEB-INF/lib/spring-modules-validation-0.9.jar</systemPath>
 		</dependency>
 		
 		<dependency>
-		    <groupId>commons-validator</groupId>
+			<groupId>commons-validator</groupId>
 		    <artifactId>commons-validator</artifactId>
 		    <version>1.4.1</version>
+		</dependency>
+
+		<!-- Apache POI for Excel -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>4.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>4.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>3.1.0</version> <!-- POI 4.1.2에 맞는 버전 -->
 		</dependency>
 	</dependencies>
 

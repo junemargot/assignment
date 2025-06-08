@@ -18,7 +18,7 @@
 		<div class="form_box2 col-md-offset-7" align="right">
 			<div class="right">
 				<button class="btn btn-primary" onclick="location.href='/account/accountInsert.do'">등록</button>
-				<button class="btn btn-primary">엑셀 다운</button>
+				<button class="btn btn-primary" onclick="location.href='/account/listToExcel.do'">엑셀 다운</button>
 			</div>
 		</div>
 	    <br/>
