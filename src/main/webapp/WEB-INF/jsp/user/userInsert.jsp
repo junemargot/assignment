@@ -112,13 +112,19 @@ function validateForm() { // ajax로 바꾸기
 // 데이터가 많아지게 되면 ajax가 효율적이다.
 
 $(document).ready(function() {
-    $('#userId').on('blur', validateUserId);
-    $('#pwd').on('keyup', function() {
-        validatePassword();
-        validatePasswordConfirm(); // 실시간 일치 여부도 함께
-    });
-    $('#pwdck').on('keyup', validatePasswordConfirm);
-    $('#idcked').on('click', checkUserId); // ID 중복 체크 버튼 연결
+	$('#userId').on('blur', validateUserId);
+	$('#pwd').on('keyup', function() {
+			validatePassword();
+			validatePasswordConfirm(); // 실시간 일치 여부도 함께
+	});
+	$('#pwdck').on('keyup', validatePasswordConfirm);
+	$('#idcked').on('click', checkUserId); // ID 중복 체크 버튼 연결
+
+	// 유효성 검증 강화 - 아이디 변경 시 중복체크 상태 초기화
+	$('#userId').on('input', function() {
+		$('#userIdChecked').val('false');
+		$('#userIdError').text('');
+	});
 });
 
 </script>
