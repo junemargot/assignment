@@ -44,18 +44,18 @@ public class AccountController {
 	@Resource(name="commonService")
 	private CommonService commonService;
 
-	// [POST] 계층형 select 박스 데이터 조회
+	// [POST] 계층형 select 박스 데이터 조회 (대분류 -> 중분류 등 Ajax)
 	@PostMapping("getSubCategory.do")
 	@ResponseBody
 	public List<EgovMap> getSubCategory(@RequestParam String category) throws Exception {
-
+		// category 파라미터로 하위 카테고리 조회
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("category", category);
 
-		return commonService.selectCombo(paramMap);
+		return commonService.selectCombo(paramMap); // DB에서 목록 조회 후 반환
 	}
 
-	// [POST] 저장
+	// [POST] 회계비용 등록
 	@PostMapping("save.do")
 	@ResponseBody
 	public Map<String, Object> saveAccount(@RequestParam Map<String, Object> params, HttpSession session) {
@@ -63,7 +63,7 @@ public class AccountController {
 		Map<String, Object> result = new HashMap<>();
 
 		try {
-			// 1. 세션에서 UserVO 객체 추출
+			// 1. 로그인 사용자 확인
 			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
 			if (loginUser == null) {
 				throw new Exception("로그인이 필요합니다.");
@@ -73,7 +73,7 @@ public class AccountController {
 			String writer = loginUser.getUserId();
 			params.put("writer", writer);
 
-			// 2. 금액 처리(콤마 제거 및 숫자 변환)
+			// 3. 금액 처리(콤마 제거 및 숫자 변환)
 			String moneyStr = (String) params.get("transactionMoney");
 			if (moneyStr == null || moneyStr.isEmpty()) {
 				throw new IllegalArgumentException("금액을 입력해주세요.");
@@ -81,10 +81,10 @@ public class AccountController {
 			int transactionMoney = Integer.parseInt(moneyStr.replaceAll(",", ""));
 			params.put("transactionMoney", transactionMoney);
 
-			// 3. 저장 실행
+			// 4. 저장 실행 (insertAccount 내부에서 MyBatis selectKey로 시퀀스 채움)
 			accountService.insertAccount(params);
 
-			// 4. 생성된 시퀀스 반환 (MyBatis selectKey 활용)
+			// 5. 응답에 성공 및 생성된 시퀀스 반환
 			result.put("success", true);
 			result.put("seq", params.get("ACCOUNT_SEQ"));
 

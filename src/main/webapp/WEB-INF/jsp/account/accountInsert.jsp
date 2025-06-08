@@ -9,7 +9,7 @@ $(document).ready(function(){
 	// 거래일자 datepicker 설정 (common.js 함수 활용)
 	$('input[name="transactionDate"]').addClass('datepicker');
 
-	// 금액 필드 - 숫자만 입력 허용
+	// 금액 필드 - 숫자만 입력 허용, 콤마 포맷
 	$('input[name="transactionMoney"]').on('input', function(){
 		this.value = this.value.replace(/[^0-9]/g, '');
 		// 3자리마다 콤마 추가
@@ -18,15 +18,17 @@ $(document).ready(function(){
 		}
 	});
 
+	// <select> 태그의 값이 변경을 감지
 	// 1차 select (수익/비용) 변경 이벤트
 	$('#profitCost').change(function(){
-		var selectedCode = $(this).val();
+		var selectedCode = $(this).val(); // 현재 선택된 드롭다운의 값(value)을 가져옴
 
 		if(selectedCode) {
-			loadSubCategory(selectedCode, '#bigGroup');
+			loadSubCategory(selectedCode, '#bigGroup'); // 선택된 코드로 바로 다음 하위 카테고리 로드
+			// 그 다음 하위 select을 해당 없음으로 초기화, 비활성화
 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-		} else {
-			resetAllLowerSelects();
+		} else { // '선택' 옵션이 다시 선택된 경우(값이 비어있는 경우)
+			resetAllLowerSelects(); // 모든 하위 select을 초기 상태로 되돌림
 		}
 	});
 
@@ -72,21 +74,23 @@ $(document).ready(function(){
 // AJAX로 하위 카테고리 로드
 function loadSubCategory(parentCode, targetSelect) {
 	$.ajax({
-		url: '/account/getSubCategory.do',
-		type: 'POST',
-		data: { category: parentCode },
-		dataType: 'json',
-		success: function(data) {
-			var options = '';
-			var disable = false;
-			if(data && data.length > 0) {
-				options = '<option value="">선택</option>';
+		url: '/account/getSubCategory.do', // 데이터를 요청할 서버 URL
+		type: 'POST',                      // HTTP 요청 방식
+		data: { category: parentCode },    // 서버로 보낼 데이터(부모 카테고리)
+		dataType: 'json',                  // 서버로부터 받을 데이터 타입
+		success: function(data) {          // 서버 요청이 성공했을 때 실행될 콜백 함수
+			var options = '';                // <option> 태그들을 담을 변수
+			var disable = false;             // targetSelect의 disabled 속성을 제어할 변수
+
+			if(data && data.length > 0) {    // 서버에서 받은 데이터가 있고, 데이터가 비어있지 않다면
+				options = '<option value="">선택</option>'; // 첫번째 옵션으로 "선택" 추가
+				// 받은 데이터(배열)를 반복하면서 각 아이템(카테고리)으로 <option> 태그 생성
 				$.each(data, function(index, item) {
 					options += '<option value="' + item.code + '">' + item.comKor + '</option>';
 				});
-			} else {
-				options = '<option value="0">해당없음</option>';
-				disable = true;
+			} else { // 데이터가 없거나 비어있는 경우 (더 이상 하위 카테고리가 없음)
+				options = '<option value="0">해당없음</option>'; // "해당없음" 옵션 추가
+				disable = true; // 해당 드롭다운을 비활성화
 			}
 			$(targetSelect).html(options);
 			$(targetSelect).prop('disabled', disable);
