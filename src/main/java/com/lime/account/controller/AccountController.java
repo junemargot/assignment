@@ -55,6 +55,20 @@ public class AccountController {
 		return commonService.selectCombo(paramMap); // DB에서 목록 조회 후 반환
 	}
 
+	// [GET] 회계 입력 폼
+	@RequestMapping("accountInsert.do")
+	public String accountInsert(HttpServletRequest request, ModelMap model) throws Exception{
+
+		Map<String, Object> inOutMap = new HashMap<>();
+		inOutMap.put("category", "A000000"); // 최상위 카테고리값 설정
+
+		List<EgovMap> resultMap = commonService.selectCombo(inOutMap);
+		System.out.println(resultMap);
+		model.put("resultMap", resultMap);
+
+		return "/account/accountInsert";
+	}
+
 	// [POST] 회계비용 등록
 	@PostMapping("save.do")
 	@ResponseBody
@@ -99,31 +113,6 @@ public class AccountController {
 
 		return result;
   }
-
-	@GetMapping("accountList.json")
-	@ResponseBody
-	public Map<String, Object> getAccountListJson(@ModelAttribute SampleDefaultVO searchVO) throws Exception {
-		Map<String, Object> result = new HashMap<>();
-
-		PaginationInfo paginationInfo = new PaginationInfo();
-		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
-		paginationInfo.setRecordCountPerPage(searchVO.getRecordCountPerPage());
-		paginationInfo.setPageSize(searchVO.getPageSize());
-
-		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
-		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
-
-		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
-		int totalCount = accountService.selectAccountTotalCount(searchVO);
-		System.out.println("totalCount:" + totalCount);
-
-		paginationInfo.setTotalRecordCount(totalCount);
-
-		result.put("list", accountList);
-		result.put("pagination", paginationInfo);
-
-		return result;
-	}
 
 	// [GET] 수정 페이지
 	@GetMapping("edit.do")
@@ -187,20 +176,6 @@ public class AccountController {
 		modelMap.addAttribute("paginationInfo", paginationInfo);
 
 		return "/account/accountList";
-	}
-
-	// [GET] 회계 입력 폼
-	@RequestMapping("accountInsert.do")
-	public String accountInsert(HttpServletRequest request, ModelMap model) throws Exception{
-
-		Map<String, Object> inOutMap = new HashMap<>();
-		inOutMap.put("category", "A000000");
-
-		List<EgovMap> resultMap= commonService.selectCombo(inOutMap);
-		System.out.println(resultMap);
-		model.put("resultMap", resultMap);
-
-		return "/account/accountInsert";
 	}
 
 	// [POST] 콤보박스 데이터 조회

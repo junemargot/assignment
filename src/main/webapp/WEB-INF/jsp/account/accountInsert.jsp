@@ -92,39 +92,43 @@ function loadSubCategory(parentCode, targetSelect) {
 				options = '<option value="0">해당없음</option>'; // "해당없음" 옵션 추가
 				disable = true; // 해당 드롭다운을 비활성화
 			}
-			$(targetSelect).html(options);
-			$(targetSelect).prop('disabled', disable);
+			$(targetSelect).html(options); // 생성된 옵션들을 targetSelect에 삽입
+			$(targetSelect).prop('disabled', disable); // targetSelect의 disabled 속성 설정
 		},
-		error: function() {
+		error: function() { // 서버 요청이 실패했을 때 실행될 콜백 함수
 			alert('목록 조회 중 오류가 발생했습니다.');
-			$(targetSelect).html('<option value="0">해당없음</option>');
-			$(targetSelect).prop('disabled', true);
+			$(targetSelect).html('<option value="0">해당없음</option>'); // 오류 시 "해당없음"으로 초기화
+			$(targetSelect).prop('disabled', true); // 오류 시 드롭다운 비활성화
 		}
 	});
 }
 
 // 하위 select들 초기화 함수
 function resetLowerSelects(selectArray) {
+	// selectArray 배열을 순회하며 각 select 요소를 처리
 	$.each(selectArray, function(index, selector) {
+		// 1. 해당 셀렉터로 jQuery 객체를 생성하고, 내부 html을 새로운 <option> 태그로 교체
 		$(selector).html('<option value="0">해당없음</option>');
+		// 2. 해당 셀렉터로 jQuery 객체를 생성하고, 'disabled' 속성을 true로 설정하여 비활성화
 		$(selector).prop('disabled', true);
 	});
 }
 
-// 전체 하위 select 초기화
+// 전체 하위 select 초기화 (최상위 select이 초기화될 때 사용)
 function resetAllLowerSelects() {
 	$('#bigGroup').html('<option value="">선택</option>').prop('disabled', true);
 	$('select[name="middleGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
 	$('select[name="smallGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
 	$('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+	// 해당 select 박스의 disabled 속성을 true로 설정하여 비활성화 처리
 }
 
-// 공통 유효성 검증 함수(saveAccountDta, updateAccountData에서 사용)
+// 공통 유효성 검증 함수(saveAccountData, updateAccountData에서 사용)
 function validateAccountForm() {
 	// 1. 필수 입력값 검증
-	if(!$('#profitCost').val()) {
+	if(!$('#profitCost').val()) { // profitCost id를 가진 요소의 값이 비어있는지 확인
 		alert('[수익/비용]을 선택해주세요.');
-		$('#profitCost').focus();
+		$('#profitCost').focus(); // 해당 입력 필드에 포커스 이동
 		return false;
 	}
 
@@ -170,13 +174,14 @@ function validateAccountForm() {
 		return false;
 	}
 
-	return true; // 모든 검증 통과
+	return true;
 }
 
 // 비용 등록 함수
 function saveAccountData() {
-	if(!validateAccountForm()) return false;
+	if(!validateAccountForm()) return false; // 유효성 검증
 
+	// 서버로 보낼 데이터를 담을 객체 생성
 	var formData = {
 		profitCost: $('#profitCost').val(),
 		bigGroup: $('#bigGroup').val(),
@@ -211,14 +216,14 @@ function saveAccountData() {
 $(document).ready(function() {
 	// 모든 select 박스 중, "해당없음"만 있으면 비활성화
 	$('select').each(function() {
-		var $select = $(this);
-		var $options = $select.find('option');
-		if ($options.length === 1 && $options.val() === '0') {
-			$select.prop('disabled', true);
+		var $select = $(this); // 현재 반복중인 <select> 태그를 jQuery 객체로 래핑
+		var $options = $select.find('option'); // 현재 <select> 안의 모든 <option> 태그들을 찾아서 객체로 저장
+		if ($options.length === 1 && $options.val() === '0') { // <option>의 개수가 1개이고, 유일한 옵션의 value '0'이면
+			$select.prop('disabled', true); // 해당 select 박스를 비활성화
 		}
 	});
 
-	// 페이지 진입 시 대분류(수익/비용) select를 제외한 모든 하위 select 비활성화
+	// 페이지 진입 시 select 상태 - 첫번째 select를 제외한 모든 하위 select 비활성화
 	$('#bigGroup').prop('disabled', true);
 	$('select[name="middleGroup"]').prop('disabled', true);
 	$('select[name="smallGroup"]').prop('disabled', true);
