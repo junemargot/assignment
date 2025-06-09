@@ -202,7 +202,6 @@ function saveAccountData() {
 			if(result.success) {
 				alert('저장되었습니다.');
 				location.href = '/account/edit.do?seq=' + result.seq;
-
 			} else {
 				alert('저장 중 오류가 발생했습니다: ' + (result.message || ''));
 			}

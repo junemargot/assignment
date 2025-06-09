@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
   // 거래일자 datepicker 설정
   $('input[name="transactionDate"]').addClass('datepicker');
 
@@ -17,108 +17,54 @@ $(document).ready(function(){
   // 기존 데이터로 select 박스들 설정
   loadExistingData();
 
-  // // 1차 select (수익/비용) 변경 이벤트
-  // $('#profitCost').change(function() {
-  //   var selectedCode = $(this).val();
-  //
-  //   if(selectedCode) {
-  //     loadSubCategory(selectedCode, '#bigGroup');
-  //     resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-  //   } else {
-  //     resetAllLowerSelects();
-  //   }
-  // });
-  //
-  // // 2차 select (관) 변경 이벤트
-  // $('#bigGroup').change(function() {
-  //   var selectedCode = $(this).val();
-  //
-  //   if(selectedCode) {
-  //     loadSubCategory(selectedCode, 'select[name="middleGroup"]');
-  //     resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-  //
-  //   } else {
-  //     resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-  //   }
-  // });
-  //
-  // // 3차 select (항) 변경 이벤트
-  // $('select[name="middleGroup"]').change(function() {
-  //   var selectedCode = $(this).val();
-  //
-  //   if(selectedCode && selectedCode !== '0') {
-  //     loadSubCategory(selectedCode, 'select[name="smallGroup"]');
-  //     resetLowerSelects(['select[name="comment1"]']);
-  //
-  //   } else {
-  //     resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-  //   }
-  // });
-  //
-  // // 4차 select (목) 변경 이벤트
-  // $('select[name="smallGroup"]').change(function() {
-  //   var selectedCode = $(this).val();
-  //
-  //   if(selectedCode && selectedCode !== '0') {
-  //     loadSubCategory(selectedCode, 'select[name="comment1"]');
-  //
-  //   } else {
-  //     resetLowerSelects(['select[name="comment1"]']);
-  //   }
-  // });
-
-  // 수정22
+  // 새로 추가된 select 변경 이벤트
   // 1차 select (수익/비용) 변경 이벤트
-  $('#profitCost').change(function(){
+  $('#profitCost').change(function() {
       var selectedCode = $(this).val();
       if(selectedCode) {
-          loadSubCategoryWithCallback(selectedCode, '#bigGroup', function() {
-            $('#bigGroup').prop('disabled', false);
-          });
+        loadSubCategoryWithCallback(selectedCode, '#bigGroup', function() {
+          $('#bigGroup').prop('disabled', false);
+        });
       } else {
-          resetAllLowerSelects();
+        resetAllLowerSelects();
       }
   });
 
   // 2차 select (관) 변경 이벤트
-  $('#bigGroup').change(function(){
+  $('#bigGroup').change(function() {
       var selectedCode = $(this).val();
       if(selectedCode) {
-          loadSubCategoryWithCallback(selectedCode, 'select[name="middleGroup"]', function() {
-              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
-          });
+        loadSubCategoryWithCallback(selectedCode, 'select[name="middleGroup"]');
       } else {
-          resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+        resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
       }
   });
 
   // 3차 select (항) 변경 이벤트
-  $('select[name="middleGroup"]').change(function(){
+  $('select[name="middleGroup"]').change(function() {
       var selectedCode = $(this).val();
       if(selectedCode && selectedCode !== '0') {
-          loadSubCategoryWithCallback(selectedCode, 'select[name="smallGroup"]', function() {
-              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
-          });
+        loadSubCategoryWithCallback(selectedCode, 'select[name="smallGroup"]');
       } else {
-          resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+        resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
       }
   });
 
   // 4차 select (목) 변경 이벤트
-  $('select[name="smallGroup"]').change(function(){
-      var selectedCode = $(this).val();
-      if(selectedCode && selectedCode !== '0') {
-          loadSubCategoryWithCallback(selectedCode, 'select[name="comment1"]', function() {
-              // 하위 select 초기화는 하지 않고, 각 select에 옵션이 들어감
-          });
-      } else {
-          resetLowerSelects(['select[name="comment1"]']);
-      }
+  $('select[name="smallGroup"]').change(function() {
+    var selectedCode = $(this).val();
+    if(selectedCode && selectedCode !== '0') {
+      loadSubCategoryWithCallback(selectedCode, 'select[name="comment1"]');
+    } else {
+      resetLowerSelects(['select[name="comment1"]']);
+    }
   });
 });
 
-// 기존 데이터로 select 박스들 설정 -> (trigger('change') 없이 콜백 체인으로 처리)
+// 기존 데이터로 select 박스들 설정 -> 각 select 박스의 값을 설정할 때마다 달라지는 하위 select 박스의 옵션 목록을 기반으로 하위 select 박스의 기존 값을 설정하는 과정
 function loadExistingData() {
+  // 서버로부터 전달받은 accountData 객체의 값을 표시하기 위함
+  // EL(Expression Language)을 사용해 '${accountData.속성명}'으로 값에 접근
   var profitCost = '${accountData.profitCost}';
   var bigGroup = '${accountData.bigGroup}';
   var middleGroup = '${accountData.middleGroup}';
@@ -126,12 +72,13 @@ function loadExistingData() {
   var detailGroup = '${accountData.detailGroup}';
 
   // 1차 select 설정
-  $('#profitCost').val(profitCost);
+  $('#profitCost').val(profitCost); // id가 profitCost인 select에 기존 accountData의 profitCost 값 설정
 
   // 2차 select 로딩 및 설정
   if(profitCost) {
+    // loadCategoryWithCallback을 호출해 profitCost에 해당하는 bigGroup 옵션들 로드
     loadSubCategoryWithCallback(profitCost, '#bigGroup', function() {
-      $('#bigGroup').val(bigGroup);
+      $('#bigGroup').val(bigGroup); // bigGroup select에 기존 accountData의 bigGroup 값 설정 - "선택된 상태로 만드는" 작업
 
       // 3차 select 로딩 및 설정
       if(bigGroup) {
@@ -164,13 +111,14 @@ function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
     type: 'POST',
     data: { category: parentCode },
     dataType: 'json',
-    success: function(data) {
+    success: function(data) { // 서버로부터 하위 카테고리 데이터를 받았을 때
       var options = '';
       var disable = false;
 
+      // 1. 서버에서 받은 '옵션 데이터'로 options 문자열 생성
       if(data && data.length > 0) {
         options = '<option value="">선택</option>';
-        $.each(data, function(index, item) {
+        $.each(data, function(index, item) { // 받은 데이터 배열 순회하여 세팅
           options += '<option value="' + item.code + '">' + item.comKor + '</option>';
         });
 
@@ -178,6 +126,8 @@ function loadSubCategoryWithCallback(parentCode, targetSelect, callback) {
         options = '<option value="0">해당없음</option>';
         disable = true;
       }
+
+      // 2. targetSelect에 생성된 '옵션 데이터'를 채워넣음 - select 박스 내부에 <option> 태그들(선택지 목록)을 채워 넣는 작업
       $(targetSelect).html(options);
       $(targetSelect).prop('disabled', disable);
 
@@ -203,19 +153,20 @@ function resetAllLowerSelects() {
   $('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
 }
 
+// 공통 유효성 검증 함수
 function validateAccountForm() {
   // 1. 필수 입력값 검증
   if(!$('#profitCost').val()) {
-      alert('[수익/비용]을 선택해주세요.');
-      $('#profitCost').focus();
-      return false;
+    alert('[수익/비용]을 선택해주세요.');
+    $('#profitCost').focus();
+    return false;
   }
 
   if(!$('#bigGroup').val()) {
-      alert('[앞서 선택한 분류]에 해당하는 대분류를 선택해주세요.');
-      $('#bigGroup').focus();
-      return false;
-  }
+    alert('[앞서 선택한 분류]에 해당하는 대분류를 선택해주세요.');
+    $('#bigGroup').focus();
+    return false;
+}
 
   // 2. 하위 분류는 "0"(해당없음) 허용, 빈 값만 체크
   var middleGroupVal = $('select[name="middleGroup"]').val();
@@ -223,34 +174,34 @@ function validateAccountForm() {
   var detailGroupVal = $('select[name="comment1"]').val();
 
   if(middleGroupVal === "" || middleGroupVal === null) {
-      alert('[앞서 선택한 분류]의 중간 분류를 선택해주세요.');
-      $('#middleGroup').focus();
-      return false;
+    alert('[앞서 선택한 분류]의 중간 분류를 선택해주세요.');
+    $('#middleGroup').focus();
+    return false;
   }
 
   if(smallGroupVal === "" || smallGroupVal === null) {
-      alert('[앞서 선택한 분류]의 세부 항목을 선택해주세요.');
-      $('#smallGroup').focus();
-      return false;
+    alert('[앞서 선택한 분류]의 세부 항목을 선택해주세요.');
+    $('#smallGroup').focus();
+    return false;
   }
 
   if(detailGroupVal === "" || detailGroupVal === null) {
-      alert('[앞서 선택한 분류]의 최종 항목을 선택해주세요.');
-      $('#detailGroup').focus();
-      return false;
+    alert('[앞서 선택한 분류]의 최종 항목을 선택해주세요.');
+    $('#detailGroup').focus();
+    return false;
   }
 
   // 3. 금액, 거래일자 체크
   if(!$('input[name="transactionMoney"]').val()) {
-      alert('[금액]을 입력해주세요.');
-      $('input[name="transactionMoney"]').focus();
-      return false;
+    alert('[금액]을 입력해주세요.');
+    $('input[name="transactionMoney"]').focus();
+    return false;
   }
 
   if(!$('input[name="transactionDate"]').val()) {
-      alert('[거래일자]를 선택해주세요.');
-      $('input[name="transactionDate"]').focus();
-      return false;
+    alert('[거래일자]를 선택해주세요.');
+    $('input[name="transactionDate"]').focus();
+    return false;
   }
 
   return true; // 모든 검증 통과
@@ -282,7 +233,12 @@ function updateAccountData() {
       if(result.success) {
         alert('수정되었습니다.');
         location.href = '/account/accountList.do';
+      } else {
+        alert('수정 중 오류가 발생했습니다: ' + (result.message || ''));
       }
+    },
+    error: function() {
+        alert('수정 중 오류가 발생했습니다.');
     }
   });
 }
