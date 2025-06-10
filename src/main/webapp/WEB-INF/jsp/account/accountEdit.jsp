@@ -8,7 +8,7 @@ $(document).ready(function() {
 
   // 금액 필드 - 숫자만 입력 허용
   $('input[name="transactionMoney"]').on('input', function(){
-    this.value = this.value.replace(/[^0-9]/g, '');
+    this.value = this.value.replace(/[^0-9]/g, ''); // 숫자가 아닌 모든 문자를 제거하고 다시 값으로 설정
     if(this.value) {
       this.value = Number(this.value).toLocaleString();
     }

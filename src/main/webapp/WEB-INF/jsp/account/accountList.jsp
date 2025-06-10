@@ -22,6 +22,7 @@ function goPage(pageNo) {
 
 </script>
 
+<%--Spring Form 태그 라이브러리를 사용하여 서버의 searchVO 객체와 이 폼을 연결. 폼 제출 시, 폼 필드들이 searchVO 객체에 자동으로 바인딩된다.--%>
 <form:form modelAttribute="searchVO" name="sendForm" id="sendForm" method="get" onsubmit="return false;">
 	<form:hidden path="pageIndex" />
 	<input type="hidden" id="situSeq" name="situSeq" value="">

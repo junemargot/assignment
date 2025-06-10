@@ -120,9 +120,9 @@ public class AccountController {
 
 		// 1. 기존 저장된 데이터 조회
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("seq", seq);
+		paramMap.put("seq", seq); // paramMap에 "seq" 키로 요청 파라미터에서 받은 seq 값 추가
 		EgovMap accountData = accountService.selectAccount(paramMap); // 단건 조회
-		log.info("accountData = {}", accountData); // 값 확인
+		log.info("accountData = {}", accountData);
 
 		// 2. 첫 번째 select 박스용 데이터(수익/비용)
 		Map<String, Object> categoryMap = new HashMap<>();
@@ -157,20 +157,20 @@ public class AccountController {
 	public String selectAccountList(@ModelAttribute("searchVO") SampleDefaultVO searchVO, ModelMap modelMap) throws Exception {
 
 		// 페이징 설정
-		PaginationInfo paginationInfo = new PaginationInfo();
-		paginationInfo.setCurrentPageNo(searchVO.getPageIndex());
-		paginationInfo.setRecordCountPerPage(searchVO.getRecordCountPerPage());
-		paginationInfo.setPageSize(searchVO.getPageSize());
+		PaginationInfo paginationInfo = new PaginationInfo(); // EgovFramework의 페이징 정보를 담는 객체 생성
+		paginationInfo.setCurrentPageNo(searchVO.getPageIndex()); // 현재 페이지 번호를 searchVO에서 가져와 설정
+		paginationInfo.setRecordCountPerPage(searchVO.getRecordCountPerPage()); // 페이지당 보여줄 레코드(게시물) 수를 searchVO에서 가져와 설정
+		paginationInfo.setPageSize(searchVO.getPageSize()); // 페이징 블록(하단에 표시되는 페이지 번호 묶음) 크기를 searchVO에서 가져와 설정
 
-		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		searchVO.setFirstIndex(paginationInfo.getFirstRecordIndex()); // 현재 페이지의 첫 번째 레코드 인덱스(OFFSET)
 		searchVO.setLastIndex(paginationInfo.getLastRecordIndex());
-		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+		searchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage()); // 페이지당 레코드 수(LIMIT)
 
 		// 데이터 조회
 		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
-		int totalCount = accountService.selectAccountTotalCount(searchVO);
+		int totalCount = accountService.selectAccountTotalCount(searchVO); // 페이징 계산을 위한 전체 레코드 수 조회
 
-		paginationInfo.setTotalRecordCount(totalCount);
+		paginationInfo.setTotalRecordCount(totalCount); // 전체 레코드 수를 페이징 정보 객체에 설정(총 페이지 수 계산)
 
 		modelMap.addAttribute("accountList", accountList);
 		modelMap.addAttribute("paginationInfo", paginationInfo);
@@ -193,44 +193,21 @@ public class AccountController {
 	public void downloadExcel(HttpServletResponse response) throws Exception {
 		SampleDefaultVO searchVO = new SampleDefaultVO();
 		searchVO.setPageIndex(1);
-		searchVO.setRecordCountPerPage(Integer.MAX_VALUE);
+		searchVO.setRecordCountPerPage(Integer.MAX_VALUE); // 모든 레코드를 한 번에 가져옴(페이징 무시)
 		searchVO.setPageSize(1);
 
-		List<EgovMap> accountList = accountService.selectAccountList(searchVO);
+		// 서비스 호출
+		Workbook workbook = accountService.createAccountListExcel(searchVO);
 
-		Workbook workbook = new XSSFWorkbook();
-		Sheet sheet = workbook.createSheet("회계비용 리스트");
+		// HTTP 응답 헤더 설정
+		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); // MIME 타입 설정
+		response.setHeader("Content-Disposition", "attachment; filename=account_list.xlsx"); // 파일 다운로드 설정 및 파일명 지정
 
-		Row header = sheet.createRow(0);
-		header.createCell(0).setCellValue("수익/비용");
-		header.createCell(1).setCellValue("관");
-		header.createCell(2).setCellValue("항");
-		header.createCell(3).setCellValue("목");
-		header.createCell(4).setCellValue("과");
-		header.createCell(5).setCellValue("비용상세");
-		header.createCell(6).setCellValue("금액");
-		header.createCell(7).setCellValue("등록일");
-		header.createCell(8).setCellValue("작성자");
-
-		int rowNum = 1;
-		for(EgovMap account : accountList) {
-			Row row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue((String) account.get("profitCostNm"));
-			row.createCell(1).setCellValue((String) account.get("bigGroupNm"));
-			row.createCell(2).setCellValue((String) account.get("middleGroupNm"));
-			row.createCell(3).setCellValue((String) account.get("smallGroupNm"));
-			row.createCell(4).setCellValue((String) account.get("detailGroupNm"));
-			row.createCell(5).setCellValue((String) account.get("comments"));
-			row.createCell(6).setCellValue(account.get("transactionMoney").toString());
-			row.createCell(7).setCellValue(account.get("regDate").toString());
-			row.createCell(8).setCellValue((String) account.get("writer"));
-		}
-
-		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		response.setHeader("Content-Disposition", "attachment; filename=account_list.xlsx");
-		workbook.write(response.getOutputStream());
-		workbook.close();
+		// 워크북을 응답 스트림에 쓰기 및 종료
+		workbook.write(response.getOutputStream()); // 생성된 워크북 데이터를 HTTP 응답 스트림으로 전송
+		workbook.close(); // 워크북 리소스 해제
 	}
+
 	/**
 	 *
 	 * @param searchVO - 조회할 정보가 담긴 SampleDefaultVO
