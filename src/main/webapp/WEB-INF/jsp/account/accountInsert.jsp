@@ -20,7 +20,7 @@ $(document).ready(function(){
 
 	// <select> 태그의 값이 변경을 감지
 	// 1차 select (수익/비용) 변경 이벤트
-	$('#profitCost').change(function(){
+	$('#profitCost').change(function() {
 		var selectedCode = $(this).val(); // 현재 선택된 드롭다운의 값(value)을 가져옴
 
 		if(selectedCode) {
@@ -33,7 +33,7 @@ $(document).ready(function(){
 	});
 
 	// 2차 select (관) 변경 이벤트
-	$('#bigGroup').change(function(){
+	$('#bigGroup').change(function() {
 		var selectedCode = $(this).val();
 
 		if(selectedCode) {
@@ -46,7 +46,7 @@ $(document).ready(function(){
 	});
 
 	// 3차 select (항) 변경 이벤트
-	$('select[name="middleGroup"]').change(function(){
+	$('select[name="middleGroup"]').change(function() {
 		var selectedCode = $(this).val();
 
 		if(selectedCode && selectedCode !== '0') {
@@ -59,7 +59,7 @@ $(document).ready(function(){
 	});
 
 	// 4차 select (목) 변경 이벤트
-	$('select[name="smallGroup"]').change(function(){
+	$('select[name="smallGroup"]').change(function() {
 		var selectedCode = $(this).val();
 
 		if(selectedCode && selectedCode !== '0') {
@@ -76,7 +76,7 @@ function loadSubCategory(parentCode, targetSelect) {
 	$.ajax({
 		url: '/account/getSubCategory.do', // 데이터를 요청할 서버 URL
 		type: 'POST',                      // HTTP 요청 방식
-		data: { category: parentCode },    // 서버로 보낼 데이터(부모 카테고리)
+		data: { category: parentCode },    // 서버로 보낼 데이터(부모 카테고리) = 현재 선택된값
 		dataType: 'json',                  // 서버로부터 받을 데이터 타입
 		success: function(data) {          // 서버 요청이 성공했을 때 실행될 콜백 함수
 			var options = '';                // <option> 태그들을 담을 변수
@@ -214,7 +214,8 @@ function saveAccountData() {
 
 $(document).ready(function() {
 	// 모든 select 박스 중, "해당없음"만 있으면 비활성화
-	$('select').each(function() {
+	// 초기 페이지 로드 시점에 데이터가 이미 0값으로 해당 없음 상태인 경우에 해당
+	$('select').each(function() { // 페이지 내의 <select>을 전부 순회하고
 		var $select = $(this); // 현재 반복중인 <select> 태그를 jQuery 객체로 래핑
 		var $options = $select.find('option'); // 현재 <select> 안의 모든 <option> 태그들을 찾아서 객체로 저장
 		if ($options.length === 1 && $options.val() === '0') { // <option>의 개수가 1개이고, 유일한 옵션의 value '0'이면
@@ -222,11 +223,12 @@ $(document).ready(function() {
 		}
 	});
 
-	// 페이지 진입 시 select 상태 - 첫번째 select를 제외한 모든 하위 select 비활성화
+	// 페이지가 로드될 때 select 상태
+	// profitCost (수익/비용) 드롭다운을 제외한 모든 하위 드롭다운(bigGroup, middleGroup, smallGroup, comment1)을 처음부터 비활성화
 	$('#bigGroup').prop('disabled', true);
-	$('select[name="middleGroup"]').prop('disabled', true);
-	$('select[name="smallGroup"]').prop('disabled', true);
-	$('select[name="comment1"]').prop('disabled', true);
+	// $('select[name="middleGroup"]').prop('disabled', true);
+	// $('select[name="smallGroup"]').prop('disabled', true);
+	// $('select[name="comment1"]').prop('disabled', true);
 });
 
 </script>
