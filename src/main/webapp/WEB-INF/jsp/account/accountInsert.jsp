@@ -18,58 +18,72 @@ $(document).ready(function(){
 		}
 	});
 
+	// 단계별 셀렉터 연결
+	// const cascadeMap = [
+	// 	{ current: '#profitCost', next: '#bigGroup' },
+	// 	{ current: '#bigGroup', next: 'select[name="middleGroup"]' },
+	// 	{ current: 'select[name="middleGroup"]', next: 'select[name="smallGroup"]' },
+	// 	{ current: 'select[name="smallGroup"]', next: 'select[name="comment1"]' }
+	// ];
+	//
+	// // 각 셀렉터에 공통 이벤트 바인딩
+	// cascadeMap.forEach(pair => {
+	// 	bindCascadingSelect(pair.current, pair.next)
+	// });
+});
+
 	// <select> 태그의 값이 변경을 감지
 	// 1차 select (수익/비용) 변경 이벤트
-	$('#profitCost').change(function() {
-		var selectedCode = $(this).val(); // 현재 선택된 드롭다운의 값(value)을 가져옴
-
-		if(selectedCode) {
-			loadSubCategory(selectedCode, '#bigGroup'); // 선택된 코드로 바로 다음 하위 카테고리 로드
-			// 그 다음 하위 select을 해당 없음으로 초기화, 비활성화
-			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-		} else { // '선택' 옵션이 다시 선택된 경우(값이 비어있는 경우)
-			resetAllLowerSelects(); // 모든 하위 select을 초기 상태로 되돌림
-		}
-	});
-
-	// 2차 select (관) 변경 이벤트
-	$('#bigGroup').change(function() {
-		var selectedCode = $(this).val();
-
-		if(selectedCode) {
-			loadSubCategory(selectedCode, 'select[name="middleGroup"]');
-			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-
-		} else {
-			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-		}
-	});
-
-	// 3차 select (항) 변경 이벤트
-	$('select[name="middleGroup"]').change(function() {
-		var selectedCode = $(this).val();
-
-		if(selectedCode && selectedCode !== '0') {
-			loadSubCategory(selectedCode, 'select[name="smallGroup"]');
-			resetLowerSelects(['select[name="comment1"]']);
-
-		} else {
-			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-		}
-	});
-
-	// 4차 select (목) 변경 이벤트
-	$('select[name="smallGroup"]').change(function() {
-		var selectedCode = $(this).val();
-
-		if(selectedCode && selectedCode !== '0') {
-			loadSubCategory(selectedCode, 'select[name="comment1"]');
-
-		} else {
-			resetLowerSelects(['select[name="comment1"]']);
-		}
-	});
-});
+// 	$('#profitCost').change(function() {
+// 		var selectedCode = $(this).val(); // 현재 선택된 드롭다운의 값(value)을 가져옴
+//
+// 		if(selectedCode) {
+// 			loadSubCategory(selectedCode, '#bigGroup'); // 선택된 코드로 바로 다음 하위 카테고리 로드
+// 			// 그 다음 하위 select을 해당 없음으로 초기화, 비활성화
+// 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+// 		} else { // '선택' 옵션이 다시 선택된 경우(값이 비어있는 경우)
+// 			resetAllLowerSelects(); // 모든 하위 select을 초기 상태로 되돌림
+// 		}
+// 	});
+//
+// 	// 2차 select (관) 변경 이벤트
+// 	$('#bigGroup').change(function() {
+// 		var selectedCode = $(this).val();
+//
+// 		if(selectedCode) {
+// 			loadSubCategory(selectedCode, 'select[name="middleGroup"]');
+// 			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+//
+// 		} else {
+// 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+// 		}
+// 	});
+//
+// 	// 3차 select (항) 변경 이벤트
+// 	$('select[name="middleGroup"]').change(function() {
+// 		var selectedCode = $(this).val();
+//
+// 		if(selectedCode && selectedCode !== '0') {
+// 			loadSubCategory(selectedCode, 'select[name="smallGroup"]');
+// 			resetLowerSelects(['select[name="comment1"]']);
+//
+// 		} else {
+// 			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
+// 		}
+// 	});
+//
+// 	// 4차 select (목) 변경 이벤트
+// 	$('select[name="smallGroup"]').change(function() {
+// 		var selectedCode = $(this).val();
+//
+// 		if(selectedCode && selectedCode !== '0') {
+// 			loadSubCategory(selectedCode, 'select[name="comment1"]');
+//
+// 		} else {
+// 			resetLowerSelects(['select[name="comment1"]']);
+// 		}
+// 	});
+// });
 
 // AJAX로 하위 카테고리 로드
 function loadSubCategory(parentCode, targetSelect) {
@@ -97,8 +111,23 @@ function loadSubCategory(parentCode, targetSelect) {
 		},
 		error: function() { // 서버 요청이 실패했을 때 실행될 콜백 함수
 			alert('목록 조회 중 오류가 발생했습니다.');
-			$(targetSelect).html('<option value="0">해당없음</option>'); // 오류 시 "해당없음"으로 초기화
-			$(targetSelect).prop('disabled', true); // 오류 시 드롭다운 비활성화
+			$(targetSelect).html('<option value="0">해당없음</option>').prop('disabled', true) // 오류 시 "해당없음"으로 초기화
+			// $(targetSelect).prop('disabled', true); // 오류 시 드롭다운 비활성화
+		}
+	});
+}
+
+function bindCascadingSelect(selector, nextSelector, lowerSelectors = []) {
+	$(selector).change(function() {
+		const selectedCode = $(this).val();
+
+		if(selectedCode && selectedCode !== '0') { // 선택된 select 값이 있고, "해당없음" 값이 아닐때
+			loadSubCategory(selectedCode, nextSelector);
+			if(lowerSelectors.length > 0) {
+				resetLowerSelects(lowerSelectors);
+			}
+		} else {
+			resetLowerSelects([nextSelector, ...lowerSelectors]);
 		}
 	});
 }
@@ -229,6 +258,31 @@ $(document).ready(function() {
 	// $('select[name="middleGroup"]').prop('disabled', true);
 	// $('select[name="smallGroup"]').prop('disabled', true);
 	// $('select[name="comment1"]').prop('disabled', true);
+
+	// ------------------- 공통 함수
+	bindCascadingSelect(
+		'#profitCost',
+		'#bigGroup',
+		['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']
+	);
+
+	bindCascadingSelect(
+			'#bigGroup',
+			'select[name="middleGroup"]',
+			['select[name="smallGroup"]', 'select[name="comment1"]']
+	);
+
+	bindCascadingSelect(
+			'select[name="middleGroup"]',
+			'select[name="smallGroup"]',
+			['select[name="comment1"]']
+	);
+
+	bindCascadingSelect(
+			'select[name="smallGroup"]',
+			'select[name="comment1"]',
+			[]
+	);
 });
 
 </script>
@@ -260,13 +314,13 @@ $(document).ready(function() {
 				  </div>
 
 				  <div class="col-sm-3">
-						<select class="form-control "  name="middleGroup"  title="항">
+						<select class="form-control" name="middleGroup" title="항">
 							<option value="0">해당없음</option>
 						</select>
 				  </div>
 
 				  <div class="col-sm-3">
-						<select class="form-control " name="smallGroup" title="목">
+						<select class="form-control" name="smallGroup" title="목">
 							<option value="0">해당없음</option>
 						</select>
 				  </div>
