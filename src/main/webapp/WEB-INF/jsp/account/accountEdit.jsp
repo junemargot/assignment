@@ -2,65 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <script>
-$(document).ready(function() {
-  // 거래일자 datepicker 설정
-  $('input[name="transactionDate"]').addClass('datepicker');
-
-  // 금액 필드 - 숫자만 입력 허용
-  $('input[name="transactionMoney"]').on('input', function(){
-    this.value = this.value.replace(/[^0-9]/g, ''); // 숫자가 아닌 모든 문자를 제거하고 다시 값으로 설정
-    if(this.value) {
-      this.value = Number(this.value).toLocaleString();
-    }
-  });
-
-  // 기존 데이터로 select 박스들 설정
-  loadExistingData();
-
-  // 새로 추가된 select 변경 이벤트
-  // 1차 select (수익/비용) 변경 이벤트
-  $('#profitCost').change(function() {
-      var selectedCode = $(this).val();
-      if(selectedCode) {
-        loadSubCategoryWithCallback(selectedCode, '#bigGroup', function() {
-          $('#bigGroup').prop('disabled', false);
-        });
-      } else {
-        resetAllLowerSelects();
-      }
-  });
-
-  // 2차 select (관) 변경 이벤트
-  $('#bigGroup').change(function() {
-      var selectedCode = $(this).val();
-      if(selectedCode) {
-        loadSubCategoryWithCallback(selectedCode, 'select[name="middleGroup"]');
-      } else {
-        resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-      }
-  });
-
-  // 3차 select (항) 변경 이벤트
-  $('select[name="middleGroup"]').change(function() {
-      var selectedCode = $(this).val();
-      if(selectedCode && selectedCode !== '0') {
-        loadSubCategoryWithCallback(selectedCode, 'select[name="smallGroup"]');
-      } else {
-        resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-      }
-  });
-
-  // 4차 select (목) 변경 이벤트
-  $('select[name="smallGroup"]').change(function() {
-    var selectedCode = $(this).val();
-    if(selectedCode && selectedCode !== '0') {
-      loadSubCategoryWithCallback(selectedCode, 'select[name="comment1"]');
-    } else {
-      resetLowerSelects(['select[name="comment1"]']);
-    }
-  });
-});
-
 // 기존 데이터로 select 박스들 설정 -> 각 select 박스의 값을 설정할 때마다 달라지는 하위 select 박스의 옵션 목록을 기반으로 하위 select 박스의 기존 값을 설정하는 과정
 function loadExistingData() {
   // 서버로부터 전달받은 accountData 객체의 값을 표시하기 위함
@@ -102,6 +43,18 @@ function loadExistingData() {
       }
     });
   }
+}
+
+function bindCascadingSelect(selector, nextSelector, lowerSelectors = []) {
+  $(selector).change(function() {
+    const selectedCode = $(this).val();
+
+    resetLowerSelects([nextSelector, ...lowerSelectors]);
+
+    if(selectedCode && selectedCode !== '0') {
+      loadSubCategoryWithCallback(selectedCode, nextSelector);
+    }
+  });
 }
 
 // 콜백 함수를 지원하는 loadSubCategory
@@ -242,6 +195,28 @@ function updateAccountData() {
     }
   });
 }
+
+$(document).ready(function() {
+  // 거래일자 datepicker 설정
+  $('input[name="transactionDate"]').addClass('datepicker');
+
+  // 금액 필드 - 숫자만 입력 허용
+  $('input[name="transactionMoney"]').on('input', function(){
+      this.value = this.value.replace(/[^0-9]/g, ''); // 숫자가 아닌 모든 문자를 제거하고 다시 값으로 설정
+      if(this.value) {
+          this.value = Number(this.value).toLocaleString();
+      }
+  });
+
+  // 기존 데이터로 select 박스들 설정
+  loadExistingData();
+
+  bindCascadingSelect('#profitCost', '#bigGroup', ['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+  bindCascadingSelect('#bigGroup', 'select[name="middleGroup"]', ['select[name="smallGroup"]', 'select[name="comment1"]']);
+  bindCascadingSelect('select[name="middleGroup"]', 'select[name="smallGroup"]', ['select[name="comment1"]']);
+  bindCascadingSelect('select[name="smallGroup"]', 'select[name="comment1"]');
+});
+
 </script>
 
 <div class="container" style="margin-top: 50px">
