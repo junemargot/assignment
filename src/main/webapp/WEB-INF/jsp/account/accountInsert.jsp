@@ -17,73 +17,7 @@ $(document).ready(function(){
 			this.value = Number(this.value).toLocaleString();
 		}
 	});
-
-	// 단계별 셀렉터 연결
-	// const cascadeMap = [
-	// 	{ current: '#profitCost', next: '#bigGroup' },
-	// 	{ current: '#bigGroup', next: 'select[name="middleGroup"]' },
-	// 	{ current: 'select[name="middleGroup"]', next: 'select[name="smallGroup"]' },
-	// 	{ current: 'select[name="smallGroup"]', next: 'select[name="comment1"]' }
-	// ];
-	//
-	// // 각 셀렉터에 공통 이벤트 바인딩
-	// cascadeMap.forEach(pair => {
-	// 	bindCascadingSelect(pair.current, pair.next)
-	// });
 });
-
-	// <select> 태그의 값이 변경을 감지
-	// 1차 select (수익/비용) 변경 이벤트
-// 	$('#profitCost').change(function() {
-// 		var selectedCode = $(this).val(); // 현재 선택된 드롭다운의 값(value)을 가져옴
-//
-// 		if(selectedCode) {
-// 			loadSubCategory(selectedCode, '#bigGroup'); // 선택된 코드로 바로 다음 하위 카테고리 로드
-// 			// 그 다음 하위 select을 해당 없음으로 초기화, 비활성화
-// 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-// 		} else { // '선택' 옵션이 다시 선택된 경우(값이 비어있는 경우)
-// 			resetAllLowerSelects(); // 모든 하위 select을 초기 상태로 되돌림
-// 		}
-// 	});
-//
-// 	// 2차 select (관) 변경 이벤트
-// 	$('#bigGroup').change(function() {
-// 		var selectedCode = $(this).val();
-//
-// 		if(selectedCode) {
-// 			loadSubCategory(selectedCode, 'select[name="middleGroup"]');
-// 			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-//
-// 		} else {
-// 			resetLowerSelects(['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
-// 		}
-// 	});
-//
-// 	// 3차 select (항) 변경 이벤트
-// 	$('select[name="middleGroup"]').change(function() {
-// 		var selectedCode = $(this).val();
-//
-// 		if(selectedCode && selectedCode !== '0') {
-// 			loadSubCategory(selectedCode, 'select[name="smallGroup"]');
-// 			resetLowerSelects(['select[name="comment1"]']);
-//
-// 		} else {
-// 			resetLowerSelects(['select[name="smallGroup"]', 'select[name="comment1"]']);
-// 		}
-// 	});
-//
-// 	// 4차 select (목) 변경 이벤트
-// 	$('select[name="smallGroup"]').change(function() {
-// 		var selectedCode = $(this).val();
-//
-// 		if(selectedCode && selectedCode !== '0') {
-// 			loadSubCategory(selectedCode, 'select[name="comment1"]');
-//
-// 		} else {
-// 			resetLowerSelects(['select[name="comment1"]']);
-// 		}
-// 	});
-// });
 
 // AJAX로 하위 카테고리 로드
 function loadSubCategory(parentCode, targetSelect) {
@@ -106,22 +40,21 @@ function loadSubCategory(parentCode, targetSelect) {
 				options = '<option value="0">해당없음</option>'; // "해당없음" 옵션 추가
 				disable = true; // 해당 드롭다운을 비활성화
 			}
-			$(targetSelect).html(options); // 생성된 옵션들을 targetSelect에 삽입
-			$(targetSelect).prop('disabled', disable); // targetSelect의 disabled 속성 설정
+			$(targetSelect).html(options).prop("disabled", disable); // 생성된 옵션들을 targetSelect에 삽입, 초기화
 		},
 		error: function() { // 서버 요청이 실패했을 때 실행될 콜백 함수
 			alert('목록 조회 중 오류가 발생했습니다.');
 			$(targetSelect).html('<option value="0">해당없음</option>').prop('disabled', true) // 오류 시 "해당없음"으로 초기화
-			// $(targetSelect).prop('disabled', true); // 오류 시 드롭다운 비활성화
 		}
 	});
 }
 
+// 계층형 select 연동 및 초기화 로직 설정
 function bindCascadingSelect(selector, nextSelector, lowerSelectors = []) {
-	$(selector).change(function() {
-		const selectedCode = $(this).val();
+	$(selector).change(function() { // 이벤트 리스너 지정
+		const selectedCode = $(this).val(); // selector가 가리키는 select 박스에서 선택한 옵션의 value
 
-		if(selectedCode && selectedCode !== '0') { // 선택된 select 값이 있고, "해당없음" 값이 아닐때
+		if(selectedCode && selectedCode !== '0') {
 			loadSubCategory(selectedCode, nextSelector);
 			if(lowerSelectors.length > 0) {
 				resetLowerSelects(lowerSelectors);
@@ -136,21 +69,22 @@ function bindCascadingSelect(selector, nextSelector, lowerSelectors = []) {
 function resetLowerSelects(selectArray) {
 	// selectArray 배열을 순회하며 각 select 요소를 처리
 	$.each(selectArray, function(index, selector) {
-		// 1. 해당 셀렉터로 jQuery 객체를 생성하고, 내부 html을 새로운 <option> 태그로 교체
-		$(selector).html('<option value="0">해당없음</option>');
-		// 2. 해당 셀렉터로 jQuery 객체를 생성하고, 'disabled' 속성을 true로 설정하여 비활성화
-		$(selector).prop('disabled', true);
+		const optionHtml = (index === 0)
+			? '<option value="">선택</option>'
+			: '<option value="0">해당없음</option>';
+
+		$(selector).html(optionHtml).prop('disabled', true);
 	});
 }
 
 // 전체 하위 select 초기화 (최상위 select이 초기화될 때 사용)
-function resetAllLowerSelects() {
-	$('#bigGroup').html('<option value="">선택</option>').prop('disabled', true);
-	$('select[name="middleGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
-	$('select[name="smallGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
-	$('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
-	// 해당 select 박스의 disabled 속성을 true로 설정하여 비활성화 처리
-}
+// function resetAllLowerSelects() {
+// 	$('#bigGroup').html('<option value="">선택</option>').prop('disabled', true);
+// 	$('select[name="middleGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+// 	$('select[name="smallGroup"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+// 	$('select[name="comment1"]').html('<option value="0">해당없음</option>').prop('disabled', true);
+// 	// 해당 select 박스의 disabled 속성을 true로 설정하여 비활성화 처리
+// }
 
 // 공통 유효성 검증 함수(saveAccountData, updateAccountData에서 사용)
 function validateAccountForm() {
@@ -260,29 +194,10 @@ $(document).ready(function() {
 	// $('select[name="comment1"]').prop('disabled', true);
 
 	// ------------------- 공통 함수
-	bindCascadingSelect(
-		'#profitCost',
-		'#bigGroup',
-		['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']
-	);
-
-	bindCascadingSelect(
-			'#bigGroup',
-			'select[name="middleGroup"]',
-			['select[name="smallGroup"]', 'select[name="comment1"]']
-	);
-
-	bindCascadingSelect(
-			'select[name="middleGroup"]',
-			'select[name="smallGroup"]',
-			['select[name="comment1"]']
-	);
-
-	bindCascadingSelect(
-			'select[name="smallGroup"]',
-			'select[name="comment1"]',
-			[]
-	);
+	bindCascadingSelect('#profitCost', '#bigGroup', ['select[name="middleGroup"]', 'select[name="smallGroup"]', 'select[name="comment1"]']);
+	bindCascadingSelect('#bigGroup', 'select[name="middleGroup"]', ['select[name="smallGroup"]', 'select[name="comment1"]']);
+	bindCascadingSelect('select[name="middleGroup"]', 'select[name="smallGroup"]', ['select[name="comment1"]']);
+	bindCascadingSelect('select[name="smallGroup"]', 'select[name="comment1"]', []);
 });
 
 </script>
