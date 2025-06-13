@@ -69,11 +69,8 @@ function bindCascadingSelect(selector, nextSelector, lowerSelectors = []) {
 function resetLowerSelects(selectArray) {
 	// selectArray 배열을 순회하며 각 select 요소를 처리
 	$.each(selectArray, function(index, selector) {
-		const optionHtml = (index === 0)
-			? '<option value="">선택</option>'
-			: '<option value="0">해당없음</option>';
-
-		$(selector).html(optionHtml).prop('disabled', true);
+		// 내부 html을 새로운 <option> 태그로 교체, disalbed 속성 true로 설정하여 비활성화
+		$(selector).html('<option value="0">해당없음</option>').prop('disabled', true);
 	});
 }
 
