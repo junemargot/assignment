@@ -145,6 +145,24 @@ function checkUserId() {
 	});
 }
 
+// 이메일 검증
+function validateEmail() {
+	const email = ($('#userEmail').val() || '').trim();
+	const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+	if(email === '') {
+		$('#emailError').text('이메일을 입력해주세요.').css('color', 'red');
+		return false;
+	}
+
+	if(!emailRegex.test(email)) {
+		$('#emailError').text('유효한 이메일 주소를 입력해주세요.').css('color', 'red');
+		return false;
+	}
+
+	$('#emailError').text('');
+	return true;
+}
+
 // 회원가입 폼 제출 시 전체 유효성 검증
 function validateForm() { // ajax로 바꾸기
 	var isValid = true;
@@ -172,6 +190,9 @@ function validateForm() { // ajax로 바꾸기
 	} else {
 		$('#userRRN').text();
 	}
+
+	// 이메일
+	if(!validateEmail()) isValid = false;
 	
 	return isValid;
 }
@@ -210,6 +231,24 @@ $(document).ready(function() {
 			input.attr('type', 'password');
 			icon.removeClass('fa-eye').addClass('fa-eye-slash');
 		}
+	});
+
+	// 이메일
+	// 이메일 인증번호 버튼 이벤트
+	$('#emailAuthBtn').on('click', function() {
+		if(!validateEmail()) return;
+
+		$.ajax({
+			type: 'GET',
+			url: 'mailCheck=email=' + encodeURIComponent($('#userEmail').val().trim()),
+			success: function(data) {
+				$('#emailAuthCode').prop('disabled', false);
+				alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
+			},
+			error: function() {
+				alert("인증번호 발송에 실패했습니다.");
+			}
+		});
 	});
 
 
@@ -315,7 +354,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">이메일</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="userEmail" name="userEmail" type="text" title="이메일" placeholder="예: example@example.com">
+				<input class="form-control" id="userEmail" name="userEmail" type="email" title="이메일" placeholder="예: example@example.com" autocomplete="off" />
 				<div id="emailError" style="margin-top: 5px;"></div>
 				<input type="text" id="emailAuthCode" style="display:none; margin-top:5px;" placeholder="인증번호 6자리">
 			</div>

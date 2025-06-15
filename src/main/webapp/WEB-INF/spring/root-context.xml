@@ -14,4 +14,31 @@
         <property name="basePackage" value="com.lime.user.dao" />
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean> -->
+
+	<!-- 메일 설정 (SMTP) -->
+	<bean id="mailSender"
+		  class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="dearsophiehwang@gmail.com" />
+		<property name="password" value="gqlzgoyekbnbaile" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Redis Connection -->
+	<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="localhost" />
+		<property name="port" value="6379"/>
+		<property name="usePool" value="true"/>
+	</bean>
+
+	<!-- Redis Template -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory"/>
+	</bean>
 </beans>

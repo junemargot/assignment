@@ -14,3 +14,6 @@
 # IDE 자동 설정 파일들
 *.iml
 .idea/
+
+# 설정 파일
+webapp/WEB-INF/spring/root-context.xml

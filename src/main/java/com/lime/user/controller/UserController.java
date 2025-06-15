@@ -3,6 +3,7 @@ package com.lime.user.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.lime.common.service.EmailService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,11 @@ import com.lime.user.vo.UserVO;
 public class UserController {
 
 	private final UserService userService;
+	private final EmailService emailService;
 	
-	public UserController(UserService userService) {
+	public UserController(UserService userService, EmailService emailService) {
 		this.userService = userService;
+		this.emailService = emailService;
 	}
 	
 	// [GET] 회원가입 페이지 요청 처리
@@ -72,4 +75,17 @@ public class UserController {
 
 		return result;
 	}
+
+	// [GET] 이메일 인증
+	@GetMapping("/user/mailCheck")
+	@ResponseBody
+	public String mailCheck(@RequestParam String email) {
+
+		String code = String.format("%06d", (int)(Math.random() * 1000000));
+
+		emailService.sendMail(email, "[LIME] 회원가입 이메일 인증번호", "인증번호: " + code);
+
+		return code;
+	}
+
 }
