@@ -4,8 +4,7 @@
 <%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
-<link href="jquery.editable-select.min.css" rel="stylesheet">
-<script src="jquery.editable-select.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
 	.form-group > div[class^="col-sm-"] {
 		padding-right: 5px;
@@ -75,10 +74,10 @@ function validatePasswordConfirm() {
 // 이름 검증
 function validateUserName() {
 	var userName = $('#userName').val();
-	var userNameRegex = /^[A-Za-z]+$/;
+	var userNameRegex = /^[가-힣a-zA-Z]{2,}$/;
 
 	if(!userNameRegex.test(userName)) {
-		$('userNameError').text('이름은 영문만 사용 가능합니다.').css('color', 'red');
+		$('userNameError').text('한글 또는 영문 2글자 이상 입력해주세요.').css('color', 'red');
 		return false;
 	}
 
@@ -88,22 +87,34 @@ function validateUserName() {
 
 // 주민번호 검증
 function validateRRN() {
-	var rrn = $('userRRN').val();
-	var sum = 0;
+	let rrn = $('#userRRN').val().replace(/-/g, '');
+
+	// 입력값 체크
+	if(rrn === '') {
+		$('#RRNError').text('주민등록번호를 입력해주세요.').css('color', 'red');
+		return false;
+	}
+
+	// 길이 및 숫자 체크
 	if(rrn.length !== 13 || isNaN(rrn)) {
 		$('#RRNError').text('13자리 주민등록번호를 입력해주세요.').css('color', 'red');
 		return false;
 	}
 
-	var weights = [2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5];
-	for(var i = 0; i < 12; i++) {
-		sum += parseInt(rrn.charAt(i)) * weights[i];
+	// 주민번호 유효성 검증
+	const weights = [2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5];
+	let sum = 0;
+
+	for(let i = 0; i < 12; i++) {
+		sum += parseInt(rrn[i]) * weights[i];
 	}
-	var check = (11 - (sum % 11)) % 10;
-	if(check !== parseInt(rrn.charAt(12))) {
+
+	const checkDigit = (11 - (sum % 11)) % 10;
+	if(checkDigit !== parseInt(rrn[12])) {
 		$('#RRNError').text('유효하지 않은 주민등록번호입니다.').css('color', 'red');
 		return false;
 	}
+
 	$('#RRNError').text('유효한 주민등록번호입니다').css('color', 'blue');
 	return true;
 }
@@ -153,6 +164,14 @@ function validateForm() { // ajax로 바꾸기
 	} else {
 		$('#userNameError').text();
 	}
+
+	if(!validateRRN()) isValid = false;
+	if($('#userRRN').val().trim() === '') {
+		$('#RRNError').text('주민등록번호를 입력해주세요.').css('color', 'red');
+		isValid = false;
+	} else {
+		$('#userRRN').text();
+	}
 	
 	return isValid;
 }
@@ -173,135 +192,150 @@ $(document).ready(function() {
 		$('#userIdChecked').val('false');
 		$('#userIdError').text('');
 	});
+
+	// 눈 아이콘 클릭 시 보이기/숨기기
+	$('#viewRRN').on('click', function() {
+		const input = $('#userRRN');
+		const icon = $(this).find('i');
+		if (input.attr('type') === 'password') {
+			input.attr('type', 'text');
+			icon.removeClass('fa-eye-slash').addClass('fa-eye');
+		} else {
+			input.attr('type', 'password');
+			icon.removeClass('fa-eye').addClass('fa-eye-slash');
+		}
+	});
+
+
 });
 
 </script>
 
-
 <div class="container" style="margin-top: 50px">
 	<form action="/user/userInsert.do" method="post" onSubmit="return validateForm()" class="form-horizontal" id="sendForm">
 		<input type="hidden" id="userIdChecked" value="false" />
-	    
-	    <!-- 아이디 -->
-	    <div class="form-group">
-	      <label class="col-sm-2 control-label">ID</label>
-	      <div class="col-sm-4">
-	        <input class="form-control" id="userId" name="userId" type="text" value="" title="ID" placeholder="아이디를 입력해주세요">
-					<!-- ID 유효성 메시지 -->
-					<div id="userIdError" style="margin-top: 5px;"></div>
-	      </div>
-				<!-- 중복확인 버튼 -->
-	      <div class="container">
-					<button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 중복 체크</button>
-	      </div>
-	    </div>
-
-			<!-- 비밀번호 -->
-	    <div class="form-group">
-	      <label class="col-sm-2 control-label">비밀번호</label>
-	      <div class="col-sm-4">
-	        <input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="비밀번호를 입력해주세요" />
-					<div id="pwdError" style="margin-top: 5px;"></div>
-	      </div>
-	      <label class="col-sm-2 control-label">비밀번호 확인</label>
-	      <div class="col-sm-4">
-	        <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="비밀번호를 한번 더 입력해주세요" />
-	        <div id="passwordConfirmError" style="margin-top: 5px;"></div>	      	
-	      </div>
-	    </div>
-
-			<!-- 이름 -->
-	    <div class="form-group">
-	      <label class="col-sm-2 control-label">이름</label>
-	      <div class="col-sm-4">
-	        <input class="form-control" id="userName" name="userName" type="text" value="" title="이름" placeholder="이름을 입력해주세요" />
-	        <div id="userNameError" style="margin-top: 5px;"></div>	      	
-	      </div>
-	    </div>
-
-			<!-- 주민등록번호 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">주민등록번호( - 제외)</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="userRRN" name="userRRN" type="text" title="주민등록번호"
-								 placeholder="예: 1234561234567" maxlength="13"
-								 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-					/>
-					<div id="RRNError" style="margin-top: 5px;"></div>
-				</div>
-				<div class="container">
-					<button type="button" class="btn btn-default" style="display: block;" onclick="validateRRN()">주민등록번호 확인</button>
-				</div>
+		<!-- 아이디 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">ID</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="userId" name="userId" type="text" value="" title="ID" placeholder="아이디를 입력해주세요">
+				<!-- ID 유효성 메시지 -->
+				<div id="userIdError" style="margin-top: 5px;"></div>
 			</div>
-
-			<!-- 우편번호 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">우편번호</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" />
-					<div id="zipCodeError" style="margin-top: 5px;"></div>
-				</div>
-				<div class="container">
-					<button type="button" class="btn btn-default" style="display: block;">우편번호 찾기</button>
-				</div>
+			<!-- 중복확인 버튼 -->
+			<div class="container">
+				<button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 중복 체크</button>
 			</div>
+		</div>
 
-			<!-- 주소 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">주소</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="address1" name="address1" type="text" title="주소" />
-				</div>
+		<!-- 비밀번호 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">비밀번호</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="비밀번호를 입력해주세요" />
+				<div id="pwdError" style="margin-top: 5px;"></div>
 			</div>
-
-			<!-- 상세 주소 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">상세 주소</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="address2" name="address2" type="text" title="상세주소" />
-				</div>
+			<label class="col-sm-2 control-label">비밀번호 확인</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="비밀번호를 한번 더 입력해주세요" />
+				<div id="passwordConfirmError" style="margin-top: 5px;"></div>
 			</div>
+		</div>
 
-			<!-- 회사 주소 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">회사 주소</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" />
-				</div>
-				<div class="container">
-					<button type="button" class="btn btn-default" style="display: block;">검색</button>
-				</div>
+		<!-- 이름 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">이름</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="userName" name="userName" type="text" value="" title="이름" placeholder="이름을 입력해주세요" />
+				<div id="userNameError" style="margin-top: 5px;"></div>
 			</div>
+		</div>
 
-			<!-- 이메일 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">이메일</label>
-				<div class="col-sm-4">
-					<input class="form-control" id="userEmail" name="userEmail" type="text" title="이메일" placeholder="예: example@example.com">
-					<!-- 이메일 유효성 메시지 -->
-					<div id="emailError" style="margin-top: 5px;"></div>
-				</div>
-				<!-- 이메일 인증 버튼 -->
-				<div class="container">
-					<button type="button" id="emailAuthBtn" class="btn btn-default" style="display: block;">인증번호 발송</button>
-				</div>
+		<!-- 주민등록번호 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">주민등록번호( - 제외)</label>
+			<div class="col-sm-4" style="position: relative;">
+				<input class="form-control" id="userRRN" name="userRRN" type="password" title="주민등록번호" placeholder="예: 1234561234567" maxlength="13" autocomplete="off" />
+				<span id="viewRRN" style="position: absolute; right: 14px; top: 7px; cursor: pointer; font-size: 14px; color: #888;">
+					<i class="fa fa-eye-slash" aria-hidden="true"></i>
+				</span>
+				<div id="RRNError" style="margin-top: 5px;"></div>
 			</div>
-
-			<!-- 첨부파일 -->
-			<div class="form-group">
-				<label class="col-sm-2 control-label">첨부파일</label>
-				<div class="col-sm-4">
-					<input type="file" id="fileInput" multiple accept="*/*" class="form-control">
-					<ul id="fileList" style="margin-top:5px; list-style:none; padding:0;"></ul>
-				</div>
+			<div class="container">
+				<button type="button" class="btn btn-default" style="display: block;" onclick="validateRRN()">주민등록번호 확인</button>
 			</div>
+		</div>
 
-			<!-- 버튼 -->
-	    <div class="col-md-offset-4">
-				<button type="submit" id="saveBtn" class="btn btn-primary">저장</button>
-				<button type="button" id="#" class="btn btn-warning" onclick="location.href='/login/login.do'">목록</button>
-				<button type="button" id="#" class="btn btn-danger" onclick="location.href='/login/login.do'">취소</button>
-	    </div>
+		<!-- 우편번호 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">우편번호</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" />
+				<div id="zipCodeError" style="margin-top: 5px;"></div>
+			</div>
+			<div class="container">
+				<button type="button" onclick="searchAddress('address')" class="btn btn-default" style="display: block;">우편번호 찾기</button>
+			</div>
+		</div>
+
+		<!-- 주소 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">주소</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="address1" name="address1" type="text" title="주소" />
+			</div>
+		</div>
+
+		<!-- 상세 주소 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">상세 주소</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="address2" name="address2" type="text" title="상세주소" />
+			</div>
+		</div>
+
+		<!-- 회사 주소 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">회사 주소</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" />
+			</div>
+			<div class="container">
+				<button type="button" class="btn btn-default" style="display: block;">검색</button>
+			</div>
+		</div>
+
+		<!-- 이메일 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">이메일</label>
+			<div class="col-sm-4">
+				<input class="form-control" id="userEmail" name="userEmail" type="text" title="이메일" placeholder="예: example@example.com">
+				<div id="emailError" style="margin-top: 5px;"></div>
+				<input type="text" id="emailAuthCode" style="display:none; margin-top:5px;" placeholder="인증번호 6자리">
+			</div>
+			<!-- 이메일 인증 버튼 -->
+			<div class="col-sm-2">
+				<button type="button" id="emailAuthBtn" class="btn btn-default">인증번호 발송</button>
+				<button type="button" id="emailVerifyBtn" class="btn btn-success" style="display:none;">인증 확인</button>
+			</div>
+		</div>
+
+		<!-- 첨부파일 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">첨부파일</label>
+			<div class="col-sm-4">
+				<input type="file" id="fileInput" multiple accept="*/*" onchange="handleFiles(this.files)" class="form-control" style="display: none;">
+				<button type="button" class="btn btn-default" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+				<div id="fileList" style="margin-top: 10px; list-style: none; padding: 0;"></div>
+			</div>
+		</div>
+
+		<!-- 버튼 -->
+		<div class="col-md-offset-4">
+			<button type="submit" id="saveBtn" class="btn btn-primary">저장</button>
+			<button type="button" id="#" class="btn btn-warning" onclick="location.href='/login/login.do'">목록</button>
+			<button type="button" id="#" class="btn btn-danger" onclick="location.href='/login/login.do'">취소</button>
+		</div>
 	</form>
 	<c:if test="${insertSuccess}">
 	    <script type="text/javascript">
@@ -332,4 +366,47 @@ $(document).ready(function() {
 		$(this).hide();
 	});
 
+</script>
+
+<!-- script 추가 -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+	function searchAddress(type) {
+		new daum.Postcode({
+			oncomplete: function(data) {
+				const address = data.address;
+				document.getElementById('zipCode').value = data.zonecode;
+				document.getElementById('address1').value = address;
+				document.getElementById('address2').readOnly = false;
+			}
+		}).open();
+	}
+</script>
+
+<script>
+	let uploadedFiles = [];
+
+	function handleFiles(files) {
+		Array.from(files).slice(0,3).forEach(file => {
+			if(uploadedFiles.length < 3) {
+				uploadedFiles.push(file);
+				updateFileList();
+			}
+		});
+	}
+
+	function updateFileList() {
+		const list = uploadedFiles.map((file, index) => `
+    <div>${file.name}
+      <button type="button" onclick="removeFile(${index})"
+              class="btn btn-xs btn-danger">삭제</button>
+    </div>
+  `).join('');
+		$('#fileList').html(list);
+	}
+
+	function removeFile(index) {
+		uploadedFiles.splice(index, 1);
+		updateFileList();
+	}
 </script>
