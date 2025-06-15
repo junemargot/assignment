@@ -149,6 +149,7 @@ function checkUserId() {
 function validateEmail() {
 	const email = ($('#userEmail').val() || '').trim();
 	const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 	if(email === '') {
 		$('#emailError').text('이메일을 입력해주세요.').css('color', 'red');
 		return false;
@@ -160,6 +161,24 @@ function validateEmail() {
 	}
 
 	$('#emailError').text('');
+	return true;
+}
+
+// 인증번호 확인 함수
+function validateEmailCode() {
+	const code = $('#emailAuthCode').val().trim();
+
+	if(code === '') {
+		$('#emailCodeError').text('인증번호를 입력해주세요.').css('color', 'red');
+		return false;
+	}
+
+	if(code.length !== 6 || isNaN(code)) {
+		$('#emailCodeError').text('6자리 숫자를 입력해주세요.').css('color', 'red');
+		return false;
+	}
+
+	$('#emailCodeError').text('');
 	return true;
 }
 
@@ -193,6 +212,10 @@ function validateForm() { // ajax로 바꾸기
 
 	// 이메일
 	if(!validateEmail()) isValid = false;
+	if($('#emailVerified').val() !== 'true') {
+		$('#emailCodeError').text('이메일 인증을 완료해주세요.').css('color', 'red');
+		isValid = false;
+	}
 	
 	return isValid;
 }
@@ -240,13 +263,40 @@ $(document).ready(function() {
 
 		$.ajax({
 			type: 'GET',
-			url: 'mailCheck=email=' + encodeURIComponent($('#userEmail').val().trim()),
-			success: function(data) {
-				$('#emailAuthCode').prop('disabled', false);
-				alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
+			url: '/user/mailCheck.do?email=' + encodeURIComponent($('#userEmail').val().trim()),
+			success: function() {
+				$('#emailAuthCode').show().prop('disabled', false);
+				$('#emailVerifyBtn').show();
+				$('#emailAuthBtn').hide();
+				alert("인증번호가 발송되었습니다.");
 			},
 			error: function() {
 				alert("인증번호 발송에 실패했습니다.");
+			}
+		});
+	});
+
+	// 인증번호 확인 버튼 이벤트
+	$('#emailVerifyBtn').on('click', function() {
+		if(!validateEmailCode()) return;
+
+		$.ajax({
+			url: '/user/verifyCode.do',
+			method: 'POST',
+			data: {
+				email: $('#userEmail').val().trim(),
+				code: $('#emailAuthCode').val().trim()
+			},
+			success: function(result) {
+				if(result) {
+					$('#emailVerified').val('true');
+					alert('인증이 완료되었습니다');
+				} else {
+					$('#emailCodeError').text('인증번호가 일치하지 않습니다.').css('color', 'red');
+				}
+			},
+			error: function() {
+				alert('인증 처리 중 오류가 발생했습니다.');
 			}
 		});
 	});
@@ -357,11 +407,13 @@ $(document).ready(function() {
 				<input class="form-control" id="userEmail" name="userEmail" type="email" title="이메일" placeholder="예: example@example.com" autocomplete="off" />
 				<div id="emailError" style="margin-top: 5px;"></div>
 				<input type="text" id="emailAuthCode" style="display:none; margin-top:5px;" placeholder="인증번호 6자리">
+				<div id="emailCodeError" style="margin-top: 5px;"></div>
+				<input type="hidden" id="emailVerified" value="false" />
 			</div>
 			<!-- 이메일 인증 버튼 -->
 			<div class="col-sm-2">
 				<button type="button" id="emailAuthBtn" class="btn btn-default">인증번호 발송</button>
-				<button type="button" id="emailVerifyBtn" class="btn btn-success" style="display:none;">인증 확인</button>
+				<button type="button" id="emailVerifyBtn" class="btn btn-success" style="display: none;">인증 확인</button>
 			</div>
 		</div>
 

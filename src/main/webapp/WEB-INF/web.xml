@@ -32,6 +32,7 @@
 		<param-value>
 			classpath*:egovframework/spring/context-*.xml
 			/WEB-INF/spring/appServlet/security-context.xml
+			/WEB-INF/spring/root-context.xml
 		</param-value>
 	</context-param>
 

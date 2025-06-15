@@ -316,6 +316,13 @@
 			<version>1.4.7</version>
 		</dependency>
 
+		<!-- Spring Mail 지원 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>4.3.22.RELEASE</version> <!-- 프로젝트 Spring 버전과 일치 -->
+		</dependency>
+
         <!-- tiles -->
 		<!-- Tiles Core -->
 			<!-- http://mvnrepository.com/artifact/org.apache.tiles/tiles-core -->

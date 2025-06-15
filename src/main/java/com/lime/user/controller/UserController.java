@@ -77,15 +77,21 @@ public class UserController {
 	}
 
 	// [GET] 이메일 인증
-	@GetMapping("/user/mailCheck")
+	@GetMapping("/user/mailCheck.do")
 	@ResponseBody
 	public String mailCheck(@RequestParam String email) {
 
-		String code = String.format("%06d", (int)(Math.random() * 1000000));
+		emailService.sendVerificationCode(email);
 
-		emailService.sendMail(email, "[LIME] 회원가입 이메일 인증번호", "인증번호: " + code);
+		return "SEND OK";
+	}
 
-		return code;
+	// [POST] 이메일 인증번호 검증
+	@PostMapping("/user/verifyCode.do")
+	@ResponseBody
+	public boolean verifyCode(@RequestParam String email, @RequestParam String code) {
+
+		return emailService.verifyCode(email, code);
 	}
 
 }
