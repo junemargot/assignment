@@ -234,34 +234,63 @@ $(document).ready(function() {
 				</div>
 			</div>
 
+			<!-- 우편번호 -->
+			<div class="form-group">
+				<label class="col-sm-2 control-label">우편번호</label>
+				<div class="col-sm-4">
+					<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" />
+					<div id="zipCodeError" style="margin-top: 5px;"></div>
+				</div>
+				<div class="container">
+					<button type="button" class="btn btn-default" style="display: block;">우편번호 찾기</button>
+				</div>
+			</div>
+
+			<!-- 주소 -->
+			<div class="form-group">
+				<label class="col-sm-2 control-label">주소</label>
+				<div class="col-sm-4">
+					<input class="form-control" id="address1" name="address1" type="text" title="주소" />
+				</div>
+			</div>
+
+			<!-- 상세 주소 -->
+			<div class="form-group">
+				<label class="col-sm-2 control-label">상세 주소</label>
+				<div class="col-sm-4">
+					<input class="form-control" id="address2" name="address2" type="text" title="상세주소" />
+				</div>
+			</div>
+
+			<!-- 회사 주소 -->
+			<div class="form-group">
+				<label class="col-sm-2 control-label">회사 주소</label>
+				<div class="col-sm-4">
+					<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" />
+				</div>
+				<div class="container">
+					<button type="button" class="btn btn-default" style="display: block;">검색</button>
+				</div>
+			</div>
+
 			<!-- 이메일 -->
 			<div class="form-group">
 				<label class="col-sm-2 control-label">이메일</label>
-				<div class="col-sm-6">
-					<div class="email-row" style="display: flex; align-items: center; gap: 6px;">
-						<input type="text" class="form-control" id="emailLocal" name="userEmail" title="이메일" placeholder="예: hellouser" style="width: 176px;" />
-						<span>@</span>
-						<select id="emailDomain" class="form-control" style="flex: none; width: 180px;">
-							<option>선택</option>
-							<option value="gmail.com">gmail.com</option>
-							<option value="naver.com">naver.com</option>
-							<option value="daum.net">daum.net</option>
-							<option value="custom">직접입력</option>
-						</select>
-						<div class="container" style="padding-left: 0">
-							<button type="button" id="emailAuthBtn" class="btn btn-default">인증번호 발송</button>
-						</div>
-					</div>
+				<div class="col-sm-4">
+					<input class="form-control" id="userEmail" name="userEmail" type="text" title="이메일" placeholder="예: example@example.com">
+					<!-- 이메일 유효성 메시지 -->
+					<div id="emailError" style="margin-top: 5px;"></div>
 				</div>
-				<div class="col-sm-offset-2 col-sm-10">
-					<div id="emailError" style="margin-top:5px"></div>
+				<!-- 이메일 인증 버튼 -->
+				<div class="container">
+					<button type="button" id="emailAuthBtn" class="btn btn-default" style="display: block;">인증번호 발송</button>
 				</div>
 			</div>
 
 			<!-- 첨부파일 -->
 			<div class="form-group">
 				<label class="col-sm-2 control-label">첨부파일</label>
-				<div class="col-sm-6">
+				<div class="col-sm-4">
 					<input type="file" id="fileInput" multiple accept="*/*" class="form-control">
 					<ul id="fileList" style="margin-top:5px; list-style:none; padding:0;"></ul>
 				</div>
@@ -269,7 +298,8 @@ $(document).ready(function() {
 
 			<!-- 버튼 -->
 	    <div class="col-md-offset-4">
-				<button type="submit" id="saveBtn" class="btn btn-primary">회원가입</button>
+				<button type="submit" id="saveBtn" class="btn btn-primary">저장</button>
+				<button type="button" id="#" class="btn btn-warning" onclick="location.href='/login/login.do'">목록</button>
 				<button type="button" id="#" class="btn btn-danger" onclick="location.href='/login/login.do'">취소</button>
 	    </div>
 	</form>
