@@ -290,7 +290,7 @@ $(document).ready(function() {
 			success: function(result) {
 				if(result) {
 					$('#emailVerified').val('true');
-					alert('인증이 완료되었습니다');
+					alert('이메일 인증이 완료되었습니다.');
 				} else {
 					$('#emailCodeError').text('인증번호가 일치하지 않습니다.').css('color', 'red');
 				}
@@ -406,12 +406,12 @@ $(document).ready(function() {
 			<div class="col-sm-4">
 				<input class="form-control" id="userEmail" name="userEmail" type="email" title="이메일" placeholder="예: example@example.com" autocomplete="off" />
 				<div id="emailError" style="margin-top: 5px;"></div>
-				<input type="text" id="emailAuthCode" style="display:none; margin-top:5px;" placeholder="인증번호 6자리">
+				<input class="form-control" type="text" id="emailAuthCode" style="display: none; margin-top: 5px;" placeholder="인증번호 6자리" />
 				<div id="emailCodeError" style="margin-top: 5px;"></div>
 				<input type="hidden" id="emailVerified" value="false" />
 			</div>
 			<!-- 이메일 인증 버튼 -->
-			<div class="col-sm-2">
+			<div class="container">
 				<button type="button" id="emailAuthBtn" class="btn btn-default">인증번호 발송</button>
 				<button type="button" id="emailVerifyBtn" class="btn btn-success" style="display: none;">인증 확인</button>
 			</div>
@@ -419,11 +419,11 @@ $(document).ready(function() {
 
 		<!-- 첨부파일 -->
 		<div class="form-group">
-			<label class="col-sm-2 control-label">첨부파일</label>
+			<label class="col-sm-2 control-label">첨부 파일</label>
 			<div class="col-sm-4">
 				<input type="file" id="fileInput" multiple accept="*/*" onchange="handleFiles(this.files)" class="form-control" style="display: none;">
 				<button type="button" class="btn btn-default" onclick="document.getElementById('fileInput').click()">파일 선택</button>
-				<div id="fileList" style="margin-top: 10px; list-style: none; padding: 0;"></div>
+				<div id="fileList" style="margin-top: 10px;"></div>
 			</div>
 		</div>
 
@@ -496,26 +496,45 @@ $(document).ready(function() {
 	let uploadedFiles = [];
 
 	function handleFiles(files) {
-		Array.from(files).slice(0,3).forEach(file => {
-			if(uploadedFiles.length < 3) {
-				uploadedFiles.push(file);
-				updateFileList();
-			}
-		});
-	}
+		// 파일 개수 제한
+		if(files.length > 3) {
+			alert('파일첨부는 최대 3개까지만 가능합니다.');
+
+			document.getElementById('fileInput').value = '';
+			uploadedFiles = [];
+			updateFileList();
+			return;
+		}
+
+		// 파일 배열 초기화 후 새로 담기
+		uploadedFiles = [];
+		for(let i = 0; i < files.length; i++) {
+			uploadedFiles.push(files[i]);
+		}
+		console.log(uploadedFiles);
+		updateFileList();
+}
 
 	function updateFileList() {
-		const list = uploadedFiles.map((file, index) => `
-    <div>${file.name}
-      <button type="button" onclick="removeFile(${index})"
-              class="btn btn-xs btn-danger">삭제</button>
-    </div>
-  `).join('');
+		uploadedFiles.forEach((file, index) => {
+			console.log(`파일 ${index}:`, file);
+			console.log(`파일명: `, file.name);
+			console.log(`파일명 타입: `, typeof file.name);
+		});
+
+		var list = uploadedFiles.map((file, index) => {
+			return `
+				<div style="display:flex; align-items:center; margin-bottom:4px; color:black;">
+					<span>\${file.name}</span>
+					<button type="button" onclick="removeFile(\${index})" class="btn btn-xs btn-danger" style="margin-left:8px;">삭제</button>
+				</div>
+  `}).join('');
 		$('#fileList').html(list);
 	}
 
 	function removeFile(index) {
 		uploadedFiles.splice(index, 1);
+		document.getElementById('fileInput').value = '';
 		updateFileList();
 	}
 </script>
