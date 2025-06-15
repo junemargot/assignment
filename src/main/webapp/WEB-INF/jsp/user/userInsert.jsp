@@ -176,6 +176,12 @@ function validateForm() { // ajax로 바꾸기
 	return isValid;
 }
 
+
+
+
+
+
+
 // 데이터가 많아지게 되면 ajax가 효율적이다.
 
 $(document).ready(function() {
@@ -270,7 +276,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">우편번호</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" />
+				<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" readonly />
 				<div id="zipCodeError" style="margin-top: 5px;"></div>
 			</div>
 			<div class="container">
@@ -282,7 +288,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">주소</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="address1" name="address1" type="text" title="주소" />
+				<input class="form-control" id="address1" name="address1" type="text" title="주소" readonly />
 			</div>
 		</div>
 
@@ -298,10 +304,10 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">회사 주소</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" />
+				<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" placeholder="회사 도로명주소" readonly />
 			</div>
 			<div class="container">
-				<button type="button" class="btn btn-default" style="display: block;">검색</button>
+				<button onclick="openJusoPopup()" type="button" class="btn btn-default" style="display: block;">주소 검색</button>
 			</div>
 		</div>
 
@@ -371,15 +377,27 @@ $(document).ready(function() {
 <!-- script 추가 -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
-	function searchAddress(type) {
+	function searchAddress() {
 		new daum.Postcode({
 			oncomplete: function(data) {
-				const address = data.address;
-				document.getElementById('zipCode').value = data.zonecode;
-				document.getElementById('address1').value = address;
-				document.getElementById('address2').readOnly = false;
+				$('#zipCode').val(data.zonecode);
+				$('#address1').val(data.address);
+				$('#address2').focus();
 			}
 		}).open();
+	}
+
+	// 회사 주소 팝업 열기 함수
+	function openJusoPopup() {
+		// jusoPopup.jsp는 행정안전부에서 제공하는 샘플 파일을 서버에 올린 경로로 수정하세요
+		window.open('/popup/jusoPopup.jsp', 'jusoPopup', 'width=570,height=420,scrollbars=yes,resizable=yes');
+	}
+
+	// 팝업에서 주소를 선택하면 이 함수가 실행됨
+	function jusoCallBack(roadFullAddr, roadAddrPart1, addrDetail, roadAddrPart2, engAddr, jibunAddr, zipNo, admCd, rnMgtSn, bdMgtSn,
+												detBdNmList, bdNm, bdKdcd, siNm, sggNm, emdNm, liNm, rn, udrtYn, buldMnnm, buldSlno, mtYn, lnbrMnnm, lnbrSlno, emdNo) {
+		// roadFullAddr(전체 도로명주소) 또는 roadAddrPart1(도로명주소) 중 원하는 값 사용
+		document.getElementById('companyAddress').value = roadFullAddr;
 	}
 </script>
 
