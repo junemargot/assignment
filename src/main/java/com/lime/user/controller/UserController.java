@@ -106,4 +106,48 @@ public class UserController {
 		return emailService.verifyCode(email, code);
 	}
 
+	// [GET] 비밀번호 변경 페이지 요청 처리
+	@GetMapping("/user/changePwd.do")
+	public String ChangeUserPwd() {
+
+		return "/user/changePwd";
+	}
+
+	// [POST] 아이디 존재 체크 (비밀번호 변경용)
+	@PostMapping("/user/checkUserIdExists.do")
+	@ResponseBody
+	public Map<String, Object> checkUserIdExists(@RequestParam String userId) {
+		boolean exists = userService.checkUserId(userId);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("exists", exists);
+
+		return result;
+	}
+
+	// [POST] 기존 비밀번호 확인 (비밀번호 변경용)
+	@PostMapping("/user/checkUserPwd.do")
+	@ResponseBody
+	public Map<String, Object> checkUserPwd(@RequestParam String userId, @RequestParam String pwd) {
+		boolean valid = userService.checkUserPwd(userId, pwd);
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("valid", valid);
+
+		return result;
+	}
+
+	// [POST] 비밀번호 변경
+	@PostMapping("/user/changePwd.do")
+	public String changeUserPwd(@RequestParam String userId, @RequestParam String pwd, Model model) {
+		boolean result = userService.changeUserPwd(userId, pwd);
+
+		if(result) {
+			model.addAttribute("changeSuccess", true);
+		} else {
+			model.addAttribute("errorMsg", "비밀번호 변경에 실패했습니다.");
+		}
+
+		return "/user/changePwd";
+	}
 }

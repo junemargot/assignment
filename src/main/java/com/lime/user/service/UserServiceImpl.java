@@ -65,4 +65,28 @@ public class UserServiceImpl implements UserService {
 		
 		return userDAO.selectByUserId(userId);
 	}
+
+	@Override
+	public boolean existUserId(String userId) {
+
+		return userDAO.countByUserId(userId) > 0;
+	}
+
+	@Override
+	public boolean checkUserPwd(String userId, String pwd) {
+
+		UserVO user = userDAO.selectByUserId(userId);
+		if(user == null) return false;
+
+		return pwEncoder.matches(pwd, user.getPwd());
+	}
+
+	@Override
+	public boolean changeUserPwd(String userId, String newPwd) {
+
+		String hashedPw = pwEncoder.encode(newPwd);
+		int updated = userDAO.updateUserPwd(userId, hashedPw);
+
+		return updated > 0;
+	}
 }

@@ -24,6 +24,7 @@
 			<button type="submit" id="#" class="btn btn-primary">로그인</button>
 			<button type="button" id="#" class="btn btn-warning" onclick="location.href='/login/login.do'">취소</button>
 			<button type="button" id="#" class="btn btn-info" onclick="location.href='/user/userInsert.do'">회원가입</button>
+			<button type="button" id="#" class="btn btn-success" onclick="location.href='/user/changePwd.do'">비밀번호 변경</button>
 		</div>
 		<!-- 로그인 실패 시 메시지 표시 -->
 		<c:if test="${not empty errorMsg}">
@@ -35,26 +36,26 @@
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
 	document.getElementById('sendForm').addEventListener('submit', function(e) {
-	    var userId = document.getElementById('userId').value.trim();
-	    var userPassword = document.getElementById('userPassword').value.trim();
-	    var valid = true;
-	    
-	    document.getElementById('userIdError').textContent = '';
-	    document.getElementById('userPasswordError').textContent = '';
-	    
-	    if(userId === '') {
+		var userId = document.getElementById('userId').value.trim();
+		var userPassword = document.getElementById('userPassword').value.trim();
+		var valid = true;
+
+		document.getElementById('userIdError').textContent = '';
+		document.getElementById('userPasswordError').textContent = '';
+
+		if(userId === '') {
 			document.getElementById('userIdError').textContent = '아이디를 입력해주세요';
 			valid = false;
-	    }
-	    
-	    if(userPassword === '') {
+		}
+
+		if(userPassword === '') {
 			document.getElementById('userPasswordError').textContent = '비밀번호를 입력해주세요';
 			valid = false;
-	    }
-	    
-	    if(!valid) {
+		}
+
+		if(!valid) {
 			e.preventDefault(); // 검증 실패 시 제출 방지
-	    }
+		}
 	});
 });
 </script>

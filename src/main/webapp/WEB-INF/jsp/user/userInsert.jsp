@@ -78,11 +78,11 @@ function validatePasswordConfirm() {
 
 // 이름 검증
 function validateUserName() {
-	var userName = $('#userName').val();
-	var userNameRegex = /^[가-힣a-zA-Z]{2,}$/;
+	const userName = $('#userName').val();
+	const userNameRegex = /^[가-힣a-zA-Z]{2,}$/;
 
 	if(!userNameRegex.test(userName)) {
-		$('userNameError').text('한글 또는 영문 2글자 이상 입력해주세요.').css('color', 'red');
+		$('#userNameError').text('한글 또는 영문 2글자 이상 입력해주세요.').css('color', 'red');
 		return false;
 	}
 
@@ -234,6 +234,8 @@ $(document).ready(function() {
 		$('#userIdError').text('');
 	});
 
+	$('#userName').on('blur keyup', validateUserName);
+
 	// 눈 아이콘 클릭 시 보이기/숨기기
 	$('#viewRRN').on('click', function() {
 		const input = $('#userRRN');
@@ -257,7 +259,7 @@ $(document).ready(function() {
 			url: '/user/mailCheck.do?email=' + encodeURIComponent($('#userEmail').val().trim()),
 			success: function() {
 				// 1. 이메일 입력칸, 인증번호 발송 버튼 비활성화
-				$('#userEmail').prop('disabled', true);
+				$('#userEmail').prop('readonly', true);
 				$('#emailAuthBtn').prop('disabled', true);
 				alert("인증번호가 발송되었습니다.");
 

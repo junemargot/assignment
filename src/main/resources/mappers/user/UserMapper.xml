@@ -37,4 +37,11 @@
         WHERE user_id = #{userId}
     </select>
 
+    <!-- 비밀번호 변경 -->
+    <update id="updateUserPwd">
+        UPDATE user
+        SET pwd = #{newPwd}
+        WHERE user_id = #{userId}
+    </update>
+
 </mapper>
