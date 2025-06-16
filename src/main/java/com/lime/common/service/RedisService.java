@@ -8,7 +8,7 @@ public interface RedisService {
 
   String getData(String key);
 
-  void deleteDate(String key);
+  void deleteData(String key);
 
   boolean exists(String key);
 }
