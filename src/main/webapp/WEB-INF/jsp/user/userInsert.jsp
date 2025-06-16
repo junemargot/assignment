@@ -202,8 +202,9 @@ function validateForm() { // ajax로 바꾸기
 	}
 
 	// 이메일
-	if(!validateEmail()) isValid = false;
-	if($('#emailVerified').val() !== 'true') {
+	if(!validateEmail()) {
+		isValid = false;
+	} else if($('#emailVerified').val() !== 'true') {
 		$('#emailCodeError').text('이메일 인증을 완료해주세요.').css('color', 'red');
 		isValid = false;
 	}
@@ -220,7 +221,6 @@ function validateForm() { // ajax로 바꾸기
 // 데이터가 많아지게 되면 ajax가 효율적이다.
 
 $(document).ready(function() {
-	$('#userId').on('blur', validateUserId);
 	$('#pwd').on('keyup', function() {
 			validatePassword();
 			validatePasswordConfirm(); // 실시간 일치 여부도 함께
@@ -422,7 +422,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">회사 주소</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" placeholder="회사 도로명주소" readonly />
+				<input class="form-control" id="companyAddress" name="companyAddress" type="text" title="회사주소" readonly />
 			</div>
 			<div class="container">
 				<button onclick="openJusoPopup()" type="button" class="btn btn-default" style="display: block;">주소 검색</button>

@@ -35,12 +35,9 @@ public class UserController {
 	
 	// [POST] 회원가입 폼 제출 처리
 	@PostMapping("/user/userInsert.do")
-	public String userInsert(
-					@ModelAttribute UserVO user,
-					@RequestParam(required = false) String address1,
-					@RequestParam(required = false) String address2,
-					@RequestParam(required = false) String[] files,
-					Model model) {
+	public String userInsert(@ModelAttribute UserVO user, @RequestParam(required = false) String address1,
+													@RequestParam(required = false) String address2, @RequestParam(required = false) String[] files,
+													Model model) {
 
 		// 1. 서버사이드 입력값 검증
 		if(user.getUserId() == null || user.getUserId().length() < 6) {
