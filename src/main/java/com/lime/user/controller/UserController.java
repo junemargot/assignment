@@ -35,7 +35,12 @@ public class UserController {
 	
 	// [POST] 회원가입 폼 제출 처리
 	@PostMapping("/user/userInsert.do")
-	public String userInsert(@ModelAttribute UserVO user, Model model) {
+	public String userInsert(
+					@ModelAttribute UserVO user,
+					@RequestParam(required = false) String address1,
+					@RequestParam(required = false) String address2,
+					@RequestParam(required = false) String[] files,
+					Model model) {
 
 		// 1. 서버사이드 입력값 검증
 		if(user.getUserId() == null || user.getUserId().length() < 6) {
@@ -49,7 +54,17 @@ public class UserController {
 			return "user/userInsert";
 		}
 
-		// 3. 회원 정보 DB 저장 시도
+		// 3. 주소 + 상세주소 통합
+		String fullAddress = (address1 != null ? address1: "") +
+													(address2 != null && !address2.isEmpty() ? ", " + address2 : "");
+		user.setAddress(fullAddress);
+
+		// 4. 파일명 처리
+		if(files != null && files.length > 0) {
+			user.setFileNames(String.join(",", files));
+		}
+
+		// 5. 회원 정보 DB 저장 시도
 		boolean success = userService.insertUser(user);
 
 		if(success) {

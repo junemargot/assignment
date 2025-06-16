@@ -10,6 +10,11 @@
 		padding-right: 5px;
 		padding-left: 5px;
 	}
+
+	.required-star {
+		color: red;
+		vertical-align: middle;
+	}
 </style>
 
 <script type="text/javascript">
@@ -88,12 +93,6 @@ function validateUserName() {
 // 주민번호 검증
 function validateRRN() {
 	let rrn = $('#userRRN').val().replace(/-/g, '');
-
-	// 입력값 체크
-	if(rrn === '') {
-		$('#RRNError').text('주민등록번호를 입력해주세요.').css('color', 'red');
-		return false;
-	}
 
 	// 길이 및 숫자 체크
 	if(rrn.length !== 13 || isNaN(rrn)) {
@@ -202,14 +201,6 @@ function validateForm() { // ajax로 바꾸기
 		$('#userNameError').text();
 	}
 
-	if(!validateRRN()) isValid = false;
-	if($('#userRRN').val().trim() === '') {
-		$('#RRNError').text('주민등록번호를 입력해주세요.').css('color', 'red');
-		isValid = false;
-	} else {
-		$('#userRRN').text();
-	}
-
 	// 이메일
 	if(!validateEmail()) isValid = false;
 	if($('#emailVerified').val() !== 'true') {
@@ -265,10 +256,15 @@ $(document).ready(function() {
 			type: 'GET',
 			url: '/user/mailCheck.do?email=' + encodeURIComponent($('#userEmail').val().trim()),
 			success: function() {
-				$('#emailAuthCode').show().prop('disabled', false);
-				$('#emailVerifyBtn').show();
-				$('#emailAuthBtn').hide();
+				// 1. 이메일 입력칸, 인증번호 발송 버튼 비활성화
+				$('#userEmail').prop('disabled', true);
+				$('#emailAuthBtn').prop('disabled', true);
 				alert("인증번호가 발송되었습니다.");
+
+				// 2. 인증번호 입력칸 + 확인버튼 한 줄로 보이게 처리
+				$('#emailAuthArea').css('display', 'flex').find('input', 'button').prop('disabled', false);
+				$('#emailAuthCode').prop('disabled', false).val('').focus();
+				$('#emailVerifyBtn').prop('disabled', false);
 			},
 			error: function() {
 				alert("인증번호 발송에 실패했습니다.");
@@ -291,6 +287,10 @@ $(document).ready(function() {
 				if(result) {
 					$('#emailVerified').val('true');
 					alert('이메일 인증이 완료되었습니다.');
+					$('#emailVerified').val('true');
+					// 인증번호 입력칸, 확인버튼 비활성화
+					$('#emailAuthCode').prop('disabled', true);
+					$('#emailVerifyBtn').prop('disabled', true);
 				} else {
 					$('#emailCodeError').text('인증번호가 일치하지 않습니다.').css('color', 'red');
 				}
@@ -311,7 +311,9 @@ $(document).ready(function() {
 		<input type="hidden" id="userIdChecked" value="false" />
 		<!-- 아이디 -->
 		<div class="form-group">
-			<label class="col-sm-2 control-label">ID</label>
+			<label class="col-sm-2 control-label">
+				ID <span class="required-star">*</span>
+			</label>
 			<div class="col-sm-4">
 				<input class="form-control" id="userId" name="userId" type="text" value="" title="ID" placeholder="아이디를 입력해주세요">
 				<!-- ID 유효성 메시지 -->
@@ -325,12 +327,16 @@ $(document).ready(function() {
 
 		<!-- 비밀번호 -->
 		<div class="form-group">
-			<label class="col-sm-2 control-label">비밀번호</label>
+			<label class="col-sm-2 control-label">
+				비밀번호 <span class="required-star">*</span>
+			</label>
 			<div class="col-sm-4">
 				<input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="비밀번호를 입력해주세요" />
 				<div id="pwdError" style="margin-top: 5px;"></div>
 			</div>
-			<label class="col-sm-2 control-label">비밀번호 확인</label>
+			<label class="col-sm-2 control-label">
+				비밀번호 확인 <span class="required-star">*</span>
+			</label>
 			<div class="col-sm-4">
 				<input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="비밀번호를 한번 더 입력해주세요" />
 				<div id="passwordConfirmError" style="margin-top: 5px;"></div>
@@ -339,10 +345,33 @@ $(document).ready(function() {
 
 		<!-- 이름 -->
 		<div class="form-group">
-			<label class="col-sm-2 control-label">이름</label>
+			<label class="col-sm-2 control-label">
+				이름 <span class="required-star">*</span>
+			</label>
 			<div class="col-sm-4">
 				<input class="form-control" id="userName" name="userName" type="text" value="" title="이름" placeholder="이름을 입력해주세요" />
 				<div id="userNameError" style="margin-top: 5px;"></div>
+			</div>
+		</div>
+
+		<!-- 이메일 -->
+		<div class="form-group">
+			<label class="col-sm-2 control-label">
+				이메일 <span class="required-star">*</span>
+			</label>
+			<div class="col-sm-4">
+				<div style="display: flex; gap: 8px; width: 100%;">
+					<input class="form-control" id="userEmail" name="email" type="email" placeholder="예: example@example.com" autocomplete="off" style="flex: 2;" />
+					<button type="button" id="emailAuthBtn" class="btn btn-default" style="flex: 1;">인증번호 발송</button>
+				</div>
+				<!-- 인증번호 입력 + 인증 확인 버튼 (아래 줄) -->
+				<div id="emailAuthArea" style="gap: 8px; margin-top: 8px; display: none; width: 100%;">
+					<input class="form-control" id="emailAuthCode" type="text" placeholder="인증번호 6자리" style="flex: 2;" />
+					<button type="button" id="emailVerifyBtn" class="btn btn-success" style="flex: 1;">인증 확인</button>
+				</div>
+				<input type="hidden" id="emailVerified" value="false">
+				<div id="emailError" style="margin-top: 5px;"></div>
+				<div id="emailCodeError" style="margin-top: 5px;"></div>
 			</div>
 		</div>
 
@@ -350,7 +379,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">주민등록번호( - 제외)</label>
 			<div class="col-sm-4" style="position: relative;">
-				<input class="form-control" id="userRRN" name="userRRN" type="password" title="주민등록번호" placeholder="예: 1234561234567" maxlength="13" autocomplete="off" />
+				<input class="form-control" id="userRRN" name="rrn" type="password" title="주민등록번호" placeholder="예: 1234561234567" maxlength="13" autocomplete="off" />
 				<span id="viewRRN" style="position: absolute; right: 14px; top: 7px; cursor: pointer; font-size: 14px; color: #888;">
 					<i class="fa fa-eye-slash" aria-hidden="true"></i>
 				</span>
@@ -365,7 +394,7 @@ $(document).ready(function() {
 		<div class="form-group">
 			<label class="col-sm-2 control-label">우편번호</label>
 			<div class="col-sm-4">
-				<input class="form-control" id="zipCode" name="zipCode" type="text" title="우편번호" readonly />
+				<input class="form-control" id="zipCode" name="zipcode" type="text" title="우편번호" readonly />
 				<div id="zipCodeError" style="margin-top: 5px;"></div>
 			</div>
 			<div class="container">
@@ -400,28 +429,11 @@ $(document).ready(function() {
 			</div>
 		</div>
 
-		<!-- 이메일 -->
-		<div class="form-group">
-			<label class="col-sm-2 control-label">이메일</label>
-			<div class="col-sm-4">
-				<input class="form-control" id="userEmail" name="userEmail" type="email" title="이메일" placeholder="예: example@example.com" autocomplete="off" />
-				<div id="emailError" style="margin-top: 5px;"></div>
-				<input class="form-control" type="text" id="emailAuthCode" style="display: none; margin-top: 5px;" placeholder="인증번호 6자리" />
-				<div id="emailCodeError" style="margin-top: 5px;"></div>
-				<input type="hidden" id="emailVerified" value="false" />
-			</div>
-			<!-- 이메일 인증 버튼 -->
-			<div class="container">
-				<button type="button" id="emailAuthBtn" class="btn btn-default">인증번호 발송</button>
-				<button type="button" id="emailVerifyBtn" class="btn btn-success" style="display: none;">인증 확인</button>
-			</div>
-		</div>
-
 		<!-- 첨부파일 -->
 		<div class="form-group">
 			<label class="col-sm-2 control-label">첨부 파일</label>
 			<div class="col-sm-4">
-				<input type="file" id="fileInput" multiple accept="*/*" onchange="handleFiles(this.files)" class="form-control" style="display: none;">
+				<input type="file" id="fileInput" name="files" multiple accept="*/*" onchange="handleFiles(this.files)" class="form-control" style="display: none;">
 				<button type="button" class="btn btn-default" onclick="document.getElementById('fileInput').click()">파일 선택</button>
 				<div id="fileList" style="margin-top: 10px;"></div>
 			</div>
