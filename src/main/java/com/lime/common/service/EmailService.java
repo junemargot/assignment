@@ -4,14 +4,12 @@ import com.lime.common.exception.EmailSendException;
 import com.lime.common.exception.InvalidEmailFormatException;
 import com.lime.common.exception.VerificationCodeAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j

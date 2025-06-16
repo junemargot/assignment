@@ -6,16 +6,9 @@
 
     <!-- 회원가입: 사용자 정보 저장 -->
     <insert id="insertUser" parameterType="com.lime.user.vo.UserVO">
-        INSERT INTO user (
-            user_id,
-            pwd,
-            user_name,
-            reg_dt
-        ) VALUES (
-            #{userId},
-            #{pwd},
-            #{userName},
-            NOW()
+        INSERT INTO user (user_id, pwd, user_name, rrn, zipcode, address, company_address, email, file_names, reg_dt)
+        VALUES (
+            #{userId}, #{pwd}, #{userName}, #{rrn}, #{zipcode}, #{address}, #{companyAddress}, #{email}, #{fileNames}, NOW()
         )
     </insert>
 
@@ -29,11 +22,17 @@
     <!-- 회원 정보 조회 -->
     <select id="selectByUserId" resultType="com.lime.user.vo.UserVO">
         SELECT
-            user_id AS "userId",
-            user_name AS "userName",
-            user_seq AS "userSeq",
-            reg_dt AS "regDt",
-            pwd
+            user_seq         AS userSeq,
+            user_id          AS userId,
+            pwd,
+            user_name        AS userName,
+            rrn,
+            zipcode,
+            address,
+            company_address  AS companyAddress,
+            email,
+            file_names       AS fileNames,
+            reg_dt           AS regDt
         FROM user
         WHERE user_id = #{userId}
     </select>
