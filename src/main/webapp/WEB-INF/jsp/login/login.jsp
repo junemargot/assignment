@@ -36,7 +36,7 @@
 			<a href="https://kauth.kakao.com/oauth/authorize?client_id=af43511c568316df64c319f5389140b8&redirect_uri=http://localhost:8080/login/oauth2/code/kakao&response_type=code">
 				<img src="/resources/images/kakao/kakao_login_large_narrow.png" alt="카카오 로그인" style="width: 130px;" />
 			</a>
-			<a href="#">
+			<a href="https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=V2xJK7UApgrINC3kyaYB&redirect_uri=http://localhost:8080/login/oauth2/code/naver&state=RANDOM_STRING">
 				<img src="/resources/images/naver/btnG_완성형.png" alt="네이버 로그인" style="width: 119px;" />
 			</a>
 		</div>
