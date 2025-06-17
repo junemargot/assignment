@@ -16,4 +16,5 @@
 .idea/
 
 # 설정 파일
-webapp/WEB-INF/spring/root-context.xml
+/src/main/webapp/WEB-INF/spring/root-context.xml
+/src/main/resources/application-oauth.properties

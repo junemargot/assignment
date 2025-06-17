@@ -72,6 +72,13 @@
 	            <enabled>false</enabled>
 	        </snapshots>
 	    </repository>
+		<!-- Spring 공식 릴리즈를 추가 -->
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/release</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
 	</repositories>
 
 
@@ -378,6 +385,35 @@
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
 			<version>3.1.0</version> <!-- POI 4.1.2에 맞는 버전 -->
+		</dependency>
+
+		<!-- 1. Spring Security 코어 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>4.2.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>4.2.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>4.2.3.RELEASE</version>
+		</dependency>
+
+		<!-- 2. Spring Security OAuth2 (Spring Security OAuth 프로젝트) -->
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<version>2.0.16.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+			<version>1.0.8.RELEASE</version>
 		</dependency>
 	</dependencies>
 

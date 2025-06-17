@@ -20,7 +20,7 @@
 		</div>
         <div id="userPasswordError" style="color:red; margin-bottom:5px;"></div>
 		<br />
-		<div class="col-md-offset-4">
+		<div style="text-align: center;">
 			<button type="submit" id="#" class="btn btn-primary">로그인</button>
 			<button type="button" id="#" class="btn btn-warning" onclick="location.href='/login/login.do'">취소</button>
 			<button type="button" id="#" class="btn btn-info" onclick="location.href='/user/userInsert.do'">회원가입</button>
@@ -30,6 +30,16 @@
 		<c:if test="${not empty errorMsg}">
 			<div style="color: red; margin-top: 10px;">${errorMsg}</div>
 		</c:if>
+
+		<!-- 소셜 로그인 -->
+		<div style="text-align: center; margin-top: 20px;">
+			<a href="https://kauth.kakao.com/oauth/authorize?client_id=af43511c568316df64c319f5389140b8&redirect_uri=http://localhost:8080/login/oauth2/code/kakao&response_type=code">
+				<img src="/resources/images/kakao/kakao_login_large_narrow.png" alt="카카오 로그인" style="width: 130px;" />
+			</a>
+			<a href="#">
+				<img src="/resources/images/naver/btnG_완성형.png" alt="네이버 로그인" style="width: 119px;" />
+			</a>
+		</div>
 	</div>
 </form>
 
