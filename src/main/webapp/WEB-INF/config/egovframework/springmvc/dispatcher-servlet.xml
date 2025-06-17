@@ -132,5 +132,11 @@
 	<!-- /For Pagination Tag -->
 
     <mvc:view-controller path="/cmmn/validator.do" view-name="cmmn/validator"/>
+
+    <mvc:resources mapping="/js/**" location="/js/" />
+    <mvc:resources mapping="/css/**" location="/css/" />
+    <mvc:resources mapping="/images/**" location="/images/" />
+    <mvc:resources mapping="/common/**" location="/common/" />
     <mvc:resources mapping="/resources/**" location="/resources/" />
+    <mvc:default-servlet-handler />
 </beans>
