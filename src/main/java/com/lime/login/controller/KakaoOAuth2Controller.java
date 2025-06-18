@@ -2,6 +2,7 @@ package com.lime.login.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lime.login.dto.KakaoResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Slf4j
 @Controller
 public class KakaoOAuth2Controller {
 
@@ -36,11 +38,9 @@ public class KakaoOAuth2Controller {
   @RequestMapping("/kakao")
   public void kakaoCallback(@RequestParam("code") String code, HttpServletResponse response, HttpSession session) throws IOException {
 
-    System.out.println("🟡 카카오 콜백 진입 - code: " + code);
+    log.info("🟡 카카오 콜백 진입 - code {}", code);
 
     // 1. AccessToken 요청
-    System.out.println("📤 Token 요청 파라미터: grant_type=authorization_code&client_id=" + clientId + "&redirect_uri=" + redirectUri + "&code=" + code);
-    System.out.println("🔄 getAccessToken() 요청 시작");
     String accessToken = getAccessToken(code);
 
     // 2. 사용자 정보 요청
@@ -52,23 +52,26 @@ public class KakaoOAuth2Controller {
 
     String nickname = (String) profile.get("nickname");
     String email = (String) kakaoAccount.get("email");
+    log.info("로그인 성공 - {}, {}", email, nickname);
 
-    System.out.println("✅ 로그인 성공: " + email);
-
-//    session.setAttribute("loginUser", email);
+    // 4. 사용자 정보 세션 저장
     session.setAttribute("loginUser", new KakaoResponseDto(nickname));
 
-    // 4. 홈으로 이동
+    // 5. 로그인 후 리다이렉트
     response.sendRedirect("/account/accountList.do");
   }
 
+  /*
+  * AccessToken 요청
+  */
   private String getAccessToken(String code) throws IOException {
-    URL url = new URL(tokenUri);
+    URL url = new URL(tokenUri); // POST 요청할 Kakao URL
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("POST");
     connection.setDoOutput(true);
     connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
     connection.setRequestProperty("Accept", "application/json");
+
     connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 
     String params = "grant_type=authorization_code"
@@ -81,7 +84,8 @@ public class KakaoOAuth2Controller {
       os.write(params.getBytes(StandardCharsets.UTF_8));
       os.flush();
     } catch (IOException e) {
-      System.out.println("❌ Token 요청 실패: " + e.getMessage());
+      log.error("Token 요청 실패: {}", e.getMessage());
+
       if (connection.getErrorStream() != null) {
         BufferedReader errorReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
         StringBuilder errorBuilder = new StringBuilder();
@@ -89,7 +93,7 @@ public class KakaoOAuth2Controller {
         while ((errorLine = errorReader.readLine()) != null) {
           errorBuilder.append(errorLine);
         }
-        System.out.println("🔻 카카오 에러 응답 본문: " + errorBuilder);
+        log.error("카카오 에러 응답: {}", errorBuilder.toString());
       }
       throw e;
     }
@@ -99,7 +103,7 @@ public class KakaoOAuth2Controller {
       String line;
       while ((line = br.readLine()) != null) sb.append(line);
       Map<String, Object> result = new ObjectMapper().readValue(sb.toString(), Map.class);
-      System.out.println("🟢 Token 응답: " + result);
+      log.debug("Token 응답: {}", result);
 
       return (String) result.get("access_token");
     }

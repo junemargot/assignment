@@ -26,16 +26,18 @@ public class EmailService {
 
   private static final String VERIFICATION_PREFIX = "email:verification";
   private static final long CODE_EXPIRY_MINUTES = 5L;
-  private static final String FROM_EMAIL = "dearsophiehwang@gmail.com";
+  private static final String FROM_EMAIL = "noreply@lime.com";
+  private static final String FROM_NAME = "No-Reply";
 
   /*
   * 인증번호 생성 및 이메일 발송
   */
   public void sendVerificationCode(String email) {
 
-    // 이메일 유효성 검증
+    // 이메일 형식 검증
     validateEmail(email);
 
+    // Redis 저장 키 생성
     String key = VERIFICATION_PREFIX + email;
 
     if(redisService.exists(key)) {
@@ -44,7 +46,7 @@ public class EmailService {
       );
     }
 
-    String code = generateCode();
+    String code = generateCode(); // 6자리 랜덤 인증번호 생성
 
     try {
       // Redis에 이메일-코드 저장 (5분 유효)
@@ -55,7 +57,7 @@ public class EmailService {
       log.info("인증번호 발송 완료 - 이메일: {}", email);
 
     } catch(EmailSendException e) {
-      redisService.deleteData(key);
+      redisService.deleteData(key); // 이메일 발송 실패 시 Redis에서 코드 삭제
       throw e;
 
     } catch(Exception e) {
@@ -83,7 +85,7 @@ public class EmailService {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-      helper.setFrom(FROM_EMAIL);
+      helper.setFrom(FROM_EMAIL, FROM_NAME);
       helper.setTo(to);
       helper.setSubject("[LIME] 회원가입 인증 메일 안내");
       String content = String.format(

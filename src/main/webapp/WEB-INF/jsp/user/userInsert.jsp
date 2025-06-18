@@ -289,7 +289,7 @@ $(document).ready(function() {
 				if(result) {
 					$('#emailVerified').val('true');
 					alert('이메일 인증이 완료되었습니다.');
-					$('#emailVerified').val('true');
+					// $('#emailVerified').val('true');
 					// 인증번호 입력칸, 확인버튼 비활성화
 					$('#emailAuthCode').prop('disabled', true);
 					$('#emailVerifyBtn').prop('disabled', true);
@@ -371,7 +371,7 @@ $(document).ready(function() {
 					<input class="form-control" id="emailAuthCode" type="text" placeholder="인증번호 6자리" style="flex: 2;" />
 					<button type="button" id="emailVerifyBtn" class="btn btn-success" style="flex: 1;">인증 확인</button>
 				</div>
-				<input type="hidden" id="emailVerified" value="false">
+				<input type="hidden" id="emailVerified" value="false" />
 				<div id="emailError" style="margin-top: 5px;"></div>
 				<div id="emailCodeError" style="margin-top: 5px;"></div>
 			</div>
@@ -516,12 +516,12 @@ $(document).ready(function() {
 
 			document.getElementById('fileInput').value = '';
 			uploadedFiles = [];
-			updateFileList();
+
 			return;
 		}
 
 		// 파일 배열 초기화 후 새로 담기
-		uploadedFiles = [];
+		// uploadedFiles = [];
 		for(let i = 0; i < files.length; i++) {
 			uploadedFiles.push(files[i]);
 		}
@@ -547,7 +547,8 @@ $(document).ready(function() {
 	}
 
 	function removeFile(index) {
-		uploadedFiles.splice(index, 1);
+		var test = uploadedFiles.splice(index, 1);
+		console.log("삭제: ", test);
 		document.getElementById('fileInput').value = '';
 		updateFileList();
 	}
