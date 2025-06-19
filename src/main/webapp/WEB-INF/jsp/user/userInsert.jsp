@@ -114,7 +114,7 @@ function validateRRN() {
 		return false;
 	}
 
-	$('#RRNError').text('유효한 주민등록번호입니다').css('color', 'blue');
+	$('#RRNError').text('유효한 주민등록번호입니다.').css('color', 'blue');
 	return true;
 }
 
@@ -163,7 +163,7 @@ function validateEmail() {
 	return true;
 }
 
-// 인증번호 확인 함수
+// 인증번호 형식 검증
 function validateEmailCode() {
 	const code = $('#emailAuthCode').val().trim();
 
@@ -249,27 +249,51 @@ $(document).ready(function() {
 		}
 	});
 
-	// 이메일
+	// 이메일 변경 감지 및 상태 초기화
+	let initialEmail = '';
+
+	$('#userEmail').on('input', function() {
+		const currentEmail = $(this).val().trim();
+
+		if(initialEmail && currentEmail !== initialEmail) {
+			// 상태 초기화 UI 표시
+			$('#emailError').text('이메일이 변경되었습니다. 재인증이 필요합니다.').css('color', 'red');
+			$('#emailCodeError').text('');
+			// 서버에 기존 인증번호 삭제 요청
+			$.post('/user/clearCode.do', { email: initialEmail }).fail(() => console.error('기존 인증번호 삭제 실패'));
+
+			// 로컬 상태 초기화
+			resetVerificationState();
+
+			// 현재 입력값을 새로운 기준값으로 설정
+			initialEmail = currentEmail;
+		}
+	});
+
 	// 이메일 인증번호 버튼 이벤트
 	$('#emailAuthBtn').on('click', function() {
 		if(!validateEmail()) return;
 
+		const email = $('#userEmail').val().trim();
+		initialEmail = email;
+
 		$.ajax({
 			type: 'GET',
-			url: '/user/mailCheck.do?email=' + encodeURIComponent($('#userEmail').val().trim()),
+			url: '/user/mailCheck.do?email=' + encodeURIComponent(email),
 			success: function() {
 				// 1. 이메일 입력칸, 인증번호 발송 버튼 비활성화
-				$('#userEmail').prop('readonly', true);
-				$('#emailAuthBtn').prop('disabled', true);
-				alert("인증번호가 발송되었습니다.");
+				// $('#userEmail').prop('readonly', false); // 이메일 입력칸 활성화 유지
+				// $('#emailAuthBtn').prop('disabled', false); // 인증번호 버튼 비활성화
+				// alert("인증번호가 발송되었습니다.");
+				$('#emailError').text('인증번호가 발송되었습니다. 5분 내로 입력해주세요.').css('color', 'blue');
 
-				// 2. 인증번호 입력칸 + 확인버튼 한 줄로 보이게 처리
-				$('#emailAuthArea').css('display', 'flex').find('input', 'button').prop('disabled', false);
-				$('#emailAuthCode').prop('disabled', false).val('').focus();
+				// 2. 인증번호 입력칸 + 확인버튼
+				$('#emailAuthArea').css('display', 'flex').find('input', 'button').prop('disabled', false); // 인증번호 입력 영역 표시
+				$('#emailAuthCode').prop('disabled', false).val('').focus(); // 인증번호 입력칸 활성화하고 포커스
 				$('#emailVerifyBtn').prop('disabled', false);
 			},
-			error: function() {
-				alert("인증번호 발송에 실패했습니다.");
+			error: function(xhr) {
+				alert("인증번호 발송에 실패했습니다." + xhr.responseText);
 			}
 		});
 	});
@@ -288,8 +312,8 @@ $(document).ready(function() {
 			success: function(result) {
 				if(result) {
 					$('#emailVerified').val('true');
-					alert('이메일 인증이 완료되었습니다.');
-					// $('#emailVerified').val('true');
+					$('#emailCodeError').text('이메일 인증이 완료되었습니다.').css('color', 'blue');
+					$('#emailError').text('');
 					// 인증번호 입력칸, 확인버튼 비활성화
 					$('#emailAuthCode').prop('disabled', true);
 					$('#emailVerifyBtn').prop('disabled', true);
@@ -302,9 +326,16 @@ $(document).ready(function() {
 			}
 		});
 	});
-
-
 });
+
+function resetVerificationState() {
+	$('#emailVerified').val('false');
+	$('#emailAuthCode').val('').prop('disabled', false);
+	$('#emailVerifyBtn').val.prop('disabled', false);
+	$('#emailCodeError').text('');
+
+	$.post('/user/clearCode.do', { email: initialEmail });
+}
 
 </script>
 
@@ -456,29 +487,6 @@ $(document).ready(function() {
 	</c:if>
 </div>
 
-<script>
-	$('#emailDomain').editableSelect({
-		filter: false,
-		effects: 'slide',
-		duration: 200,
-		trigger: 'manual'
-	}).on('change', function() {
-		if(this.value === 'custom') {
-			$(this).editableSelect('hide');
-			$('#emailDomainCustom').show().focus();
-		}
-	});
-
-	$('#emailDomainCustom').on('blur', function() {
-		if($(this).val()) {
-			$('#emailDomain').editableSelect('add', $(this).val());
-			$('#emailDomain').editableSelect('set', $(this).val());
-		}
-		$(this).hide();
-	});
-
-</script>
-
 <!-- script 추가 -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
@@ -521,7 +529,6 @@ $(document).ready(function() {
 		}
 
 		// 파일 배열 초기화 후 새로 담기
-		// uploadedFiles = [];
 		for(let i = 0; i < files.length; i++) {
 			uploadedFiles.push(files[i]);
 		}

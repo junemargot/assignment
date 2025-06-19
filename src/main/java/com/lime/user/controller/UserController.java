@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.lime.common.service.EmailService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lime.user.service.UserService;
 import com.lime.user.vo.UserVO;
 
+@Slf4j
 @Controller
 public class UserController {
 
@@ -88,7 +92,7 @@ public class UserController {
 		return result;
 	}
 
-	// [GET] 이메일 인증
+	// [GET] 이메일 인증번호 발송
 	@GetMapping("/user/mailCheck.do")
 	@ResponseBody
 	public String mailCheck(@RequestParam String email) {
@@ -111,6 +115,19 @@ public class UserController {
 	public String ChangeUserPwd() {
 
 		return "/user/changePwd";
+	}
+
+	// [POST] 인증번호 재발송을 위한 기존 코드 삭제 API
+	@PostMapping("/user/clearCode.do")
+	@ResponseBody
+	public ResponseEntity<String> clearCode(@RequestParam String email) {
+		try {
+			emailService.clearVerificationCode(email);
+			return ResponseEntity.ok("CLEARED");
+		} catch(Exception e) {
+			log.error("인증번호 삭제 실패: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증번호 삭제 실패");
+		}
 	}
 
 	// [POST] 아이디 존재 체크 (비밀번호 변경용)
