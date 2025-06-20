@@ -50,7 +50,7 @@
       const oldPwd = $('#oldPwd').val();
 
       if(oldPwd === '') {
-        $('#oldPwdError').text('기존 비밀번호를 입력해주세요.').css('color', 'red');
+        $('#oldPwdError').text('현재 비밀번호를 입력해주세요.').css('color', 'red');
         $('#pwd, #pwdck').prop('disabled', true).val(''); // 기존 비밀번호 일치 시에만 새 비밀번호 필드 활성화
         $('#pwdError, #passwordConfirmError').text('');
         return false;
@@ -164,23 +164,23 @@
       </div>
       <!-- 기존 비밀번호 -->
       <div class="form-group">
-        <label class="col-sm-2 control-label">기존 비밀번호</label>
+        <label class="col-sm-2 control-label">현재 비밀번호</label>
         <div class="col-sm-4">
-          <input class="form-control" id="oldPwd" name="oldPwd" type="password" placeholder="비밀번호를 입력해주세요" disabled />
+          <input class="form-control" id="oldPwd" name="oldPwd" type="password" placeholder="현재 비밀번호를 입력해주세요" disabled />
           <div id="oldPwdError" style="margin-top: 5px;"></div>
         </div>
       </div>
 
       <!-- 비밀번호 -->
       <div class="form-group">
-        <label class="col-sm-2 control-label">변경 비밀번호</label>
+        <label class="col-sm-2 control-label">새 비밀번호</label>
         <div class="col-sm-4">
-          <input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="비밀번호를 입력해주세요" disabled />
+          <input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="새 비밀번호를 입력해주세요" disabled />
           <div id="pwdError" style="margin-top: 5px;"></div>
         </div>
-        <label class="col-sm-2 control-label">변경 비밀번호 확인</label>
+        <label class="col-sm-2 control-label">새 비밀번호 확인</label>
         <div class="col-sm-4">
-          <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="비밀번호를 한번 더 입력해주세요" disabled />
+          <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="새 비밀번호를 다시 입력해주세요" disabled />
           <div id="newPwdConfirmError" style="margin-top: 5px;"></div>
         </div>
       </div>

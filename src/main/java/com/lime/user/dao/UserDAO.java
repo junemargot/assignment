@@ -19,4 +19,6 @@ public interface UserDAO {
 
 	// 비밀번호 변경
 	int updateUserPwd(@Param("userId") String userId, @Param("newPwd") String newPwd);
+
+	int updateUser(UserVO userVO);
 }

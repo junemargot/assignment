@@ -23,10 +23,15 @@
       <ul class="nav navbar-nav">
 		<c:choose>
 			<c:when test="${not empty sessionScope.loginUser}">
-				<li class="dropdown active">
-					<span style="font-size: 12px; color: white; display: block; margin-top: 15px;">
-						${sessionScope.loginUser.userName}님
-					</span>
+				<li class="active">
+					<a href="/user/mypage.do">
+						<span class="glyphicon glyphicon-user"></span>MyPage
+					</a>
+				</li>
+				<li class="active">
+					<a href="/user/mypage.do">
+						<span class="glyphicon"></span>${sessionScope.loginUser.userName}님
+					</a>
 				</li>
 				<li class="active">
 					<a href="/login/logout.do">

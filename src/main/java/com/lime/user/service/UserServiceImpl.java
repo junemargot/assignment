@@ -10,6 +10,8 @@ import com.lime.user.vo.UserVO;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.EntityNotFoundException;
+
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
@@ -88,5 +90,16 @@ public class UserServiceImpl implements UserService {
 		int updated = userDAO.updateUserPwd(userId, hashedPw);
 
 		return updated > 0;
+	}
+
+	@Override
+	public void updateUser(UserVO user) {
+
+		UserVO existingUser = userDAO.selectByUserId(user.getUserId());
+		if(existingUser == null) {
+			throw new EntityNotFoundException("사용자를 찾을 수 없습니다. " + user.getUserId());
+		}
+
+		userDAO.updateUser(user);
 	}
 }

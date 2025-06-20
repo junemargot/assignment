@@ -44,4 +44,20 @@
         WHERE user_id = #{userId}
     </update>
 
+    <!-- 회원정보 변경 -->
+    <update id="updateUser" parameterType="UserVO">
+        UPDATE user
+        SET
+            user_id = #{userId},
+            user_name = #{userName},
+            pwd = #{pwd},
+            rrn = #{rrn},
+            zipcode = #{zipcode},
+            address = #{address},
+            company_address = #{companyAddress},
+            email = #{email},
+            file_names = #{fileNames}
+        WHERE user_id = #{userId}
+    </update>
+
 </mapper>

@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.lime.user.service.UserService;
 import com.lime.user.vo.UserVO;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @Slf4j
 @Controller
 public class UserController {
@@ -166,5 +169,54 @@ public class UserController {
 		}
 
 		return "/user/changePwd";
+	}
+
+	// [GET] 마이페이지
+	@GetMapping("/user/mypage.do")
+	public String myPage(HttpServletRequest request, Model model) {
+		HttpSession session = request.getSession();
+		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+		log.info("현재 로그인 회원 정보: {}", loginUser);
+
+		if(loginUser == null) {
+			return "redirect:/login/login.do";
+		}
+
+		// 현재 로그인한 사용자 정보 조회
+		UserVO userInfo = userService.findUserById(loginUser.getUserId());
+		model.addAttribute("userInfo", userInfo);
+
+		return "/user/mypage";
+	}
+
+	// [POST] 마이페이지 - 회원정보 수정
+	@PostMapping("/user/mypage.do")
+	@ResponseBody
+	public ResponseEntity<String> updateUser(HttpServletRequest request, @ModelAttribute UserVO userVO) {
+		try {
+			HttpSession session = request.getSession();
+			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+
+			if(loginUser == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+			}
+
+			// 현재 로그인한 사용자의 ID 설정
+			userVO.setUserId(loginUser.getUserId());
+
+			// 회원정보 수정
+			userService.updateUser(userVO);
+
+			// 세션 정보 갱신
+			UserVO updatedUser = userService.findUserById(loginUser.getUserId());
+			session.setAttribute("loginUser", updatedUser);
+			log.info("updateUser: {}", updatedUser);
+
+			return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
+		} catch(Exception e) {
+			log.error("회원정보 수정 중 오류 발생: {}", e.getMessage());
+
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
+		}
 	}
 }
