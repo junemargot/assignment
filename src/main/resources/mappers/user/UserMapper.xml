@@ -50,7 +50,7 @@
         SET
             user_id = #{userId},
             user_name = #{userName},
-            pwd = #{pwd},
+            pwd = COALESCE(#{pwd}, pwd),
             rrn = #{rrn},
             zipcode = #{zipcode},
             address = #{address},

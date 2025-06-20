@@ -487,7 +487,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">주소</label>
       <div class="col-sm-4">
-        <input class="form-control" id="address1" name="address1" type="text" value="${userInfo.address}" title="주소" readonly />
+        <input class="form-control" id="address1" name="address1" type="text" value="${fn:split(userInfo.address, ',')[0]}" title="주소" readonly />
       </div>
     </div>
 
@@ -495,7 +495,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label">상세 주소</label>
       <div class="col-sm-4">
-        <input class="form-control" id="address2" name="address2" type="text" value="" title="상세주소" />
+        <input class="form-control" id="address2" name="address2" type="text" value="${fn:split(userInfo.address, ',')[1]}" title="상세주소" />
       </div>
     </div>
 
@@ -621,22 +621,22 @@
   // update form
   $('#updateForm').on('submit', function(e){
       e.preventDefault();
-      // 유효성 검사…
+
+      const formData = new FormData(this);
+
+      // 유효성 검사
       $.ajax({
           url: '/user/mypage.do',
           method: 'POST',
-          data: new FormData(this),
+          data: formData,
           processData: false,
-          contentType: false
-      }).done(res=>{
-          alert(res);
-          location.reload();
-      }).fail(xhr=>{
-          if(xhr.status === 401) {
-              alert('로그인이 필요합니다.');
-              location.href = '/login/login.do';
-          } else {
-              alert('수정 실패');
+          contentType: false,
+          success: function(response) {
+              alert(response);
+              location.reload();
+          },
+          error: function(xhr) {
+              alert("Error: " + xhr.responseText);
           }
       });
   });

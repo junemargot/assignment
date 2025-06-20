@@ -1,5 +1,6 @@
 package com.lime.user.controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,9 +43,8 @@ public class UserController {
 	
 	// [POST] 회원가입 폼 제출 처리
 	@PostMapping("/user/userInsert.do")
-	public String userInsert(@ModelAttribute UserVO user, @RequestParam(required = false) String address1,
-													@RequestParam(required = false) String address2, @RequestParam(required = false) String[] files,
-													Model model) {
+	public String userInsert(@ModelAttribute UserVO user, @RequestParam(required = false) String address1, @RequestParam(required = false) String address2,
+													 @RequestParam(required = false) String[] files, Model model) {
 
 		// 1. 서버사이드 입력값 검증
 		if(user.getUserId() == null || user.getUserId().length() < 6) {
@@ -175,10 +175,14 @@ public class UserController {
 	@GetMapping("/user/mypage.do")
 	public String myPage(HttpServletRequest request, Model model) {
 		HttpSession session = request.getSession();
+		log.info("SESSION ID: {}", session.getId());
+		log.info("SESSION ATTRIBUTE: {}", Collections.list(session.getAttributeNames()));
+
 		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-		log.info("현재 로그인 회원 정보: {}", loginUser);
+		log.info("loginUser from session: {}", loginUser);
 
 		if(loginUser == null) {
+			log.warn("Session exists but loginUser is null!");
 			return "redirect:/login/login.do";
 		}
 
@@ -192,7 +196,8 @@ public class UserController {
 	// [POST] 마이페이지 - 회원정보 수정
 	@PostMapping("/user/mypage.do")
 	@ResponseBody
-	public ResponseEntity<String> updateUser(HttpServletRequest request, @ModelAttribute UserVO userVO) {
+	public ResponseEntity<String> updateUser(HttpServletRequest request, @ModelAttribute UserVO user, @RequestParam(required = false) String address1, @RequestParam(required = false) String address2, @RequestParam(required = false) String[] files) {
+
 		try {
 			HttpSession session = request.getSession();
 			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
@@ -202,17 +207,28 @@ public class UserController {
 			}
 
 			// 현재 로그인한 사용자의 ID 설정
-			userVO.setUserId(loginUser.getUserId());
+			user.setUserId(loginUser.getUserId());
 
-			// 회원정보 수정
-			userService.updateUser(userVO);
+			// 1. 주소 합치기(백엔드 처리)
+			String fullAddress = (address1 != null ? address1 : "") +
+							(address2 != null && !address2.isEmpty() ? ", " + address2 : "");
+			user.setAddress(fullAddress);
 
-			// 세션 정보 갱신
+			// 2. 회원정보 수정
+			userService.updateUser(user);
+
+			// 3. 파일명 처리
+			if(files != null && files.length > 0) {
+				user.setFileNames(String.join(",", files));
+			}
+
+			// 4. 세션 정보 갱신
 			UserVO updatedUser = userService.findUserById(loginUser.getUserId());
 			session.setAttribute("loginUser", updatedUser);
 			log.info("updateUser: {}", updatedUser);
 
 			return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
+
 		} catch(Exception e) {
 			log.error("회원정보 수정 중 오류 발생: {}", e.getMessage());
 
