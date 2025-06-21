@@ -195,44 +195,87 @@ public class UserController {
 
 	// [POST] 마이페이지 - 회원정보 수정
 	@PostMapping("/user/mypage.do")
-	@ResponseBody
-	public ResponseEntity<String> updateUser(HttpServletRequest request, @ModelAttribute UserVO user, @RequestParam(required = false) String address1, @RequestParam(required = false) String address2, @RequestParam(required = false) String[] files) {
+	public String updateUser(HttpServletRequest request, @ModelAttribute UserVO user, 
+							@RequestParam(required = false) String address1, 
+							@RequestParam(required = false) String address2, 
+							@RequestParam(required = false) String[] files,
+							@RequestParam(required = false) String oldPwd,
+							Model model) {
 
 		try {
 			HttpSession session = request.getSession();
 			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
 
 			if(loginUser == null) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+				return "redirect:/login/login.do";
 			}
 
 			// 현재 로그인한 사용자의 ID 설정
 			user.setUserId(loginUser.getUserId());
 
-			// 1. 주소 합치기(백엔드 처리)
+			// * 로깅용 - 전달 파라미터
+			Map<String, String[]> paramMap = request.getParameterMap();
+			log.info("전달된 파라미터: {}", paramMap);
+			log.info("받은 user 객체: {}", user);
+
+			// 1. 기존 비밀번호 확인 (새 비밀번호가 입력된 경우에만)
+			if(user.getPwd() != null && !user.getPwd().trim().isEmpty()) {
+				if(oldPwd == null || oldPwd.trim().isEmpty()) {
+					model.addAttribute("errorMsg", "현재 비밀번호를 입력해주세요.");
+					UserVO userInfo = userService.findUserById(loginUser.getUserId());
+					model.addAttribute("userInfo", userInfo);
+					return "/user/mypage";
+				}
+
+				// 기존 비밀번호 확인
+				if(!userService.checkUserPwd(loginUser.getUserId(), oldPwd)) {
+					model.addAttribute("errorMsg", "현재 비밀번호가 일치하지 않습니다.");
+					UserVO userInfo = userService.findUserById(loginUser.getUserId());
+					model.addAttribute("userInfo", userInfo);
+					return "/user/mypage";
+				}
+			} else {
+				// 비밀번호 변경하지 않는 경우 null로 설정
+				user.setPwd(null);
+			}
+
+			// 2. 주소 합치기(백엔드 처리)
 			String fullAddress = (address1 != null ? address1 : "") +
 							(address2 != null && !address2.isEmpty() ? ", " + address2 : "");
 			user.setAddress(fullAddress);
 
-			// 2. 회원정보 수정
-			userService.updateUser(user);
-
 			// 3. 파일명 처리
 			if(files != null && files.length > 0) {
+				// 새로운 파일이 업로드된 경우
 				user.setFileNames(String.join(",", files));
+			} else {
+				// 파일을 변경하지 않는 경우 기존 파일명 유지
+				UserVO currentUser = userService.findUserById(loginUser.getUserId());
+				user.setFileNames(currentUser.getFileNames());
 			}
 
-			// 4. 세션 정보 갱신
+			// 4. 회원정보 수정
+			userService.updateUser(user);
+
+			// 5. 세션 정보 갱신
 			UserVO updatedUser = userService.findUserById(loginUser.getUserId());
 			session.setAttribute("loginUser", updatedUser);
 			log.info("updateUser: {}", updatedUser);
 
-			return ResponseEntity.ok("회원정보가 성공적으로 수정되었습니다.");
+			// 6. 성공 플래그 전달
+			model.addAttribute("updateSuccess", true);
+			model.addAttribute("userInfo", updatedUser);
+
+			return "/user/mypage";
 
 		} catch(Exception e) {
 			log.error("회원정보 수정 중 오류 발생: {}", e.getMessage());
+			e.printStackTrace();
 
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 중 오류가 발생했습니다.");
+			model.addAttribute("errorMsg", "회원정보 수정 중 오류가 발생했습니다.");
+			UserVO userInfo = userService.findUserById(user.getUserId());
+			model.addAttribute("userInfo", userInfo);
+			return "/user/mypage";
 		}
 	}
 }

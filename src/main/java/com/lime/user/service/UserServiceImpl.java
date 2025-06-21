@@ -100,6 +100,14 @@ public class UserServiceImpl implements UserService {
 			throw new EntityNotFoundException("사용자를 찾을 수 없습니다. " + user.getUserId());
 		}
 
+		// 비밀번호가 입력된 경우에만 암호화 처리
+		if(user.getPwd() != null && !user.getPwd().trim().isEmpty()) {
+			String hashedPw = pwEncoder.encode(user.getPwd());
+			user.setPwd(hashedPw);
+			log.info("비밀번호 변경 처리 완료");
+		}
+
 		userDAO.updateUser(user);
+		log.info("회원정보 수정 완료: {}", user.getUserId());
 	}
 }

@@ -49,14 +49,14 @@
         UPDATE user
         SET
             user_id = #{userId},
-            user_name = #{userName},
             pwd = COALESCE(#{pwd}, pwd),
+            user_name = #{userName},
             rrn = #{rrn},
             zipcode = #{zipcode},
             address = #{address},
             company_address = #{companyAddress},
             email = #{email},
-            file_names = #{fileNames}
+            file_names = COALESCE(#{fileNames}, file_names)
         WHERE user_id = #{userId}
     </update>
 

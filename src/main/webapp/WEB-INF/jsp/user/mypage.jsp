@@ -221,7 +221,7 @@
         if(oldPwd === '') {
             $('#oldPwdError').text('현재 비밀번호를 입력해주세요.').css('color', 'red');
             $('#pwd, #pwdck').prop('disabled', true).val(''); // 기존 비밀번호 일치 시에만 새 비밀번호 필드 활성화
-            $('#pwdError, #passwordConfirmError').text('');
+            $('#pwdError, #newPwdConfirmError').text('');
             return false;
         }
 
@@ -233,18 +233,18 @@
             success: function(response) {
                 if(response.valid) {
                     $('#oldPwdError').text('기존 비밀번호가 일치합니다.').css('color', 'blue');
-                    $('#pwd, #pwdck').prop('disabled', false).val('');
-                    $('#pwdError, #passwordConfirmError').text('');
+                    $('#pwd, #pwdck').prop('disabled', false);
+                    $('#pwdError, #newPwdConfirmError').text('');
                 } else {
                     $('#oldPwdError').text('기존 비밀번호가 일치하지 않습니다.').css('color', 'red');
                     $('#pwd, #pwdck').prop('disabled', true).val('');
-                    $('#pwdError, #passwordConfirmError').text('');
+                    $('#pwdError, #newPwdConfirmError').text('');
                 }
             },
             error: function() {
                 $('#oldPwdError').text('비밀번호 확인 중 오류가 발생했습니다.').css('color', 'red');
                 $('#pwd, #pwdck').prop('disabled', true).val('');
-                $('#pwdError, #passwordConfirmError').text('');
+                $('#pwdError, #newPwdConfirmError').text('');
             }
         });
     }
@@ -258,18 +258,17 @@
     // 데이터가 많아지게 되면 ajax가 효율적이다.
 
     $(document).ready(function() {
+        // 초기 설정: 비밀번호 변경 필드 비활성화
+        $('#pwd, #pwdck').prop('disabled', true);
+        
+        // 기존 비밀번호 입력 시 검증
+        $('#oldPwd').on('blur', checkOldPwd);
+        
         $('#pwd').on('keyup', function() {
             validatePassword();
             validatePasswordConfirm(); // 실시간 일치 여부도 함께
         });
         $('#pwdck').on('keyup', validatePasswordConfirm);
-        $('#idcked').on('click', checkUserId); // ID 중복 체크 버튼 연결
-
-        // 유효성 검증 강화 - 아이디 변경 시 중복체크 상태 초기화
-        $('#userId').on('input', function() {
-            $('#userIdChecked').val('false');
-            $('#userIdError').text('');
-        });
 
         $('#userName').on('blur keyup', validateUserName);
 
@@ -377,22 +376,19 @@
 </script>
 
 <div class="container" style="margin-top: 50px;">
-  <form method="post" action="/user/mypage.do" modelAttribute="userInfo" id="updateForm" enctype="multipart/form-data" class="form-horizontal">
-    <input type="hidden" id="userIdChecked" value="false" />
+  <form method="post" action="/user/mypage.do" id="updateForm" class="form-horizontal">
+    <input type="hidden" id="userIdChecked" value="true" />
     <!-- 아이디 -->
     <div class="form-group">
       <label class="col-sm-2 control-label">
         ID <span class="required-star">*</span>
       </label>
       <div class="col-sm-4">
-        <input class="form-control" id="userId" name="userId" type="text" value="${userInfo.userId}" title="ID" />
+        <input class="form-control" id="userId" name="userId" type="text" value="${userInfo.userId}" title="ID" readonly style="background-color: #f9f9f9;" />
         <!-- ID 유효성 메시지 -->
         <div id="userIdError" style="margin-top: 5px;"></div>
       </div>
-      <!-- 중복확인 버튼 -->
-      <div class="container">
-        <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 중복 체크</button>
-      </div>
+      <!-- 중복확인 버튼 제거 (수정 시에는 ID 변경 불가) -->
     </div>
 
     <!-- 기존 비밀번호 -->
@@ -511,7 +507,7 @@
     </div>
 
     <!-- 첨부파일 -->
-    <input type="hidden" id="existingFiles" name="existingFiles" value="<c:out value='${userInfo.fileNames}'/>" />
+    <input type="hidden" id="existingFiles" name="files" value="<c:out value='${userInfo.fileNames}'/>" />
     <div class="form-group">
       <label class="col-sm-2 control-label">첨부 파일</label>
       <div class="col-sm-4">
@@ -622,23 +618,34 @@
   $('#updateForm').on('submit', function(e){
       e.preventDefault();
 
-      const formData = new FormData(this);
+      // 비밀번호 변경 시 유효성 검증
+      const oldPwd = $('#oldPwd').val().trim();
+      const newPwd = $('#pwd').val().trim();
+      const confirmPwd = $('#pwdck').val().trim();
 
-      // 유효성 검사
-      $.ajax({
-          url: '/user/mypage.do',
-          method: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function(response) {
-              alert(response);
-              location.reload();
-          },
-          error: function(xhr) {
-              alert("Error: " + xhr.responseText);
+      if(newPwd !== '') {
+          // 새 비밀번호가 입력된 경우
+          if(oldPwd === '') {
+              alert('현재 비밀번호를 입력해주세요.');
+              $('#oldPwd').focus();
+              return;
           }
-      });
+          
+          if(!validatePassword()) {
+              alert('새 비밀번호 형식이 올바르지 않습니다.');
+              $('#pwd').focus();
+              return;
+          }
+          
+          if(newPwd !== confirmPwd) {
+              alert('새 비밀번호가 일치하지 않습니다.');
+              $('#pwdck').focus();
+              return;
+          }
+      }
+
+      // 폼 제출 (일반 submit)
+      this.submit();
   });
 </script>
 
