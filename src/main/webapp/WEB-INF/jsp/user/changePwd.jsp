@@ -123,6 +123,11 @@
     }
 
     $(document).ready(function() {
+      // 마이페이지에서 온 경우 기존 비밀번호 입력칸 바로 활성화
+      <c:if test="${fromMypage}">
+        $('#oldPwd').prop('disabled', false);
+      </c:if>
+
       $('#idcked').on('click', checkUserIdExist);
       $('#oldPwd').on('blur', checkOldPwd); // 기존 비밀번호 확인
 
@@ -142,13 +147,28 @@
       $('#changeForm').on('submit', function() {
         return validateChangeForm();
       });
+
+      <c:if test="${!fromMypage}">
+        $('#idcked').on('click', checkUserIdExist());
+        $('#userId').on('input', function() {
+          $('#userIdChecked').val('false');
+          $('#userIdError').text('');
+          $('#oldPwd, #pwd, #pwdck').prop('disabled', true).val('');
+          $('#pwdError, #passwordConfirmError').text('');
+        })
+      </c:if>
     });
   </script>
 </head>
 <body>
   <div class="container" style="margin-top: 50px">
     <form id="changeForm" action="/user/changePwd.do" method="post" class="form-horizontal">
-      <input type="hidden" id="userIdChecked" value="false" />
+      <c:choose>
+        <c:when test="${fromMypage}">
+          <input type="hidden" id="userId" name="userId" value="${loginUser.userId}" />
+          <input type="hidden" id="userIdChecked" value="true" />
+        </c:when>
+      <c:otherwise>
       <!-- 아이디 -->
       <div class="form-group">
         <label class="col-sm-2 control-label">ID</label>
@@ -162,6 +182,10 @@
           <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 체크</button>
         </div>
       </div>
+      <input type="hidden" id="userIdChecked" value="false" />
+      </c:otherwise>
+      </c:choose>
+
       <!-- 기존 비밀번호 -->
       <div class="form-group">
         <label class="col-sm-2 control-label">현재 비밀번호</label>
@@ -188,7 +212,16 @@
       <!-- 버튼 -->
       <div class="col-md-offset-4">
         <button type="submit" id="changeBtn" class="btn btn-primary">변경</button>
-        <button type="button" id="#" class="btn btn-danger" onclick="location.href='/login/login.do'">취소</button>
+        <button type="button" class="btn btn-danger" onclick="
+        <c:choose>
+        <c:when test='${fromMypage}'>
+          location.href='/user/mypage.do'
+        </c:when>
+        <c:otherwise>
+          location.href='/login/login.do'
+        </c:otherwise>
+        </c:choose>
+          ">취소</button>
       </div>
 
     </form>
@@ -200,4 +233,9 @@
     </c:if>
   </div>
 </body>
+<script>
+  console.log("fromMypage: ${fromMypage}");
+  console.log("loginUser: ${loginUser}");
+
+</script>
 </html>

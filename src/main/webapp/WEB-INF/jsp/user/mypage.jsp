@@ -261,7 +261,7 @@
     $('#pwd, #pwdck').prop('disabled', true);
 
     // 기존 비밀번호 입력 시 검증
-    $('#oldPwd').on('blur', checkOldPwd);
+    // $('#oldPwd').on('blur', checkOldPwd);
 
     $('#pwd').on('keyup', function() {
       validatePassword();
@@ -435,6 +435,16 @@
       <div class="col-sm-4">
         <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="새 비밀번호를 다시 입력해주세요" />
         <div id="newPwdConfirmError" style="margin-top: 5px;"></div>
+      </div>
+    </div>
+
+    <!-- 비밀번호 변경 처리 추가 / 페이지 이동 -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">
+        현재 비밀번호 <span class="required-star">*</span>
+      </label>
+      <div class="col-sm-4">
+        <button type="button" id="#" class="btn btn-default" onclick="location.href='/user/changePwdFromMypage.do'">비밀번호 변경</button>
       </div>
     </div>
 

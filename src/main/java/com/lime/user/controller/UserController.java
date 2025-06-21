@@ -171,6 +171,21 @@ public class UserController {
 		return "/user/changePwd";
 	}
 
+	// [GET] 마이페이지에서 비밀번호 변경 페이지 이동
+	@GetMapping("/user/changePwdFromMypage.do")
+	public String changePwdFromMyPage(HttpServletRequest request, Model model) {
+		HttpSession session = request.getSession();
+		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+
+		if(loginUser == null) {
+			return "redirect:/login/login.do";
+		}
+
+		model.addAttribute("fromMypage", true);
+		model.addAttribute("loginUser", loginUser);
+		return "/user/changePwd";
+	}
+
 	// [GET] 마이페이지
 	@GetMapping("/user/mypage.do")
 	public String myPage(HttpServletRequest request, Model model) {
