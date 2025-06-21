@@ -112,9 +112,11 @@
     const checkDigit = (11 - (sum % 11)) % 10;
     if(checkDigit !== parseInt(rrn[12])) {
       $('#RRNError').text('유효하지 않은 주민등록번호입니다.').css('color', 'red');
+      rrnVerified = false;
       return false;
     }
 
+    rrnVerified = true;
     $('#RRNError').text('유효한 주민등록번호입니다.').css('color', 'blue');
     return true;
   }
@@ -183,31 +185,35 @@
   }
 
   // 회원가입 폼 제출 시 전체 유효성 검증
-  function validateForm() { // ajax로 바꾸기
+  function validateUpdateForm() { // ajax로 바꾸기
     var isValid = true;
 
-    if(!validateUserId()) isValid = false;
-    if($('#userIdChecked').val() !== 'true') {
-      alert('아이디 중복체크를 해주세요.');
-      isValid = false;
-    }
-
-    if(!validatePassword()) isValid = false;
-    if(!validatePasswordConfirm()) isValid = false;
-
+    // 이름 검증
     if($('#userName').val().trim() === '') {
       $('#userNameError').text('이름을 입력해주세요.').css('color', 'red');
       isValid = false;
-    } else {
-      $('#userNameError').text();
+    } else if(!validateUserName()) {
+      isValid = false;
     }
 
-    // 이메일
+    // 이메일 검증
     if(!validateEmail()) {
       isValid = false;
     } else if($('#emailVerified').val() !== 'true') {
       $('#emailCodeError').text('이메일 인증을 완료해주세요.').css('color', 'red');
       isValid = false;
+    }
+
+    // 주민번호 검증 (입력된 경우에만)
+    const userRRN = $('#userRRN').val().trim();
+    if(userRRN !== '') {
+      if(!validateRRN()) {
+        isValid = false;
+      } else if(userRRN !== initialRRN && !rrnVerified) {
+        // 주민번호를 변경했는데 확인 버튼을 안 눌렀을 경우
+        $('#RRNError').text('주민번호 확인을 진행해주세요.').css('color', 'red');
+        isValid = false;
+      }
     }
 
     return isValid;
@@ -279,15 +285,21 @@
     });
 
     // 이메일 변경 감지 및 상태 초기화
-    let initialEmail = '';
+    let initialEmail = $('#userEmail').val().trim();
+
+    if(initialEmail) {
+      $('#emailVerified').val('true');
+    }
 
     $('#userEmail').on('input', function() {
       const currentEmail = $(this).val().trim();
 
       if(initialEmail && currentEmail !== initialEmail) {
-        // 상태 초기화 UI 표시
+        // 이메일이 변경된 경우에만 재인증 요구
         $('#emailError').text('이메일이 변경되었습니다. 재인증이 필요합니다.').css('color', 'red');
+        $('#emailVerified').val('false'); // 인증 상태 초기화
         $('#emailCodeError').text('');
+
         // 서버에 기존 인증번호 삭제 요청
         $.post('/user/clearCode.do', { email: initialEmail }).fail(() => console.error('기존 인증번호 삭제 실패'));
 
@@ -355,6 +367,19 @@
         }
       });
     });
+
+    // 주민번호 변경 감지
+    let initialRRN = $('#userRRN').val().trim();
+    let rrnVerified = true;
+
+    $('#userRRN').on('input', function() {
+      const currentRRN = $(this).val().trim();
+
+      if(currentRRN !== initialRRN) {
+        rrnVerified = false;
+        $('#RRNError').text('주민번호가 변경되었습니다. 확인 버튼을 눌러 인증을 완료해주세요.').css('color', 'red');
+      }
+    });
   });
 
   function resetVerificationState() {
@@ -369,7 +394,7 @@
 </script>
 
 <div class="container" style="margin-top: 50px;">
-  <form method="post" action="/user/mypage.do" id="updateForm" class="form-horizontal">
+  <form action="/user/mypage.do" method="post" onsubmit="return validateUpdateForm()" class="form-horizontal" id="updateForm">
     <input type="hidden" id="userIdChecked" value="true" />
     <!-- 아이디 -->
     <div class="form-group">
@@ -431,6 +456,7 @@
       </label>
       <div class="col-sm-4">
         <div style="display: flex; gap: 8px; width: 100%;">
+          <input type="hidden" id="emailVerified" value="true" />
           <input class="form-control" id="userEmail" name="email" type="email" value="${userInfo.email}" placeholder="예: example@example.com" autocomplete="off" style="flex: 2;" />
           <button type="button" id="emailAuthBtn" class="btn btn-default" style="flex: 1;">인증번호 발송</button>
         </div>
@@ -622,61 +648,61 @@
   }
 
   // update form
-  $('#updateForm').on('submit', function(e){
-    e.preventDefault();
-
-    // 필수값 검증
-    const userName = $('#userName').val().trim();
-    const email = $('#userEmail').val().trim();
-
-    if(userName === '') {
-      $('#userNameError').text("이름을 입력해주세요.");
-      $('#userName').focus();
-      return;
-    }
-
-    if(email === '') {
-      $('#emailError').text("이메일을 입력해주세요.");
-      $('#userEmail').focus();
-      return;
-    }
-
-    // 이메일
-    if(!validateEmail()) {
-        isValid = false;
-    } else if($('#emailVerified').val() !== 'true') {
-        $('#emailCodeError').text('이메일 인증을 완료해주세요.').css('color', 'red');
-        isValid = false;
-    }
-
-    // 비밀번호 변경 시 유효성 검증
-    const oldPwd = $('#oldPwd').val().trim();
-    const newPwd = $('#pwd').val().trim();
-    const confirmPwd = $('#pwdck').val().trim();
-
-    if(newPwd !== '') {
-      // 새 비밀번호가 입력된 경우
-      if(oldPwd === '') {
-        alert('현재 비밀번호를 입력해주세요.');
-        $('#oldPwd').focus();
-        return;
-      }
-
-      if(!validatePassword()) {
-        alert('새 비밀번호 형식이 올바르지 않습니다.');
-        $('#pwd').focus();
-        return;
-      }
-
-      if(newPwd !== confirmPwd) {
-        alert('새 비밀번호가 일치하지 않습니다.');
-        $('#pwdck').focus();
-        return;
-      }
-    }
-
-    // 폼 제출 (일반 submit)
-    this.submit();
-  });
+  // $('#updateForm').on('submit', function(e){
+  //   e.preventDefault();
+  //
+  //   // 필수값 검증
+  //   const userName = $('#userName').val().trim();
+  //   const email = $('#userEmail').val().trim();
+  //
+  //   if(userName === '') {
+  //     $('#userNameError').text("이름을 입력해주세요.");
+  //     $('#userName').focus();
+  //     return;
+  //   }
+  //
+  //   if(email === '') {
+  //     $('#emailError').text("이메일을 입력해주세요.");
+  //     $('#userEmail').focus();
+  //     return;
+  //   }
+  //
+  //   // 이메일
+  //   if(!validateEmail()) {
+  //       isValid = false;
+  //   } else if($('#emailVerified').val() !== 'true') {
+  //       $('#emailCodeError').text('이메일 인증을 완료해주세요.').css('color', 'red');
+  //       isValid = false;
+  //   }
+  //
+  //   // 비밀번호 변경 시 유효성 검증
+  //   const oldPwd = $('#oldPwd').val().trim();
+  //   const newPwd = $('#pwd').val().trim();
+  //   const confirmPwd = $('#pwdck').val().trim();
+  //
+  //   if(newPwd !== '') {
+  //     // 새 비밀번호가 입력된 경우
+  //     if(oldPwd === '') {
+  //       alert('현재 비밀번호를 입력해주세요.');
+  //       $('#oldPwd').focus();
+  //       return;
+  //     }
+  //
+  //     if(!validatePassword()) {
+  //       alert('새 비밀번호 형식이 올바르지 않습니다.');
+  //       $('#pwd').focus();
+  //       return;
+  //     }
+  //
+  //     if(newPwd !== confirmPwd) {
+  //       alert('새 비밀번호가 일치하지 않습니다.');
+  //       $('#pwdck').focus();
+  //       return;
+  //     }
+  //   }
+  //
+  //   // 폼 제출 (일반 submit)
+  //   this.submit();
+  // });
 </script>
 
