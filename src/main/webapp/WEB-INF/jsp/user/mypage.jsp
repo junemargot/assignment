@@ -80,7 +80,11 @@
   // 이름 검증
   function validateUserName() {
     const userName = $('#userName').val();
+    console.log("입력된 이름: ", userName);
+
     const userNameRegex = /^[가-힣a-zA-Z]{2,}$/;
+    var result = userNameRegex.test(userName);
+    console.log("이름 정규식 검증 결과: ", result);
 
     if(!userNameRegex.test(userName)) {
       $('#userNameError').text('한글 또는 영문 2글자 이상 입력해주세요.').css('color', 'red');
@@ -134,7 +138,6 @@
       dataType: 'json',
       success: function(response) {
         if(response.duplicate) { // object
-          // $('#userIdChecked').val('false'); // 중복
           $('#userIdError').text('이미 사용 중인 아이디입니다.').css('color', 'red');
         } else {
           $('#userIdChecked').val('true');
@@ -185,14 +188,11 @@
   }
 
   // 회원가입 폼 제출 시 전체 유효성 검증
-  function validateUpdateForm() { // ajax로 바꾸기
+  function validateUpdateForm() {
     var isValid = true;
 
-    // 이름 검증
-    if($('#userName').val().trim() === '') {
-      $('#userNameError').text('이름을 입력해주세요.').css('color', 'red');
-      isValid = false;
-    } else if(!validateUserName()) {
+    // 이름 검증(빈 값 + 형식 검증 포함)
+    if(!validateUserName()) {
       isValid = false;
     }
 
@@ -255,6 +255,10 @@
     });
   }
 
+  // 주민번호 변경 감지
+  // let initialRRN = $('#userRRN').val().trim();
+  let initialRRN = '';
+  let rrnVerified = true;
 
   $(document).ready(function() {
     // 초기 설정: 비밀번호 변경 필드 비활성화
@@ -368,10 +372,7 @@
       });
     });
 
-    // 주민번호 변경 감지
-    let initialRRN = $('#userRRN').val().trim();
-    let rrnVerified = true;
-
+    // 주민번호 검증
     $('#userRRN').on('input', function() {
       const currentRRN = $(this).val().trim();
 
@@ -410,38 +411,38 @@
     </div>
 
     <!-- 기존 비밀번호 -->
-    <div class="form-group">
-      <label class="col-sm-2 control-label">
-        현재 비밀번호 <span class="required-star">*</span>
-      </label>
-      <div class="col-sm-4">
-        <input class="form-control" id="oldPwd" name="oldPwd" type="password" placeholder="현재 비밀번호를 입력해주세요" />
-        <div id="oldPwdError" style="margin-top: 5px;"></div>
-      </div>
-    </div>
+<%--    <div class="form-group">--%>
+<%--      <label class="col-sm-2 control-label">--%>
+<%--        현재 비밀번호 <span class="required-star">*</span>--%>
+<%--      </label>--%>
+<%--      <div class="col-sm-4">--%>
+<%--        <input class="form-control" id="oldPwd" name="oldPwd" type="password" placeholder="현재 비밀번호를 입력해주세요" />--%>
+<%--        <div id="oldPwdError" style="margin-top: 5px;"></div>--%>
+<%--      </div>--%>
+<%--    </div>--%>
 
     <!-- 비밀번호 -->
-    <div class="form-group">
-      <label class="col-sm-2 control-label">
-        새 비밀번호 <span class="required-star">*</span>
-      </label>
-      <div class="col-sm-4">
-        <input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="새 비밀번호를 입력해주세요" />
-        <div id="pwdError" style="margin-top: 5px;"></div>
-      </div>
-      <label class="col-sm-2 control-label">
-        새 비밀번호 확인 <span class="required-star">*</span>
-      </label>
-      <div class="col-sm-4">
-        <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="새 비밀번호를 다시 입력해주세요" />
-        <div id="newPwdConfirmError" style="margin-top: 5px;"></div>
-      </div>
-    </div>
+<%--    <div class="form-group">--%>
+<%--      <label class="col-sm-2 control-label">--%>
+<%--        새 비밀번호 <span class="required-star">*</span>--%>
+<%--      </label>--%>
+<%--      <div class="col-sm-4">--%>
+<%--        <input class="form-control" id="pwd" name="pwd" type="password" title="비밀번호" placeholder="새 비밀번호를 입력해주세요" />--%>
+<%--        <div id="pwdError" style="margin-top: 5px;"></div>--%>
+<%--      </div>--%>
+<%--      <label class="col-sm-2 control-label">--%>
+<%--        새 비밀번호 확인 <span class="required-star">*</span>--%>
+<%--      </label>--%>
+<%--      <div class="col-sm-4">--%>
+<%--        <input class="form-control" id="pwdck" name="" type="password" title="비밀번호 확인" placeholder="새 비밀번호를 다시 입력해주세요" />--%>
+<%--        <div id="newPwdConfirmError" style="margin-top: 5px;"></div>--%>
+<%--      </div>--%>
+<%--    </div>--%>
 
     <!-- 비밀번호 변경 처리 추가 / 페이지 이동 -->
     <div class="form-group">
       <label class="col-sm-2 control-label">
-        현재 비밀번호 <span class="required-star">*</span>
+        비밀번호 변경 <span class="required-star">*</span>
       </label>
       <div class="col-sm-4">
         <button type="button" id="#" class="btn btn-default" onclick="location.href='/user/changePwdFromMypage.do'">비밀번호 변경</button>
