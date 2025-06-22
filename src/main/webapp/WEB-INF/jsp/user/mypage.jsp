@@ -549,7 +549,7 @@
       <label class="col-sm-2 control-label">첨부 파일</label>
       <div class="col-sm-4">
         <!-- 실제 파일 선택 버튼은 기존과 동일 -->
-        <input type="file" id="fileInput" name="files" class="form-control" style="display:none" onchange="handleFiles(this.files)" multiple />
+        <input type="file" id="fileInput" class="form-control" style="display:none" onchange="handleFiles(this.files)" multiple />
         <button type="button" class="btn btn-default" onclick="document.getElementById('fileInput').click()">파일 선택</button>
         <div id="fileList" style="margin-top: 10px;"></div>
       </div>
@@ -601,31 +601,43 @@
 
   // 페이지 로드 시 existingFiles에 담긴 CSV 문자열을 배열로 변환
   document.addEventListener('DOMContentLoaded', function() {
+    console.log("=== DOMContentLoaded 시작 ===");
     const csv = document.getElementById('existingFiles').value;
+    console.log("existingFiles 값: ", csv);
+
     if (csv) {
       csv.split(',').map(s => s.trim()).filter(s => s).forEach(name => {
-          uploadedFiles.push(name);
+        console.log("초기 파일 추가: ", name);
+        uploadedFiles.push(name);
       });
+      console.log("초기 uploadedFiles: ", uploadedFiles);
       updateFileList();
+    } else {
+      console.log("existingFiles가 비어있음");
     }
+    console.log("=== DOMContentLoaded 끝 ===");
   });
 
   function handleFiles(files) {
+    console.log("=== handleFiles 시작 ===");
+    console.log("선택된 파일 개수:", files.length);
+    console.log("기존 uploadedFiles:", uploadedFiles);
+
     // 파일 개수 제한
     if (uploadedFiles.length + files.length > 3) {
       alert('파일첨부는 최대 3개까지만 가능합니다.');
-
       document.getElementById('fileInput').value = '';
-      // uploadedFiles = [];
-
       return;
     }
 
-    // 파일 배열 초기화 후 새로 담기
+    // 새로 선택한 파일들만 추가
     for (let i = 0; i < files.length; i++) {
+      console.log("추가할 파일: ", files[i].name);
       uploadedFiles.push(files[i].name);
     }
-    console.log(uploadedFiles);
+
+    console.log("추가 후 uploadedFiles: ", uploadedFiles);
+    console.log("=== handleFiles 끝 ===");
     updateFileList();
   }
 
@@ -645,9 +657,11 @@
   // }
 
   function updateFileList() {
-    console.log('uploadedFiles: ', uploadedFiles);
-    var list = uploadedFiles.map((fileName, index) => {
+    console.log("=== updateFileList 시작 ===");
+    console.log('현재 uploadedFiles: ', uploadedFiles);
 
+    var list = uploadedFiles.map((fileName, index) => {
+      console.log(`파일: ${index}: ${fileName}}`);
       return `
         <div style="display: flex; align-items: center; margin-bottom: 4px; color: black;">
           <span>\${fileName}</span>

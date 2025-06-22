@@ -1,5 +1,6 @@
 package com.lime.user.controller;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -232,6 +233,7 @@ public class UserController {
 			Map<String, String[]> paramMap = request.getParameterMap();
 			log.info("전달된 파라미터: {}", paramMap);
 			log.info("받은 user 객체: {}", user);
+			log.info("files 파라미터: {}", Arrays.toString(files));
 
 			// 1. 기존 비밀번호 확인 (새 비밀번호가 입력된 경우에만)
 			if(user.getPwd() != null && !user.getPwd().trim().isEmpty()) {
