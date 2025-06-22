@@ -96,7 +96,7 @@
   }
 
   // 주민번호 검증
-  function validateRRN() {
+  function validateRRN(showSuccessMessage) {
     let rrn = $('#userRRN').val().replace(/-/g, '');
 
     // 길이 및 숫자 체크
@@ -121,7 +121,14 @@
     }
 
     rrnVerified = true;
-    $('#RRNError').text('유효한 주민등록번호입니다.').css('color', 'blue');
+
+    // 유효 메시지 표시 여부 결정
+    if(showSuccessMessage) {
+      $('#RRNError').text('유효한 주민등록번호입니다.').css('color', 'blue');
+    } else {
+      $('#RRNError').text('');
+    }
+    // $('#RRNError').text('').css('color', 'blue');
     return true;
   }
 
@@ -493,7 +500,7 @@
         <div id="RRNError" style="margin-top: 5px;"></div>
       </div>
       <div class="container">
-        <button type="button" class="btn btn-default" style="display: block;" onclick="validateRRN()">주민등록번호 확인</button>
+        <button type="button" class="btn btn-default" style="display: block;" onclick="validateRRN(true)">주민등록번호 확인</button>
       </div>
     </div>
 
@@ -654,6 +661,8 @@
   }
 
   function removeFile(index) {
+    var test = uploadedFiles.splice(index, 1);
+    console.log("삭제: ", test);
     document.getElementById('fileInput').value = '';
     updateFileList();
   }
