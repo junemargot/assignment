@@ -129,7 +129,7 @@
       </c:if>
 
       $('#idcked').on('click', checkUserIdExist);
-      $('#oldPwd').on('blur', checkOldPwd); // 기존 비밀번호 확인
+      $('#oldPwd').on('blur keyup', checkOldPwd); // 기존 비밀번호 확인
 
       $('#pwd').on('keyup', function() {
           validatePassword();
