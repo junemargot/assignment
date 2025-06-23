@@ -152,6 +152,37 @@ public class AccountController {
 		return result;
 	}
 
+	// [POST] 삭제 처리
+	@PostMapping("delete.do")
+	@ResponseBody
+	public Map<String, Object> deleteAccounts(@RequestParam("seqs") List<Integer> seqs, HttpSession session) {
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			// 로그인 체크
+			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+			if(loginUser == null) {
+				throw new Exception("로그인이 필요합니다.");
+			}
+
+			// 삭제 실행
+			for(Integer seq : seqs) {
+				Map<String, Object> paramMap = new HashMap<>();
+				paramMap.put("seq", seq);
+				accountService.deleteAccount(paramMap);
+			}
+
+			result.put("success", true);
+			result.put("message", seqs.size() + "개 항목이 삭제되었습니다.");
+
+		} catch(Exception e) {
+			result.put("success", false);
+			result.put("message", e.getMessage());
+		}
+
+		return result;
+	}
+
 	// [GET] 회계 목록 조회
 	@GetMapping("accountList.do")
 	public String selectAccountList(@ModelAttribute("searchVO") SampleDefaultVO searchVO, ModelMap modelMap) throws Exception {

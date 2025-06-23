@@ -19,5 +19,7 @@ public interface AccountService {
 
   void updateAccount(Map<String, Object> paramMap) throws Exception;
 
+  void deleteAccount(Map<String, Object> paramMap) throws Exception;
+
   Workbook createAccountListExcel(SampleDefaultVO searchVO) throws Exception;
 }

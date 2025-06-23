@@ -34,6 +34,10 @@ public class AccountDAO extends EgovAbstractMapper{
     update("Account.updateAccount", paramMap);
   }
 
+  public void deleteAccount(Map<String, Object> paramMap) throws Exception{
+    delete("Account.deleteAccount", paramMap);
+  }
+
   public int selectAccountTotalCount(SampleDefaultVO searchVO) throws Exception{
     return selectOne("Account.selectAccountTotalCount", searchVO);
   }

@@ -134,26 +134,6 @@
 			return false;
 		}
 
-		// 새 행 생성
-		// var newRow = '<tr>' +
-		// 	'<td><input type="checkbox" class="rowCheck" /></td>' +
-		// 	'<td>' + $('#profitCost option:selected').text() + '</td>' +
-		// 	'<td>' + $('#bigGroup option:selected').text() + '</td>' +
-		// 	'<td>' + ($('#middleGroup option:selected').text() || '해당없음') + '</td>' +
-		// 	'<td>' + ($('#smallGroup option:selected').text() || '해당없음') + '</td>' +
-		// 	'<td>' + ($('#detailGroup option:selected').text() || '해당없음') + '</td>' +
-		// 	'<td>' + $('#inputMoney').val() + '원</td>' +
-		// 	'<td>' + $('#inputRegDate').val() + '</td>' +
-		// 	'</tr>';
-		//
-		// // 테이블에 행 추가
-		// $('#accountListBody').prepend(newRow);
-		//
-		// // 입력필드 초기화
-		// resetInputRow();
-		// $('.input-row').hide();
-
-		// alert("입력사항이 추가되었습니다.");
 		var formData = {
 			profitCost: $('#profitCost').val(),
 			bigGroup: $('#bigGroup').val(),
@@ -206,15 +186,31 @@
 		}
 
 		if(confirm('선택된 ' + checkedBoxes.length + '개의 행을 삭제하시겠습니까?')) {
-			// 선택된 행 삭제
-			for(var i = checkedBoxes.length - 1; i >= 0; i--) {
-				checkedBoxes[i].closest('tr').remove();
-			}
+			// 선택된 항목의 sequence 추출
+			var seqs = [];
+			checkedBoxes.forEach(function(checkbox) {
+				seqs.push(checkbox.value); // value에 accountSeq가 들어있음
+			});
 
-			// 전체 선택 체크박스 해제
-			document.getElementById('checkAll').checked = false;
-
-			alert("선택된 행이 삭제되었습니다.");
+			$.ajax({
+				url: '/account/delete.do',
+				type: 'POST',
+				data: { seqs: seqs },
+				traditional: true, // 배열 직렬화
+				dataType: 'json',
+				success: function(response) {
+					if(response.success) {
+						alert(response.message);
+						location.reload(); // 페이지 새로고침
+					} else {
+						alert('삭제 중 오류가 발생했습니다: ' + response.message);
+					}
+				},
+				error: function(xhr, status, error) {
+					alert('삭제 중 오류가 발생했습니다.');
+					console.error(error);
+				}
+			});
 		}
 	}
 
@@ -326,7 +322,7 @@
 					<!-- 기존 데이터행 -->
 					<c:forEach var="account" items="${accountList}">
 						<tr>
-							<td><input type="checkbox" class="rowCheck" /></td>
+							<td><input type="checkbox" class="rowCheck" value="${account.accountSeq}" /></td>
 							<td>${account.profitCostNm}</td>
 							<td>${account.bigGroupNm}</td>
 							<td>${account.middleGroupNm}</td>

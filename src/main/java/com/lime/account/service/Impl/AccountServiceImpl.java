@@ -43,6 +43,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
+	public void deleteAccount(Map<String, Object> paramMap) throws Exception {
+		accountDAO.deleteAccount(paramMap);
+	}
+
+	@Override
 	public Workbook createAccountListExcel(SampleDefaultVO searchVO) throws Exception {
 
 		// 모든 데이터 조회

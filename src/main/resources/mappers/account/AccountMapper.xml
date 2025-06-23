@@ -80,4 +80,10 @@
             TRANSACTION_DATE = #{transactionDate}
         WHERE ACCOUNT_SEQ = #{seq}
     </update>
+
+    <!-- 삭제 -->
+    <delete id="deleteAccount" parameterType="map">
+        DELETE FROM ACCOUNT_TB
+        WHERE ACCOUNT_SEQ = #{seq}
+    </delete>
 </mapper>
