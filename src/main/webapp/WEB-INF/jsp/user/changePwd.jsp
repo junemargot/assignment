@@ -132,8 +132,8 @@
       $('#oldPwd').on('blur keyup', checkOldPwd); // 기존 비밀번호 확인
 
       $('#pwd').on('keyup', function() {
-          validatePassword();
-          validatePasswordConfirm();
+        validatePassword();
+        validatePasswordConfirm();
       });
 
       $('#pwdck').on('keyup blur', validatePasswordConfirm);
@@ -144,6 +144,7 @@
         $('#oldPwd, #pwd, #pwdck').prop('disabled', true).val('');
         $('#pwdError, #passwordConfirmError').text('');
       });
+
       $('#changeForm').on('submit', function() {
         return validateChangeForm();
       });
@@ -168,22 +169,22 @@
           <input type="hidden" id="userId" name="userId" value="${loginUser.userId}" />
           <input type="hidden" id="userIdChecked" value="true" />
         </c:when>
-      <c:otherwise>
-      <!-- 아이디 -->
-      <div class="form-group">
-        <label class="col-sm-2 control-label">ID</label>
-        <div class="col-sm-4">
-          <input class="form-control" id="userId" name="userId" type="text" title="ID" placeholder="아이디를 입력해주세요" />
-          <!-- ID 유효성 메시지 -->
-          <div id="userIdError" style="margin-top: 5px;"></div>
+        <c:otherwise>
+        <!-- 아이디 -->
+        <div class="form-group">
+          <label class="col-sm-2 control-label">ID</label>
+          <div class="col-sm-4">
+            <input class="form-control" id="userId" name="userId" type="text" title="ID" placeholder="아이디를 입력해주세요" />
+            <!-- ID 유효성 메시지 -->
+            <div id="userIdError" style="margin-top: 5px;"></div>
+          </div>
+          <!-- 중복확인 버튼 -->
+          <div class="container">
+            <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 체크</button>
+          </div>
         </div>
-        <!-- 중복확인 버튼 -->
-        <div class="container">
-          <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 체크</button>
-        </div>
-      </div>
-      <input type="hidden" id="userIdChecked" value="false" />
-      </c:otherwise>
+        <input type="hidden" id="userIdChecked" value="false" />
+        </c:otherwise>
       </c:choose>
 
       <!-- 기존 비밀번호 -->

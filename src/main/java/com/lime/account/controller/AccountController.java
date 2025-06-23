@@ -172,8 +172,14 @@ public class AccountController {
 
 		paginationInfo.setTotalRecordCount(totalCount); // 전체 레코드 수를 페이징 정보 객체에 설정(총 페이지 수 계산)
 
+		// 추가
+		Map<String, Object> inOutMap = new HashMap<>();
+		inOutMap.put("category", "A000000"); // 최상위 카테고리값
+		List<EgovMap> resultMap = commonService.selectCombo(inOutMap);
+
 		modelMap.addAttribute("accountList", accountList);
 		modelMap.addAttribute("paginationInfo", paginationInfo);
+		modelMap.addAttribute("resultMap", resultMap);
 
 		return "/account/accountList";
 	}
