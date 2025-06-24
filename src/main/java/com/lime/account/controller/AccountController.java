@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.lime.user.vo.UserVO;
+import com.lime.util.SessionUtil;
 import egovframework.example.sample.service.SampleDefaultVO;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -90,16 +91,13 @@ public class AccountController {
 	 * */
 	@PostMapping("/save.do")
 	@ResponseBody
-	public Map<String, Object> saveAccount(@RequestParam Map<String, Object> params, HttpSession session) {
+	public Map<String, Object> saveAccount(@RequestParam Map<String, Object> params, HttpServletRequest request) throws Exception {
 
 		Map<String, Object> result = new HashMap<>();
 
 		try {
 			// 1. 로그인 사용자 확인
-			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-			if (loginUser == null) {
-				throw new Exception("로그인이 필요합니다.");
-			}
+			UserVO loginUser = SessionUtil.getLoginUser(request);
 
 			// 2. 작성자 정보 설정(UserVO에서 userId 추출)
 			String writer = loginUser.getUserId();
@@ -191,16 +189,10 @@ public class AccountController {
 	 * */
 	@PostMapping("/delete.do")
 	@ResponseBody
-	public Map<String, Object> deleteAccounts(@RequestParam("seqs") List<Integer> seqs, HttpSession session) {
+	public Map<String, Object> deleteAccounts(@RequestParam("seqs") List<Integer> seqs) {
 		Map<String, Object> result = new HashMap<>();
 
 		try {
-			// 로그인 체크
-			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-			if(loginUser == null) {
-				throw new Exception("로그인이 필요합니다.");
-			}
-
 			// 삭제 실행
 			for(Integer seq : seqs) {
 				Map<String, Object> paramMap = new HashMap<>();

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.lime.common.service.EmailService;
+import com.lime.util.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,6 @@ import com.lime.user.service.UserService;
 import com.lime.user.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @Slf4j
 @Controller
@@ -250,12 +250,7 @@ public class UserController {
 	 * */
 	@GetMapping("/changePwdFromMypage.do")
 	public String changePwdFromMyPage(HttpServletRequest request, Model model) {
-		HttpSession session = request.getSession();
-		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-
-		if(loginUser == null) {
-			return "redirect:/login/login.do";
-		}
+		UserVO loginUser = SessionUtil.getLoginUser(request);
 
 		model.addAttribute("fromMypage", true);
 		model.addAttribute("loginUser", loginUser);
@@ -272,11 +267,7 @@ public class UserController {
 	 * */
 	@GetMapping("/mypage.do")
 	public String myPage(HttpServletRequest request, Model model) {
-		HttpSession session = request.getSession();
-		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-		if(loginUser == null) {
-			return "redirect:/login/login.do";
-		}
+		UserVO loginUser = SessionUtil.getLoginUser(request);
 
 		// 현재 로그인한 사용자 정보 조회
 		UserVO userInfo = userService.findUserById(loginUser.getUserId());
@@ -300,12 +291,7 @@ public class UserController {
 													 @RequestParam(required = false) String oldPwd,
 													 Model model) {
 		try {
-			HttpSession session = request.getSession();
-			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-
-			if(loginUser == null) {
-				return "redirect:/login/login.do";
-			}
+			UserVO loginUser = SessionUtil.getLoginUser(request);
 
 			// 현재 로그인한 사용자의 ID 설정
 			user.setUserId(loginUser.getUserId());
@@ -351,7 +337,7 @@ public class UserController {
 
 			// 5. 세션 정보 갱신
 			UserVO updatedUser = userService.findUserById(loginUser.getUserId());
-			session.setAttribute("loginUser", updatedUser);
+			SessionUtil.updateLoginUser(request, updatedUser);
 			log.info("updateUser: {}", updatedUser);
 
 			// 6. 성공 플래그 전달
