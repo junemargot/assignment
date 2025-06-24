@@ -170,20 +170,17 @@
           <input type="hidden" id="userIdChecked" value="true" />
         </c:when>
         <c:otherwise>
-        <!-- 아이디 -->
-        <div class="form-group">
-          <label class="col-sm-2 control-label">ID</label>
-          <div class="col-sm-4">
-            <input class="form-control" id="userId" name="userId" type="text" title="ID" placeholder="아이디를 입력해주세요" />
-            <!-- ID 유효성 메시지 -->
-            <div id="userIdError" style="margin-top: 5px;"></div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">ID</label>
+            <div class="col-sm-4">
+              <input class="form-control" id="userId" name="userId" type="text" title="ID" placeholder="아이디를 입력해주세요" />
+              <div id="userIdError" style="margin-top: 5px;"></div>
+            </div>
+            <div class="container">
+              <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 체크</button>
+            </div>
           </div>
-          <!-- 중복확인 버튼 -->
-          <div class="container">
-            <button type="button" id="idcked" class="btn btn-default" style="display: block;">ID 체크</button>
-          </div>
-        </div>
-        <input type="hidden" id="userIdChecked" value="false" />
+          <input type="hidden" id="userIdChecked" value="false" />
         </c:otherwise>
       </c:choose>
 
@@ -214,15 +211,15 @@
       <div class="col-md-offset-4">
         <button type="submit" id="changeBtn" class="btn btn-primary">변경</button>
         <button type="button" class="btn btn-danger" onclick="
-        <c:choose>
-        <c:when test='${fromMypage}'>
-          location.href='/user/mypage.do'
-        </c:when>
-        <c:otherwise>
-          location.href='/login/login.do'
-        </c:otherwise>
-        </c:choose>
-          ">취소</button>
+          <c:choose>
+            <c:when test='${fromMypage}'>
+              location.href='/user/mypage.do'
+            </c:when>
+            <c:otherwise>
+              location.href='/login/login.do'
+            </c:otherwise>
+          </c:choose>
+        ">취소</button>
       </div>
 
     </form>
@@ -234,9 +231,4 @@
     </c:if>
   </div>
 </body>
-<script>
-  console.log("fromMypage: ${fromMypage}");
-  console.log("loginUser: ${loginUser}");
-
-</script>
 </html>
