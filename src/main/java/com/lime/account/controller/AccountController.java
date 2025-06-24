@@ -44,20 +44,32 @@ public class AccountController {
 	@Resource(name="commonService")
 	private CommonService commonService;
 
-	// [POST] 계층형 select 박스 데이터 조회 (대분류 -> 중분류 등 Ajax)
-	@PostMapping("getSubCategory.do")
+	/**
+	 * 선택한 카테고리에 따른 하위 카테고리 목록 조회(Ajax)
+	 *
+	 * @method GET
+	 * @url /account/getSubCategory.do
+	 * @param category 선택된 상위 카테고리 코드
+	 * @return 하위 카테고리 목록(List<EgovMap>) 반환
+	 * */
+	@PostMapping("/getSubCategory.do")
 	@ResponseBody
 	public List<EgovMap> getSubCategory(@RequestParam String category) throws Exception {
-		// category 파라미터로 하위 카테고리 조회
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("category", category);
+		paramMap.put("category", category); // category 파라미터로 하위 카테고리 조회
 
 		return commonService.selectCombo(paramMap); // DB에서 목록 조회 후 반환
 	}
 
-	// [GET] 회계 입력 폼
-	@RequestMapping("accountInsert.do")
-	public String accountInsert(HttpServletRequest request, ModelMap model) throws Exception{
+	/**
+	 * 회계 등록 페이지
+	 *
+	 * @method GET
+	 * @url /account/accountInser.do
+	 * @return 회계 입력 페이지 뷰
+	 * */
+	@GetMapping("/accountInsert.do")
+	public String accountInsert(ModelMap model) throws Exception {
 
 		Map<String, Object> inOutMap = new HashMap<>();
 		inOutMap.put("category", "A000000"); // 최상위 카테고리값 설정
@@ -69,8 +81,14 @@ public class AccountController {
 		return "/account/accountInsert";
 	}
 
-	// [POST] 회계비용 등록
-	@PostMapping("save.do")
+	/**
+	 * 회계비용 등록 처리
+	 *
+	 * @method POST
+	 * @url /account/save.do
+	 * @return 저장 성공 여부 및 생성된 계정 시퀀스를 포함한 Map
+	 * */
+	@PostMapping("/save.do")
 	@ResponseBody
 	public Map<String, Object> saveAccount(@RequestParam Map<String, Object> params, HttpSession session) {
 
@@ -114,8 +132,14 @@ public class AccountController {
 		return result;
   }
 
-	// [GET] 수정 페이지
-	@GetMapping("edit.do")
+	/**
+	 * 회계 항목 수정 페이지 요청
+	 *
+	 * @method GET
+	 * @url /account/edit.do
+	 * @return 수정 페이지 뷰 경로
+	 * */
+	@GetMapping("/edit.do")
 	public String editAccount(@RequestParam int seq, ModelMap modelMap) throws Exception {
 
 		// 1. 기존 저장된 데이터 조회
@@ -132,11 +156,17 @@ public class AccountController {
 		modelMap.addAttribute("accountData", accountData);
 		modelMap.addAttribute("resultMap", resultMap);
 
-		return "/account/accountEdit"; // 수정 폼 JSP
+		return "/account/accountEdit";
 	}
 
-	// [POST] 수정 저장 처리
-	@PostMapping("update.do")
+	/**
+	 * 회계 항목 수정 처리
+	 *
+	 * @method POST
+	 * @url /account/update.do
+	 * @return 처리 결과 Map
+	 * */
+	@PostMapping("/update.do")
 	@ResponseBody
 	public Map<String, Object> updateAccount(@RequestParam Map<String, Object> params, HttpSession session) {
 
@@ -152,8 +182,14 @@ public class AccountController {
 		return result;
 	}
 
-	// [POST] 삭제 처리
-	@PostMapping("delete.do")
+	/**
+	 * 회계 항목 삭제 처리
+	 *
+	 * @method POST
+	 * @url /account/delete.do
+	 * @return 삭제 성공 여부 및 메시지
+	 * */
+	@PostMapping("/delete.do")
 	@ResponseBody
 	public Map<String, Object> deleteAccounts(@RequestParam("seqs") List<Integer> seqs, HttpSession session) {
 		Map<String, Object> result = new HashMap<>();
@@ -183,7 +219,15 @@ public class AccountController {
 		return result;
 	}
 
-	// [GET] 회계 목록 조회
+	/**
+	 * 회계 항목 목록 페이징 처리 조회
+	 *
+	 * @method GET
+	 * @url /account/accountList.do
+	 * @param searchVO 페이징 및 검색 조건
+	 * @param modelMap 뷰로 전달할 데이터
+	 * @return 회계 항목 목록 페이지
+	 * */
 	@GetMapping("accountList.do")
 	public String selectAccountList(@ModelAttribute("searchVO") SampleDefaultVO searchVO, ModelMap modelMap) throws Exception {
 
@@ -215,7 +259,13 @@ public class AccountController {
 		return "/account/accountList";
 	}
 
-	// [POST] 콤보박스 데이터 조회
+	/**
+	 * Ajax 기반 콤보박스 옵션 데이터 조회
+	 *
+	 * @method POST
+	 * @url /account/selectCombo.do
+	 * @return 콤보박스 데이터에 대한 JSON 응답
+	 * */
 	@PostMapping("selectCombo.do")
 	public ModelAndView ajaxtest(HttpServletRequest request) throws Exception{
 
@@ -225,7 +275,12 @@ public class AccountController {
 		return new ModelAndView(jsonView, inOutMap);
 	}
 
-	// [GET] 비용 리스트 엑셀 다운로드
+	/**
+	 * 회계 항목 전체 목록을 Excel 형식으로 다운로드
+	 *
+	 * @method GET
+	 * @url /account/listToExcel.do
+	 * */
 	@GetMapping("listToExcel.do")
 	public void downloadExcel(HttpServletResponse response) throws Exception {
 		SampleDefaultVO searchVO = new SampleDefaultVO();
