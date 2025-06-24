@@ -11,11 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.lime.user.service.UserService;
 import com.lime.user.vo.UserVO;
@@ -25,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 @Slf4j
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
 	private final UserService userService;
@@ -35,18 +32,36 @@ public class UserController {
 		this.emailService = emailService;
 	}
 	
-	// [GET] 회원가입 페이지 요청 처리
-	@GetMapping("/user/userInsert.do")
+	/**
+	* 회원가입 페이지 요청
+  *
+  * @method GET
+  * @url /user/userInsert.do
+	* @return 회원가입 JSP 경로 반환
+	*/
+	@GetMapping("/userInsert.do")
 	public String userInsert() {
-		
 		return "/user/userInsert";
 	}
-	
-	// [POST] 회원가입 폼 제출 처리
-	@PostMapping("/user/userInsert.do")
-	public String userInsert(@ModelAttribute UserVO user, @RequestParam(required = false) String address1, @RequestParam(required = false) String address2,
-													 @RequestParam(required = false) String[] files, Model model) {
 
+	/**
+	 * 회원가입 요청 처리
+	 *
+	 * @method POST
+	 * @url /user/userInsert.do
+	 * @param user 사용자 정보
+	 * @param address1 기본 주소
+	 * @param address2 상세 주소
+	 * @param files 첨부파일 배열
+	 * @param model 뷰에 전달할 모델 객체
+	 * @return 회원가입 페이지 또는 결과에 따라 재요청
+	 */
+	@PostMapping("/userInsert.do")
+	public String userInsert(@ModelAttribute UserVO user,
+													 @RequestParam(required = false) String address1,
+													 @RequestParam(required = false) String address2,
+													 @RequestParam(required = false) String[] files,
+													 Model model) {
 		// 1. 서버사이드 입력값 검증
 		if(user.getUserId() == null || user.getUserId().length() < 6) {
 			model.addAttribute("errorMsg", "아이디는 6글자 이상이어야 합니다");
@@ -80,62 +95,87 @@ public class UserController {
 			model.addAttribute("errorMsg", "회원가입에 실패했습니다.");
 		}
 
-		return "user/userInsert";
+		return "/user/userInsert";
 	}
     
-	// [POST] ID 중복 체크 AJAX 요청 처리
-	@PostMapping("/user/checkUserId.do")
-	@ResponseBody // JSON 형식으로 결과를 응답
+	/**
+	 * ID 중복 여부 확인
+	 *
+	 * @method POST
+	 * @url /user/checkUserId.do
+	 * @param userId 확인할 사용자 ID
+	 * @return 중복 여부 결과 JSON 반환
+	 */
+	@PostMapping("/checkUserId.do")
+	@ResponseBody
 	public Map<String, Object> checkUserId(@RequestParam String userId) {
-
 		boolean isDuplicate = userService.checkUserId(userId); // 서비스로직을 호출해 응답받은 결과값을 할당
-
 		Map<String, Object> result = new HashMap<>();
 		result.put("duplicate", isDuplicate); // JS에서 duplicate key값으로 판단,
 
 		return result;
 	}
 
-	// [GET] 이메일 인증번호 발송
-	@GetMapping("/user/mailCheck.do")
+	/**
+	 * 이메일 인증번호 발송 요청
+	 *
+	 * @method GET
+	 * @url /user/mailCheck.do
+	 * @param email 인증코드를 받을 이메일 주소
+	 * @return "SEND OK" - 인증 코드가 정상적으로 발송되었음을 나타냄
+	 */
+	@GetMapping("/mailCheck.do")
 	@ResponseBody
 	public String mailCheck(@RequestParam String email) {
-
 		emailService.sendVerificationCode(email);
-
 		return "SEND OK";
 	}
 
-	// [POST] 이메일 인증번호 검증
-	@PostMapping("/user/verifyCode.do")
+	/**
+	 * 이메일 인증번호 검증 요청
+	 *
+	 * @method POST
+	 * @url /user/verifyCode.do
+	 * @param email 이메일 주소
+	 * @param code 인증 코드
+	 * @return 인증 성공 여부
+	 * */
+	@PostMapping("/verifyCode.do")
 	@ResponseBody
 	public boolean verifyCode(@RequestParam String email, @RequestParam String code) {
-
 		return emailService.verifyCode(email, code);
 	}
 
-	// [GET] 비밀번호 변경 페이지 요청 처리
-	@GetMapping("/user/changePwd.do")
-	public String ChangeUserPwd() {
-
-		return "/user/changePwd";
-	}
-
-	// [POST] 인증번호 재발송을 위한 기존 코드 삭제 API
-	@PostMapping("/user/clearCode.do")
+	/**
+	 * 기존 이메일 인증 코드 삭제 (재발송 전 처리)
+	 *
+	 * @method POST
+	 * @url /user/clearCode.do
+	 * @param email 인증번호 삭제 대상 이메일
+	 * @return 처리 성공/실패 응답
+	 * */
+	@PostMapping("/clearCode.do")
 	@ResponseBody
 	public ResponseEntity<String> clearCode(@RequestParam String email) {
 		try {
 			emailService.clearVerificationCode(email);
 			return ResponseEntity.ok("CLEARED");
+
 		} catch(Exception e) {
 			log.error("인증번호 삭제 실패: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증번호 삭제 실패");
 		}
 	}
 
-	// [POST] 아이디 존재 체크 (비밀번호 변경용)
-	@PostMapping("/user/checkUserIdExists.do")
+	/**
+	 * 사용자 ID 존재 여부 확인 (비밀번호 변경 시 사용)
+	 *
+	 * @method POST
+	 * @url /user/checkUserIdExists.do
+	 * @param userId 입력한 사용자 ID
+	 * @return 존재 여부 결과
+	 * */
+	@PostMapping("/checkUserIdExists.do")
 	@ResponseBody
 	public Map<String, Object> checkUserIdExists(@RequestParam String userId) {
 		boolean exists = userService.checkUserId(userId);
@@ -146,8 +186,16 @@ public class UserController {
 		return result;
 	}
 
-	// [POST] 기존 비밀번호 확인 (비밀번호 변경용)
-	@PostMapping("/user/checkUserPwd.do")
+	/**
+	 * 기존 비밀번호 일치 여부 확인
+	 *
+	 * @method POST
+	 * @url /user/checkUserPwd.do
+	 * @param userId 사용자 ID
+	 * @param pwd 입력한 현재 비밀번호
+	 * @return 일치 여부 결과
+	 * */
+	@PostMapping("/checkUserPwd.do")
 	@ResponseBody
 	public Map<String, Object> checkUserPwd(@RequestParam String userId, @RequestParam String pwd) {
 		boolean valid = userService.checkUserPwd(userId, pwd);
@@ -158,8 +206,29 @@ public class UserController {
 		return result;
 	}
 
-	// [POST] 비밀번호 변경
-	@PostMapping("/user/changePwd.do")
+	/**
+	 * 비밀번호 변경 페이지 요청 (단독 접근)
+	 *
+	 * @method GET
+	 * @url /user/changePwd.do
+	 * @return 비밀번호 변경 페이지 경로 반환
+	 */
+	@GetMapping("/changePwd.do")
+	public String ChangeUserPwd() {
+		return "/user/changePwd";
+	}
+
+	/**
+	 * 비밀번호 변경 처리
+	 *
+	 * @method POST
+	 * @url /user/changePwd.do
+	 * @param userId 사용자 ID
+	 * @param pwd 새 비밀번호
+	 * @param model 응답 모델
+	 * @return 변경 결과 페이지 경로
+	 * */
+	@PostMapping("/changePwd.do")
 	public String changeUserPwd(@RequestParam String userId, @RequestParam String pwd, Model model) {
 		boolean result = userService.changeUserPwd(userId, pwd);
 
@@ -172,8 +241,14 @@ public class UserController {
 		return "/user/changePwd";
 	}
 
-	// [GET] 마이페이지에서 비밀번호 변경 페이지 이동
-	@GetMapping("/user/changePwdFromMypage.do")
+	/**
+	 * 마이페이지에서 비밀번호 변경 페이지 이동
+	 *
+	 * @method GET
+	 * @url /user/changePwdFromMypage.do
+	 * @return 비밀번호 변경 페이지 경로
+	 * */
+	@GetMapping("/changePwdFromMypage.do")
 	public String changePwdFromMyPage(HttpServletRequest request, Model model) {
 		HttpSession session = request.getSession();
 		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
@@ -184,21 +259,22 @@ public class UserController {
 
 		model.addAttribute("fromMypage", true);
 		model.addAttribute("loginUser", loginUser);
+
 		return "/user/changePwd";
 	}
 
-	// [GET] 마이페이지
-	@GetMapping("/user/mypage.do")
+	/**
+	 * 마이페이지 조회 - 회원정보 수정
+	 *
+	 * @method GET
+	 * @url /user/mypage.do
+	 * @return 마이페이지 뷰
+	 * */
+	@GetMapping("/mypage.do")
 	public String myPage(HttpServletRequest request, Model model) {
 		HttpSession session = request.getSession();
-		log.info("SESSION ID: {}", session.getId());
-		log.info("SESSION ATTRIBUTE: {}", Collections.list(session.getAttributeNames()));
-
 		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-		log.info("loginUser from session: {}", loginUser);
-
 		if(loginUser == null) {
-			log.warn("Session exists but loginUser is null!");
 			return "redirect:/login/login.do";
 		}
 
@@ -209,15 +285,20 @@ public class UserController {
 		return "/user/mypage";
 	}
 
-	// [POST] 마이페이지 - 회원정보 수정
-	@PostMapping("/user/mypage.do")
+	/**
+	 * 마이페이지 - 회원정보 수정 요청 처리
+	 *
+	 * @method POST
+	 * @url /user/mypage.do
+	 * @return 수정 결과 페이지
+	 * */
+	@PostMapping("/mypage.do")
 	public String updateUser(HttpServletRequest request, @ModelAttribute UserVO user, 
-							@RequestParam(required = false) String address1, 
-							@RequestParam(required = false) String address2, 
-							@RequestParam(required = false) String[] files,
-							@RequestParam(required = false) String oldPwd,
-							Model model) {
-
+													 @RequestParam(required = false) String address1,
+													 @RequestParam(required = false) String address2,
+													 @RequestParam(required = false) String[] files,
+													 @RequestParam(required = false) String oldPwd,
+													 Model model) {
 		try {
 			HttpSession session = request.getSession();
 			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
@@ -229,13 +310,7 @@ public class UserController {
 			// 현재 로그인한 사용자의 ID 설정
 			user.setUserId(loginUser.getUserId());
 
-			// * 로깅용 - 전달 파라미터
-			Map<String, String[]> paramMap = request.getParameterMap();
-			log.info("전달된 파라미터: {}", paramMap);
-			log.info("받은 user 객체: {}", user);
-			log.info("files 파라미터: {}", Arrays.toString(files));
-
-			// 1. 기존 비밀번호 확인 (새 비밀번호가 입력된 경우에만)
+			// 비밀번호 변경 요청인 경우 현재 비밀번호 검증
 			if(user.getPwd() != null && !user.getPwd().trim().isEmpty()) {
 				if(oldPwd == null || oldPwd.trim().isEmpty()) {
 					model.addAttribute("errorMsg", "현재 비밀번호를 입력해주세요.");
@@ -287,8 +362,6 @@ public class UserController {
 
 		} catch(Exception e) {
 			log.error("회원정보 수정 중 오류 발생: {}", e.getMessage());
-			e.printStackTrace();
-
 			model.addAttribute("errorMsg", "회원정보 수정 중 오류가 발생했습니다.");
 			UserVO userInfo = userService.findUserById(user.getUserId());
 			model.addAttribute("userInfo", userInfo);

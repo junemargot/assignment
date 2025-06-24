@@ -24,6 +24,11 @@
 		padding: 4px;
 		height: 30px;
 	}
+
+	input.form-control[readonly],
+	input.form-control.datepicker[readonly] {
+		background-color: #fff !important;
+	}
 </style>
 
 <script type="text/javascript">
@@ -107,10 +112,10 @@
 		$('#profitCost').focus();
 	}
 
-	// 행 추가 기능
-	function addRow() {
-		// 유효성 검증
-		if(!$('#profitCost').val()) {
+	// select 유효성 검증
+	function validateAccountForm() {
+		// 1. 필수 입력값 검증
+		if(!$('#profitCost').val()) { // profitCost id를 가진 요소의 값이 비어있는지 확인
 			alert('[수익/비용]을 선택해주세요.');
 			$('#profitCost').focus(); // 해당 입력 필드에 포커스 이동
 			return false;
@@ -122,17 +127,48 @@
 			return false;
 		}
 
-		if(!$('#inputMoney').val()) {
+		// 2. 하위 분류는 "0"(해당없음) 허용, 빈 값만 체크
+		var middleGroupVal = $('select[name="middleGroup"]').val();
+		var smallGroupVal = $('select[name="smallGroup"]').val();
+		var detailGroupVal = $('select[name="comment1"]').val();
+
+		if(middleGroupVal === "" || middleGroupVal === null) {
+			alert('[앞서 선택한 분류]의 중간 분류를 선택해주세요.');
+			$('#middleGroup').focus();
+			return false;
+		}
+
+		if(smallGroupVal === "" || smallGroupVal === null) {
+			alert('[앞서 선택한 분류]의 세부 항목을 선택해주세요.');
+			$('#smallGroup').focus();
+			return false;
+		}
+
+		if(detailGroupVal === "" || detailGroupVal === null) {
+			alert('[앞서 선택한 분류]의 최종 항목을 선택해주세요.');
+			$('#detailGroup').focus();
+			return false;
+		}
+
+		// 3. 금액, 거래일자 체크
+		if(!$('input[name="transactionMoney"]').val()) {
 			alert('[금액]을 입력해주세요.');
 			$('input[name="transactionMoney"]').focus();
 			return false;
 		}
 
-		if(!$('#inputRegDate').val()) {
+		if(!$('input[name="transactionDate"]').val()) {
 			alert('[거래일자]를 선택해주세요.');
 			$('input[name="transactionDate"]').focus();
 			return false;
 		}
+
+		return true;
+	}
+
+	// 행 추가/저장
+	function addRow() {
+		if(!validateAccountForm()) return false;
 
 		var formData = {
 			profitCost: $('#profitCost').val(),
@@ -313,7 +349,7 @@
 							<input type="text" id="inputMoney" name="transactionMoney" class="form-control" placeholder="금액 상세 입력" title="비용 상세" style="width: 100%;"  />
 						</td>
 						<td>
-							<input type="text" id="inputRegDate" name="transactionDate" class="form-control datepicker" placeholder="거래일자" title="거래일자" style="width: 100%" readonly />
+							<input type="text" id="inputRegDate" name="transactionDate" class="form-control datepicker" placeholder="거래일자" title="거래일자" style="background: #fff; width: 100%;" readonly />
 						</td>
 						<td>
 							<button type="button" class="btn btn-default btn-sm" onclick="addRow()">추가</button>
