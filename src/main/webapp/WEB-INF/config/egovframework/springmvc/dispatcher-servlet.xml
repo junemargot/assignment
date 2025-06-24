@@ -11,10 +11,22 @@
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
                 ">
 	<mvc:interceptors>
+        <!-- 로거 인터셉터 (모든 요청 적용) -->
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
             <mvc:exclude-mapping path="/main/notSessionPage.do" />
-            <bean id="loggerInterceptor" class="com.lime.util.LoggerInterceptor"></bean>
+            <bean id="loggerInterceptor" class="com.lime.util.LoggerInterceptor" />
+        </mvc:interceptor>
+
+        <!-- 로그인 체크 인터셉터 (특정 요청 적용) -->
+        <mvc:interceptor>
+            <mvc:mapping path="/user/mypage.do"/>
+            <mvc:mapping path="/user/changePwdFromMypage.do"/>
+            <mvc:mapping path="/account/save.do"/>
+            <mvc:mapping path="/account/delete.do"/>
+            <mvc:mapping path="/account/update.do"/>
+            <mvc:mapping path="/account/edit.do"/>
+            <bean class="com.lime.util.LoginCheckInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 
