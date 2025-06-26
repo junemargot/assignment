@@ -58,7 +58,7 @@ public class BoardController {
   /*
    * 게시글 등록
    * */
-  @PostMapping("/save.do")
+  @PostMapping("/save")
   @ResponseBody
   public Map<String, Object> saveBoard(@ModelAttribute BoardVo boardVo) throws Exception {
     Map<String, Object> result = new HashMap<>();
@@ -83,7 +83,7 @@ public class BoardController {
   /*
   * 게시글 수정
   * */
-  @PostMapping("/update.do")
+  @PostMapping("/update")
   @ResponseBody
   public Map<String, Object> updateBoard(@ModelAttribute BoardVo boardVo) throws Exception {
     Map<String, Object> result = new HashMap<>();
@@ -105,7 +105,7 @@ public class BoardController {
     return result;
   }
 
-  @PostMapping("/increaseViewCount.do")
+  @PostMapping("/increaseViewCount")
   @ResponseBody
   public Map<String, Object> increaseViewCount(@RequestParam("boardSeq") int boardSeq) throws Exception {
     Map<String, Object> result = new HashMap<>();

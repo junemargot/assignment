@@ -3,9 +3,10 @@
 
 <configuration>
     <typeAliases>
-		<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
-		<typeAlias alias="searchVO" type="egovframework.example.sample.service.SampleDefaultVO"/>
-		<typeAlias alias="sampleVO" type="egovframework.example.sample.service.SampleVO"/>
-		<typeAlias alias="userVO" type="com.lime.user.vo.UserVO"/>
+		<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap" />
+		<typeAlias alias="searchVO" type="egovframework.example.sample.service.SampleDefaultVO" />
+		<typeAlias alias="sampleVO" type="egovframework.example.sample.service.SampleVO" />
+		<typeAlias alias="userVO" type="com.lime.user.vo.UserVO" />
+		<typeAlias alias="boardVo" type="com.lime.user.vo.BoardVo" />
     </typeAliases>
 </configuration>

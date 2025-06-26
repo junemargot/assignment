@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lime.board.dao.BoardDao">
+
+    <!-- 게시글 목록 조회 -->
+    <select id="selectBoardList" parameterType="boardVo" resultType="boardVo">
+        SELECT
+            BOARD_SEQ,
+            TITLE,
+            WRITER,
+            VIEW_COUNT,
+            REG_DATE
+        FROM BOARD_TB
+        ORDER BY BOARD_SEQ DESC
+        <if test="firstIndex != null recordCountPerPage != null">
+            LIMIT #{firstIndex}, #{recordCountPerPage}
+        </if>
+    </select>
+
+    <!-- 게시글 상세 조회 -->
+    <select id="selectBoardDetail" parameterType="int" resultType="boardVo">
+        SELECT
+            BOARD_SEQ,
+            TITLE,
+            WRITER,
+            VIEW_COUNT,
+            REG_DATE
+        FROM BOARD_TB
+        WHERE BOARD_SEQ = #{boardSeq}
+    </select>
+
+    <!-- 게시글 총 개수 조회 -->
+    <select id="selectBoardListCount" parameterType="boardVo" resultType="int">
+        SELECT COUNT(*) AS cnt
+        FROM BOARD_TB
+    </select>
+
+    <!-- 게시글 등록 -->
+    <insert id="insertBoard" parameterType="boardVo">
+        INSERT INTO BOARD_TB (
+            TITLE,
+            WRITER,
+            VIEW_COUNT,
+            REG_DATE
+        ) VALUES (
+            #{title},
+            #{writer},
+            CURDATE(),
+        )
+    </insert>
+
+    <!-- 게시글 수정 -->
+    <update id="updateBoard" parameterType="boardVo">
+        UPDATE BOARD_TB
+        SET TITLE = #{title},
+            WRITER = #{writer}
+        WHERE BOARD_SEQ = #{boardSeq}
+    </update>
+
+    <!-- 조회수 증가 -->
+    <update id="updateViewCount" parameterType="int">
+        UPDATE BOARD_TB
+        SET VIEW_COUNT = VIEW_COUNT + 1
+        WHERE BOARD_SEQ = #{boardSeq}
+    </update>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deleteBoard" paramterType="int">
+        DELETE FROM BOARD_TB
+        WHERE BOARD_SEQ = #{boardSeq}
+    </delete>
+
+    <!-- 게시글 다중 삭제 -->
+    <delete id="deleteBoardList" parameterType="java.util.List">
+        DELETE FROM BOARD_TB
+        WHERE BOARD_SEQ IN
+        <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
+            #{boardSeq}
+        </foreach>
+    </delete>
+
+
+</mapper>
