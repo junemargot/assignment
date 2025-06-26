@@ -13,11 +13,24 @@
       </a>
     </div>
     <div class="collapse navbar-collapse navbar-right" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li class="active"><a class="dropdown-toggle" data-toggle="dropdown" href="#">회계관리</a>
-			<ul class="dropdown-menu">
-			  <li><a href="/account/accountList.do">회계정보</a></li>
+			<ul class="nav navbar-nav">
+				<li class="active">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="/board/boardList.do">게시판관리</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="/board/boardList.do">게시판</a>
+						</li>
+					</ul>
+				</li>
 			</ul>
+      <ul class="nav navbar-nav">
+        <li class="active">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#">회계관리</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a href="/account/accountList.do">회계정보</a>
+						</li>
+					</ul>
         </li>
       </ul>
       <ul class="nav navbar-nav">

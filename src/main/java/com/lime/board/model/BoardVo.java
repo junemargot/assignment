@@ -9,7 +9,7 @@ public class BoardVo extends SampleDefaultVO {
   private String title;
   private String writer;
   private int viewCount;
-  private LocalDate regDate;
+  private String regDate;
 
   public BoardVo() {}
 
@@ -51,11 +51,11 @@ public class BoardVo extends SampleDefaultVO {
     this.viewCount = viewCount;
   }
 
-  public LocalDate getRegDate() {
+  public String getRegDate() {
     return regDate;
   }
 
-  public void setRegDate(LocalDate regDate) {
+  public void setRegDate(String regDate) {
     this.regDate = regDate;
   }
 

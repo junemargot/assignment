@@ -8,16 +8,16 @@ import java.util.List;
 public interface BoardService {
 
   // 게시글 목록 조회
-  List<EgovMap> selectBoardList() throws Exception;
+  List<BoardVo> selectBoardList() throws Exception;
 
   // 게시글 목록 조회(페이징)
-  List<EgovMap> selectBoardList(BoardVo boardVo) throws Exception;
+  List<BoardVo> selectBoardList(BoardVo boardVo) throws Exception;
 
   // 게시글 총 개수 조회
   int selectBoardListCount(BoardVo boardVo) throws Exception;
 
   // 게시글 상세 조회
-  EgovMap selectBoardDetail(int boardSeq) throws Exception;
+  BoardVo selectBoardDetail(int boardSeq) throws Exception;
 
   // 게시글 등록
   boolean insertBoard(BoardVo boardVo) throws Exception;

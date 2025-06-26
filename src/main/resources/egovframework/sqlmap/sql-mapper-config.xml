@@ -7,6 +7,6 @@
 		<typeAlias alias="searchVO" type="egovframework.example.sample.service.SampleDefaultVO" />
 		<typeAlias alias="sampleVO" type="egovframework.example.sample.service.SampleVO" />
 		<typeAlias alias="userVO" type="com.lime.user.vo.UserVO" />
-		<typeAlias alias="boardVo" type="com.lime.user.vo.BoardVo" />
+		<typeAlias alias="boardVo" type="com.lime.board.model.BoardVo" />
     </typeAliases>
 </configuration>

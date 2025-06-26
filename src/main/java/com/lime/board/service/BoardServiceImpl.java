@@ -19,12 +19,12 @@ public class BoardServiceImpl extends EgovAbstractServiceImpl implements BoardSe
   }
 
   @Override
-  public List<EgovMap> selectBoardList() throws Exception {
+  public List<BoardVo> selectBoardList() throws Exception {
     return boardDao.selectBoardList();
   }
 
   @Override
-  public List<EgovMap> selectBoardList(BoardVo boardVo) throws Exception {
+  public List<BoardVo> selectBoardList(BoardVo boardVo) throws Exception {
     return boardDao.selectBoardList(boardVo);
   }
 
@@ -34,7 +34,7 @@ public class BoardServiceImpl extends EgovAbstractServiceImpl implements BoardSe
   }
 
   @Override
-  public EgovMap selectBoardDetail(int boardSeq) throws Exception {
+  public BoardVo selectBoardDetail(int boardSeq) throws Exception {
     return boardDao.selectBoardDetail(boardSeq);
   }
 

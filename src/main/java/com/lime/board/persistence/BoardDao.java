@@ -2,7 +2,6 @@ package com.lime.board.persistence;
 
 import com.lime.board.model.BoardVo;
 import egovframework.rte.psl.dataaccess.EgovAbstractMapper;
-import egovframework.rte.psl.dataaccess.util.EgovMap;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,12 +10,12 @@ import java.util.List;
 public class BoardDao extends EgovAbstractMapper {
 
   // 게시글 목록 조회
-  public List<EgovMap> selectBoardList() throws Exception {
+  public List<BoardVo> selectBoardList() throws Exception {
     return selectList("boardDao.selectBoardList");
   }
 
   // 게시글 목록 조회(페이징)
-  public List<EgovMap> selectBoardList(BoardVo boardVo) throws Exception {
+  public List<BoardVo> selectBoardList(BoardVo boardVo) throws Exception {
     return selectList("boardDao.selectBoardList", boardVo);
   }
 
@@ -26,7 +25,7 @@ public class BoardDao extends EgovAbstractMapper {
   }
 
   // 게시글 상세 조회
-  public EgovMap selectBoardDetail(int boardSeq) throws Exception {
+  public BoardVo selectBoardDetail(int boardSeq) throws Exception {
     return selectOne("boardDao.selectBoardDetail", boardSeq);
   }
 

@@ -2,19 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lime.board.dao.BoardDao">
+<mapper namespace="boardDao">
 
     <!-- 게시글 목록 조회 -->
     <select id="selectBoardList" parameterType="boardVo" resultType="boardVo">
         SELECT
-            BOARD_SEQ,
-            TITLE,
-            WRITER,
-            VIEW_COUNT,
-            REG_DATE
+            BOARD_SEQ AS boardSeq,
+            TITLE AS title,
+            WRITER AS writer,
+            VIEW_COUNT AS viewCount,
+            REG_DATE AS regDate
         FROM BOARD_TB
         ORDER BY BOARD_SEQ DESC
-        <if test="firstIndex != null recordCountPerPage != null">
+        <if test="firstIndex != null and recordCountPerPage != null">
             LIMIT #{firstIndex}, #{recordCountPerPage}
         </if>
     </select>
@@ -22,11 +22,11 @@
     <!-- 게시글 상세 조회 -->
     <select id="selectBoardDetail" parameterType="int" resultType="boardVo">
         SELECT
-            BOARD_SEQ,
-            TITLE,
-            WRITER,
-            VIEW_COUNT,
-            REG_DATE
+            BOARD_SEQ AS boardSeq,
+            TITLE AS title,
+            WRITER AS writer,
+            VIEW_COUNT AS viewCount,
+            REG_DATE AS regDate
         FROM BOARD_TB
         WHERE BOARD_SEQ = #{boardSeq}
     </select>
@@ -47,7 +47,8 @@
         ) VALUES (
             #{title},
             #{writer},
-            CURDATE(),
+            0,
+            CURDATE()
         )
     </insert>
 
@@ -67,7 +68,7 @@
     </update>
 
     <!-- 게시글 삭제 -->
-    <delete id="deleteBoard" paramterType="int">
+    <delete id="deleteBoard" parameterType="int">
         DELETE FROM BOARD_TB
         WHERE BOARD_SEQ = #{boardSeq}
     </delete>
