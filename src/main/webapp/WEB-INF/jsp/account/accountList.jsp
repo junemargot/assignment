@@ -250,6 +250,7 @@
 		}
 	}
 
+
 	// === 이벤트 핸들러 ===
 	$(document).ready(function() {
 		$('select').each(function() { // 페이지 내의 <select>을 전부 순회하고

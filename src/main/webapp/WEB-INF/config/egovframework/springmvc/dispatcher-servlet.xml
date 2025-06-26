@@ -26,6 +26,10 @@
             <mvc:mapping path="/account/delete.do"/>
             <mvc:mapping path="/account/update.do"/>
             <mvc:mapping path="/account/edit.do"/>
+            <mvc:mapping path="/board/boardList.do"/>
+            <mvc:mapping path="/board/save.do"/>
+            <mvc:mapping path="/board/increaseViewCount.do"/>
+            <mvc:mapping path="/board/delete.do"/>
             <bean class="com.lime.util.LoginCheckInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>

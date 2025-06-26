@@ -82,7 +82,14 @@
         <tr>
           <td>${board.boardSeq}</td>
           <td><input type="checkbox" class="rowCheck" value="${board.boardSeq}" /></td>
-          <td><span class="title-link" onclick="increaseViewCount(${board.boardSeq}, this)" style="cursor: pointer;">${board.title}</span></td>
+          <td>
+            <span class="title-link"
+                  onclick="titleClickHandler(event, ${board.boardSeq}, this)"
+                  ondblclick="cancelSingleClick()"
+                  style="cursor: pointer;">
+                ${board.title}
+            </span>
+          </td>
           <td>${board.regDate}</td>
           <td>${board.writer}</td>
           <td class="view-count">${board.viewCount}</td>
@@ -114,12 +121,18 @@
       return;
     }
 
-    var inputRow = document.getElementById('inputRow');
+    // 수정모드인 경우 초기화
+    resetInputRow();
 
+    var inputRow = document.getElementById('inputRow');
     if(inputRowVisible) {
       inputRow.style.display = 'none';
       inputRowVisible = false;
     } else {
+      var tbody = document.getElementById('boardListBody');
+      var firstDataRow = tbody.querySelector('tr:not(.input-row)');
+      tbody.insertBefore(inputRow, firstDataRow);
+
       inputRow.style.display = 'table-row';
       inputRowVisible = true;
       document.getElementById('inputTitle').focus();
@@ -128,6 +141,24 @@
       var today = new Date().toISOString().split('T')[0];
       document.getElementById('inputRegDate').value = today;
     }
+  }
+
+  function resetInputRow() {
+    // 입력 필드 초기화
+    document.getElementById('inputTitle').value = '';
+    document.getElementById('inputRegDate').value = '';
+    document.getElementById('inputWriter').value = '${loginUser.userName}';
+
+    // hidden 필드 제거
+    var seqHidden = document.getElementById('inputSeqHidden');
+    if(seqHidden) {
+        seqHidden.remove();
+    }
+
+    // 버튼 상태 초기화
+    var btn = document.querySelector('#inputRow button');
+    btn.textContent = '등록';
+    btn.onclick = function() { addRow(); };
   }
 
   // 페이지 이동
@@ -200,26 +231,6 @@
     xhr.send(serializeForm(formData));
   }
 
-  // 조회수 증가
-  function increaseViewCount(boardSeq, element) {
-    var xhr = createXHR();
-    xhr.open('POST', '/board/increaseViewCount.do', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-    xhr.onreadystatechange = function() {
-      if(xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        if(response.success) {
-            // 조회수 업데이트
-            var viewCountCell = element.closest('tr').querySelector('.view-count');
-            viewCountCell.textContent = response.viewCount;
-        }
-      }
-    };
-
-    xhr.send('boardSeq=' + boardSeq);
-  }
-
   // 행 삭제
   function deleteRows() {
     var checkedBoxes = document.querySelectorAll('.rowCheck:checked');
@@ -257,6 +268,7 @@
     xhr.send(formData);
   }
 
+  // 행 수정
   function editRow() {
     // 수정할 행 선택 여부
     const checkedList = document.querySelectorAll('.rowCheck:checked');
@@ -272,6 +284,7 @@
 
     // 이미 입력행이 열려있으면 닫기
     if(inputRowVisible) toggleInputRow();
+    resetInputRow();
 
     // 선택한 tr 정보
     const checkbox  = checkedList[0];
@@ -331,6 +344,44 @@
       };
 
       xhr.send(serializeForm(formData));
+    }
+
+  // 조회수 증가
+  function increaseViewCount(boardSeq, element) {
+    var xhr = createXHR();
+    xhr.open('POST', '/board/increaseViewCount.do', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        if(response.success) {
+            // 조회수 업데이트
+            var viewCountCell = element.closest('tr').querySelector('.view-count');
+              viewCountCell.textContent = response.viewCount;
+          }
+        }
+      };
+
+      xhr.send('boardSeq=' + boardSeq);
+    }
+
+    // 단일 클릭만 실행 -> 250ms 안에 dblclick 오면 취소
+    let clickTimer = null;
+    function titleClickHandler(e, boardSeq, element) {
+      if(clickTimer) return;
+
+      clickTimer = setTimeout(function() {
+        increaseViewCount(boardSeq, element);
+        clickTimer = null;
+      }, 250);
+    }
+
+    function cancelSingleClick() {
+      if(clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+      }
     }
 
 
