@@ -1,7 +1,6 @@
 package com.lime.board.service;
 
 import com.lime.board.model.BoardVo;
-import egovframework.rte.psl.dataaccess.util.EgovMap;
 
 import java.util.List;
 

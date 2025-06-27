@@ -4,12 +4,9 @@ import com.lime.board.model.BoardVo;
 import com.lime.board.service.BoardService;
 import com.lime.util.SessionUtil;
 import com.lime.user.vo.UserVO;
-import egovframework.rte.fdl.property.EgovPropertyService;
-import egovframework.rte.psl.dataaccess.util.EgovMap;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,11 +19,9 @@ import java.util.Map;
 public class BoardController {
 
   private final BoardService boardService;
-  private final EgovPropertyService propertyService;
 
-  public BoardController(BoardService boardService, EgovPropertyService propertyService) {
+  public BoardController(BoardService boardService) {
     this.boardService = boardService;
-    this.propertyService = propertyService;
   }
 
   /*
