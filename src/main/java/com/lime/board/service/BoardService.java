@@ -32,5 +32,4 @@ public interface BoardService {
 
   // 게시글 다중 삭제
   boolean deleteBoardList(List<Integer> boardSeqs) throws Exception;
-
 }

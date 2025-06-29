@@ -35,6 +35,7 @@ public class BoardController {
     paginationInfo.setRecordCountPerPage(10);  // 페이지당 게시글 수: 10개
     paginationInfo.setPageSize(10);            // 페이징 블록 크기: 10개
 
+    // SQL 쿼리를 위한 시작/종료 인덱스 계산
     boardVo.setFirstIndex(paginationInfo.getFirstRecordIndex());
     boardVo.setLastIndex(paginationInfo.getLastRecordIndex());
     boardVo.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
@@ -43,9 +44,9 @@ public class BoardController {
     List<BoardVo> boardList = boardService.selectBoardList(boardVo);
     model.addAttribute("boardList", boardList);
 
-    // 총 개수 조회 및 페이징 정보 설정
+    // 전체 게시글 수 조회
     int totalCount = boardService.selectBoardListCount(boardVo);
-    paginationInfo.setTotalRecordCount(totalCount);
+    paginationInfo.setTotalRecordCount(totalCount); // 전체 레코드 수 설정
     model.addAttribute("paginationInfo", paginationInfo);
 
     // 로그인 사용자 정보 전달
@@ -67,15 +68,12 @@ public class BoardController {
       // 로그인 사용자 정보로 작성자 설정
       UserVO loginUser = SessionUtil.getLoginUser(request);
       boardVo.setWriter(loginUser.getUserName());
-      
+
+      // 게시글 저장 서비스 호출
       boolean success = boardService.insertBoard(boardVo);
       result.put("success", success);
+      result.put("message", success ? "게시글이 등록되었습니다." : "게시글 등록에 실패했습니다.");
 
-      if(success) {
-        result.put("message", "게시글이 등록되었습니다.");
-      } else {
-        result.put("message", "게시글 등록에 실패했습니다.");
-      }
     } catch(Exception e) {
       result.put("success", false);
       result.put("message", "오류가 발생했습니다: " + e.getMessage());
@@ -95,12 +93,8 @@ public class BoardController {
     try {
       boolean success = boardService.updateBoard(boardVo);
       result.put("success", success);
+      result.put("message", success ? "게시글이 수정되었습니다." : "게시글 수정에 실패했습니다.");
 
-      if(success) {
-        result.put("message", "게시글이 수정되었습니다.");
-      } else {
-        result.put("message", "게시글 수정에 실패했습니다.");
-      }
     } catch(Exception e) {
       result.put("success", false);
       result.put("message", "오류가 발생했습니다: " + e.getMessage());
@@ -120,7 +114,7 @@ public class BoardController {
 
       if(success) {
         BoardVo board = boardService.selectBoardDetail(boardSeq);
-        result.put("viewCount", board.getViewCount());
+        result.put("viewCount", board.getViewCount()); // 갱신된 조회수 반환
       }
     } catch(Exception e) {
       result.put("success", false);

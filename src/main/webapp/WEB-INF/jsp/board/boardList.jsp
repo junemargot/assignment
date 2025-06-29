@@ -6,7 +6,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <html>
 <head>
-  <title>게시판 관리</title>
+  <title>게시물 관리</title>
   <style>
     th, td {
       text-align: center;
@@ -18,6 +18,8 @@
       justify-content: center;
       margin-top: 70px;
       font-size: 14px;
+      border: 1px solid #ddd;
+      padding: 10px;
     }
 
     .input-row {
@@ -67,7 +69,7 @@
             <input type="text" id="inputTitle" name="title" class="form-control" placeholder="내용을 입력해주세요" style="width: 100%;" />
           </td>
           <td>
-            <input type="date" id="inputRegDate" class="form-control" placeholder="등록일" style="width: 100%; background-color: #f8f9fa;" disabled />
+            <input type="date" id="inputRegDate" name="regDate" class="form-control" placeholder="등록일" style="width: 100%; background-color: #f8f9fa;" disabled />
           </td>
           <td>
             <input type="text" id="inputWriter" name="writer" class="form-control" value="${loginUser.userName}" style="width: 100%; background-color: #f8f9fa;" disabled />
@@ -79,7 +81,7 @@
 
       <!-- 실제 데이터(서버 렌더링) -->
       <c:forEach var="board" items="${boardList}">
-        <tr>
+        <tr class="data-row">
           <td>${board.boardSeq}</td>
           <td><input type="checkbox" class="rowCheck" value="${board.boardSeq}" /></td>
           <td>
@@ -101,7 +103,6 @@
     <!-- 페이지네이션 -->
     <div class="pagination" style="text-align: center;">
       <ui:pagination paginationInfo="${paginationInfo}" type="text" jsFunction="goPage" />
-<%--                      firstPageLabel="처음" previousPageLabel="이전" nextPageLabel="다음" lastPageLabel="끝" />--%>
     </div>
     <!-- 페이징용 히든 필드 -->
     <input type="hidden" id="currentPageIndex" value="${boardVo.pageIndex}" />
@@ -111,17 +112,10 @@
   // 현재 페이지 정보
   var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
 
-  // 입력행 토글
+  // 입력행 토글 관리
   var inputRowVisible = false;
   function toggleInputRow() {
-    // 로그인 체크
-    var loginUser = '${loginUser.userName}';
-    if(!loginUser) {
-      alert("로그인 후 이용해주세요.");
-      return;
-    }
-
-    // 수정모드인 경우 초기화
+    // 입력행의 내용 초기화 설정(수정모드 등에서 남아있는 값 초기화)
     resetInputRow();
 
     var inputRow = document.getElementById('inputRow');
@@ -130,7 +124,7 @@
       inputRowVisible = false;
     } else {
       var tbody = document.getElementById('boardListBody');
-      var firstDataRow = tbody.querySelector('tr:not(.input-row)');
+      var firstDataRow = tbody.querySelector('.data-row');
       tbody.insertBefore(inputRow, firstDataRow);
 
       inputRow.style.display = 'table-row';
@@ -152,7 +146,7 @@
     // hidden 필드 제거
     var seqHidden = document.getElementById('inputSeqHidden');
     if(seqHidden) {
-        seqHidden.remove();
+      seqHidden.remove();
     }
 
     // 버튼 상태 초기화

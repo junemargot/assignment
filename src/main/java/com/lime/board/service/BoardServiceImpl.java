@@ -3,10 +3,8 @@ package com.lime.board.service;
 import com.lime.board.model.BoardVo;
 import com.lime.board.persistence.BoardDao;
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
-import egovframework.rte.psl.dataaccess.util.EgovMap;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Service("boardService")
