@@ -44,9 +44,8 @@ public class BoardController {
     List<BoardVo> boardList = boardService.selectBoardList(boardVo);
     model.addAttribute("boardList", boardList);
 
-    // 전체 게시글 수 조회
-    int totalCount = boardService.selectBoardListCount(boardVo);
-    paginationInfo.setTotalRecordCount(totalCount); // 전체 레코드 수 설정
+    int totalCount = boardService.selectBoardListCount(boardVo); // 전체 게시글 수 카운트
+    paginationInfo.setTotalRecordCount(totalCount); // 총 페이지 수 계산 및 이전, 다음 버튼 활성화에 필요
     model.addAttribute("paginationInfo", paginationInfo);
 
     // 로그인 사용자 정보 전달

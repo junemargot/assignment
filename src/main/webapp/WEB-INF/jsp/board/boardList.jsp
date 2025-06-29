@@ -124,7 +124,7 @@
       inputRowVisible = false;
     } else {
       var tbody = document.getElementById('boardListBody');
-      var firstDataRow = tbody.querySelector('.data-row');
+    var firstDataRow = tbody.querySelector('.data-row');
       tbody.insertBefore(inputRow, firstDataRow);
 
       inputRow.style.display = 'table-row';
@@ -187,7 +187,7 @@
 
   // 폼 데이터를 URL 인코딩 형식으로 변환
   function serializeForm(formData) {
-    var params = [];
+    var params = []; // 쿼리스트링을 담을 빈 배열 선언
     for(var key in formData) {
       if(formData.hasOwnProperty(key)) {
         params.push(encodeURIComponent(key) + "=" + encodeURIComponent(formData[key]))
@@ -197,7 +197,7 @@
     return params.join('&');
   }
 
-  // 행 추가
+  // 데이터 저장
   function addRow() {
     if(!validateBoard()) return false;
 
@@ -205,11 +205,12 @@
       title: document.getElementById('inputTitle').value.trim()
     };
 
-    // Ajax 요청
+    // XMLHttpRequest 객체 생성
     var xhr = createXHR();
     xhr.open('POST', '/board/save.do', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); // 요청 헤더에 데이터를 폼 전송 방식(쿼리스트링)으로 설정
 
+    // 응답 처리 함수 등록
     xhr.onreadystatechange = function() {
       if(xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
