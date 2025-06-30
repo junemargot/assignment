@@ -185,22 +185,11 @@
     return null;
   }
 
-  // 폼 데이터를 URL 인코딩 형식으로 변환
-  function serializeForm(formData) {
-    var params = []; // 쿼리스트링을 담을 빈 배열 선언
-    for(var key in formData) {
-      if(formData.hasOwnProperty(key)) {
-        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(formData[key]))
-      }
-    }
-
-    return params.join('&');
-  }
-
-  // 데이터 저장
+  // 데이터 서버에 저장
   function addRow() {
     if(!validateBoard()) return false;
 
+    // 폼 데이터 객체 생성
     var formData = {
       title: document.getElementById('inputTitle').value.trim()
     };
@@ -226,6 +215,18 @@
     xhr.send(serializeForm(formData));
   }
 
+  // 폼 데이터를 URL 인코딩 형식으로 변환
+  function serializeForm(formData) {
+    var params = []; // 쿼리스트링을 담을 빈 배열 선언
+    for(var key in formData) {
+      if(formData.hasOwnProperty(key)) {
+        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(formData[key]))
+      }
+    }
+
+    return params.join('&');
+  }
+
   // 행 삭제
   function deleteRows() {
     var checkedBoxes = document.querySelectorAll('.rowCheck:checked');
@@ -238,11 +239,13 @@
       return;
     }
 
+    // 선택된 게시글의 식별자 추출
     var seqs = [];
-    checkedBoxes.forEach(function(checkbox) {
+    checkedBoxes.forEach(function(checkbox) { // 선택된 각 체크박스를 순회하며 해당 체크박스의 value(게시글 식별자)를 seqs 배열에 추가
       seqs.push(checkbox.value);
     });
 
+    // XMLHttpRequest 객체 생성 및 요청 준비
     var xhr = createXHR();
     xhr.open('POST', '/board/delete.do', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -277,11 +280,11 @@
       return;
     }
 
-    // 이미 입력행이 열려있으면 닫기
+    // 이미 입력행이 열려있으면 닫고, 필드 초기화
     if(inputRowVisible) toggleInputRow();
     resetInputRow();
 
-    // 선택한 tr 정보
+    // 선택한 게시글의 정보
     const checkbox  = checkedList[0];
     const tr        = checkbox.closest('tr');
     const boardSeq  = tr.cells[0].textContent.trim();
@@ -289,57 +292,78 @@
     const regDate   = tr.cells[3].textContent.trim();
     const writerTxt = tr.cells[4].textContent.trim();
 
-    // 숨겨둔 입력행을 선택한 tr 바로 아래 삽입
+    // 숨겨둔 입력행을 선택된 행 바로 아래 삽입 및 표시
     const inputTr = document.getElementById('inputRow');
     tr.parentNode.insertBefore(inputTr, tr.nextSibling);
     inputTr.style.display = 'table-row';
     inputRowVisible = true;
 
-    // 입력칸 값 바인딩
+    // 입력 필드에 기존 게시글 값 바인딩
     document.getElementById('inputTitle').value = titleTxt;
     document.getElementById('inputRegDate').value = regDate;
     document.getElementById('inputWriter').value = writerTxt;
 
     // boardSeq를 hidden 필드로 세팅
     let seqHidden = document.getElementById('inputSeqHidden');
-      if(!seqHidden) {
-        seqHidden = document.createElement('input');
-        seqHidden.type = 'hidden';
-        seqHidden.id = 'inputSeqHidden';
-        seqHidden.name = 'boardSeq';
-        inputTr.appendChild(seqHidden);
+    if(!seqHidden) {
+      seqHidden = document.createElement('input');
+      seqHidden.type = 'hidden';
+      seqHidden.id = 'inputSeqHidden';
+      seqHidden.name = 'boardSeq';
+      inputTr.appendChild(seqHidden);
+    }
+    seqHidden.value = boardSeq;
+
+    // 등록버튼의 onclick -> 업데이트
+    const btn = inputTr.querySelector('button');
+    btn.textContent = "수정완료";
+    btn.onclick = function() { updateRow(); };
+  }
+
+  // 수정 데이터 서버 전송
+  function updateRow() {
+    if(!validateBoard()) return;
+
+    // 수정된 게시글 데이터를 담을 객체 생성
+    const formData = {
+      boardSeq: document.getElementById('inputSeqHidden').value,
+      title   : document.getElementById('inputTitle').value.trim(),
+      regDate : document.getElementById('inputRegDate').value,
+      writer  : document.getElementById('inputWriter').value.trim()
+    };
+
+    const xhr = createXHR();
+    xhr.open('POST', '/board/update.do', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.success) location.reload();
       }
-      seqHidden.value = boardSeq;
+    };
 
-      // 등록버튼의 onclick -> 업데이트
-      const btn = inputTr.querySelector('button');
-      btn.textContent = '수정완료';
-      btn.onclick = function() { updateRow(); };
+    xhr.send(serializeForm(formData));
+  }
+
+  // 단일 클릭 처리 로직 (더블 클릭 방지)
+  let clickTimer = null; // 단일클릭, 더블클릭 구분하는 용도의 변수
+  function titleClickHandler(e, boardSeq, element) {
+    if(clickTimer) return; // clickTimer가 null이므로 increaseViewCount()
+
+    clickTimer = setTimeout(function() {
+      increaseViewCount(boardSeq, element);
+      clickTimer = null;
+    }, 250);
+  }
+
+  // 단일 클릭 취소 (더블클릭 시 호출됨)
+  function cancelSingleClick() {
+    if(clickTimer) { // 클릭타이머가 설정되어 있다면,
+      clearTimeout(clickTimer); // 해당 타이머를 취소해 함수가 실행되지 않도록하고
+      clickTimer = null; // 다시 초기화
     }
-
-    function updateRow() {
-      if(!validateBoard()) return;
-
-      const formData = {
-        boardSeq: document.getElementById('inputSeqHidden').value,
-        title   : document.getElementById('inputTitle').value.trim(),
-        regDate : document.getElementById('inputRegDate').value,
-        writer  : document.getElementById('inputWriter').value.trim()
-      };
-
-      const xhr = createXHR();
-      xhr.open('POST', '/board/update.do', true);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          const res = JSON.parse(xhr.responseText);
-          alert(res.message);
-          if (res.success) location.reload();
-        }
-      };
-
-      xhr.send(serializeForm(formData));
-    }
+  }
 
   // 조회수 증가
   function increaseViewCount(boardSeq, element) {
@@ -351,33 +375,15 @@
       if(xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
         if(response.success) {
-            // 조회수 업데이트
-            var viewCountCell = element.closest('tr').querySelector('.view-count');
-              viewCountCell.textContent = response.viewCount;
-          }
+          // 조회수 업데이트
+          var viewCountCell = element.closest('tr').querySelector('.view-count');
+          viewCountCell.textContent = response.viewCount;
         }
-      };
-
-      xhr.send('boardSeq=' + boardSeq);
-    }
-
-    // 단일 클릭만 실행 -> 250ms 안에 dblclick 오면 취소
-    let clickTimer = null;
-    function titleClickHandler(e, boardSeq, element) {
-      if(clickTimer) return;
-
-      clickTimer = setTimeout(function() {
-        increaseViewCount(boardSeq, element);
-        clickTimer = null;
-      }, 250);
-    }
-
-    function cancelSingleClick() {
-      if(clickTimer) {
-        clearTimeout(clickTimer);
-        clickTimer = null;
       }
-    }
+    };
+
+    xhr.send('boardSeq=' + boardSeq);
+  }
 
 
 </script>
