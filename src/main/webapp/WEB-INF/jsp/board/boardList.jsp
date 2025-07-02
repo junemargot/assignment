@@ -41,7 +41,9 @@
       <!-- 버튼 그룹 -->
       <div class="form_box2 col-md-offset-7" align="right" style="margin-bottom: 10px;">
         <div class="right">
-          <button type="button" class="btn btn-default" onclick="toggleInputRow()">행추가</button>
+          <button type="button" class="btn btn-default" onclick="selectAll(this)" data-selected="false">전체선택</button>
+<%--          <button type="button" class="btn btn-default" onclick="toggleInputRow()">행추가</button>--%>
+          <button type="button" class="btn btn-default" onclick="addInputRow()">행추가</button>
           <button type="button" class="btn btn-default" onclick="editRow()">행수정</button>
           <button type="button" class="btn btn-default" onclick="deleteRows()">행삭제</button>
         </div>
@@ -62,9 +64,14 @@
       </thead>
       <tbody id="boardListBody">
         <!-- 입력행(기본 숨김) -->
-        <tr class="input-row" id="inputRow" >
-          <td></td>
-          <td></td>
+        <tr id="inputRowTemplate" class="input-row" style="display: none;">
+          <td class="row-no">-</td>
+          <td>
+            <input type="checkbox" class="rowCheck tempCheck" data-temp="true" />
+          </td>
+<%--        <tr class="input-row" id="inputRow" >--%>
+<%--          <td></td>--%>
+<%--          <td></td>--%>
           <td>
             <input type="text" id="inputTitle" name="title" class="form-control" placeholder="내용을 입력해주세요" style="width: 100%;" />
           </td>
@@ -112,11 +119,10 @@
   // 현재 페이지 정보
   var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
 
-  // 입력행 토글 관리
   var inputRowVisible = false;
+  // 입력행 가시성 토글
   function toggleInputRow() {
-    // 입력행의 내용 초기화 설정(수정모드 등에서 남아있는 값 초기화)
-    resetInputRow();
+    resetInputRow(); // 입력행의 내용 초기화 설정(수정모드 등에서 남아있는 값 초기화)
 
     var inputRow = document.getElementById('inputRow');
     if(inputRowVisible) {
@@ -124,21 +130,21 @@
       inputRowVisible = false;
     } else {
       var tbody = document.getElementById('boardListBody');
-    var firstDataRow = tbody.querySelector('.data-row');
-      tbody.insertBefore(inputRow, firstDataRow);
+      var firstDataRow = tbody.querySelector('.data-row');
+      tbody.insertBefore(inputRow, firstDataRow); // insertBefore(삽입할_노드, 기준_노드)
 
       inputRow.style.display = 'table-row';
       inputRowVisible = true;
       document.getElementById('inputTitle').focus();
 
       // 현재 날짜 설정
-      var today = new Date().toISOString().split('T')[0];
+      var today = new Date().toISOString().split('T')[0]; // "2025-06-28T12:34:56.789Z";
       document.getElementById('inputRegDate').value = today;
     }
   }
 
+  // 새 글 등록을 위한 input 초기화 설정
   function resetInputRow() {
-    // 입력 필드 초기화
     document.getElementById('inputTitle').value = '';
     document.getElementById('inputRegDate').value = '';
     document.getElementById('inputWriter').value = '${loginUser.userName}';
@@ -174,18 +180,22 @@
     return true;
   }
 
-  // XMLHttpRequest로 Ajax 통신 구현
+  // 서버와 비동기적으로 통신하기 위한 XMLHttpRequest를 생성하는 함수
   function createXHR() {
+    // 1. 최신/표준 브라우저 확인
     if(window.XMLHttpRequest) {
       return new XMLHttpRequest();
+
+    // 2. 구형 Internet Explorer 브라우저 확인 (ActiveXObject 사용)
     } else if(window.ActiveXObject) {
       return new ActiveXObject("Microsoft.XMLHTTP");
     }
 
+    // 3. 지원하지 않는 브라우저인 경우
     return null;
   }
 
-  // 데이터 서버에 저장
+  // 새로운 데이터를 서버에 저장하는 역할을 하는 함수
   function addRow() {
     if(!validateBoard()) return false;
 
@@ -285,6 +295,8 @@
     resetInputRow();
 
     // 선택한 게시글의 정보
+    // console.log(checkedList);
+    // console.log(checkedList[0]);
     const checkbox  = checkedList[0];
     const tr        = checkbox.closest('tr');
     const boardSeq  = tr.cells[0].textContent.trim();

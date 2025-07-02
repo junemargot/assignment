@@ -12,8 +12,10 @@
             WRITER AS writer,
             VIEW_COUNT AS viewCount,
             REG_DATE AS regDate
-        FROM BOARD_TB
-        ORDER BY BOARD_SEQ DESC
+        FROM
+            BOARD_TB
+        ORDER BY
+            BOARD_SEQ DESC
         <if test="firstIndex != null and recordCountPerPage != null">
             LIMIT #{firstIndex}, #{recordCountPerPage}
         </if>
@@ -27,59 +29,77 @@
             WRITER AS writer,
             VIEW_COUNT AS viewCount,
             REG_DATE AS regDate
-        FROM BOARD_TB
-        WHERE BOARD_SEQ = #{boardSeq}
+        FROM
+            BOARD_TB
+        WHERE
+            BOARD_SEQ = #{boardSeq}
     </select>
 
     <!-- 게시글 총 개수 조회 -->
     <select id="selectBoardListCount" parameterType="boardVo" resultType="int">
-        SELECT COUNT(*) AS cnt
-        FROM BOARD_TB
+        SELECT
+            COUNT(*) AS cnt
+        FROM
+            BOARD_TB
     </select>
 
     <!-- 게시글 등록 -->
     <insert id="insertBoard" parameterType="boardVo">
-        INSERT INTO BOARD_TB (
-            TITLE,
-            WRITER,
-            VIEW_COUNT,
-            REG_DATE
-        ) VALUES (
-            #{title},
-            #{writer},
-            0,
-            CURDATE()
-        )
+        INSERT INTO
+            BOARD_TB
+            (
+                TITLE,
+                WRITER,
+                VIEW_COUNT,
+                REG_DATE
+            )
+        VALUES
+            (
+                #{title},
+                #{writer},
+                0,
+                CURDATE()
+            )
     </insert>
 
     <!-- 게시글 수정 -->
     <update id="updateBoard" parameterType="boardVo">
-        UPDATE BOARD_TB
-        SET TITLE = #{title},
+        UPDATE
+            BOARD_TB
+        SET
+            TITLE = #{title},
             WRITER = #{writer}
-        WHERE BOARD_SEQ = #{boardSeq}
+        WHERE
+            BOARD_SEQ = #{boardSeq}
     </update>
 
     <!-- 조회수 증가 -->
     <update id="updateViewCount" parameterType="int">
-        UPDATE BOARD_TB
-        SET VIEW_COUNT = VIEW_COUNT + 1
-        WHERE BOARD_SEQ = #{boardSeq}
+        UPDATE
+            BOARD_TB
+        SET
+            VIEW_COUNT = VIEW_COUNT + 1
+        WHERE
+            BOARD_SEQ = #{boardSeq}
     </update>
 
     <!-- 게시글 삭제 -->
     <delete id="deleteBoard" parameterType="int">
-        DELETE FROM BOARD_TB
-        WHERE BOARD_SEQ = #{boardSeq}
+        DELETE FROM
+                   BOARD_TB
+        WHERE
+            BOARD_SEQ = #{boardSeq}
     </delete>
 
     <!-- 게시글 다중 삭제 -->
     <delete id="deleteBoardList" parameterType="java.util.List">
-        DELETE FROM BOARD_TB
-        WHERE BOARD_SEQ IN
-        <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
-            #{boardSeq}
-        </foreach>
+        DELETE FROM
+                   BOARD_TB
+        WHERE
+            BOARD_SEQ IN
+            <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
+                #{boardSeq}
+            </foreach>
     </delete>
 
 
