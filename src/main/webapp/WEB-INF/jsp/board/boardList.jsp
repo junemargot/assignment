@@ -35,13 +35,15 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" style="max-width: 1400px; margin: 0 auto;">
     <div id="wrap" class="col-md-offset col-sm-15" style="margin-top: 50px;">
       <div align="center"><h2>게시물 리스트</h2></div>
       <!-- 버튼 그룹 -->
-      <div class="form_box2 col-md-offset-7" align="right" style="margin-bottom: 10px;">
+      <div class="form_box2" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div class="left">
+          <button type="button" class="btn btn-default" id="selectAllBtn" onclick="selectAll(this)" data-selected="false">전체선택</button>
+        </div>
         <div class="right">
-          <button type="button" class="btn btn-default" onclick="selectAll(this)" data-selected="false">전체선택</button>
 <%--          <button type="button" class="btn btn-default" onclick="toggleInputRow()">행추가</button>--%>
           <button type="button" class="btn btn-default" onclick="addInputRow()">행추가</button>
           <button type="button" class="btn btn-default" onclick="editRow()">행수정</button>
@@ -113,13 +115,72 @@
     </div>
     <!-- 페이징용 히든 필드 -->
     <input type="hidden" id="currentPageIndex" value="${boardVo.pageIndex}" />
+    <!-- 입력행 개수 히든 필드 -->
+    <input type="hidden" id="inputRowCount" value="${inputRowCount}" />
   </div>
 
 <script type="text/javascript">
+  // 페이지 로드 시 입력행 복원
+  document.addEventListener('DOMContentLoaded', function() {
+    var savedInputRowCount = parseInt(document.getElementById('inputRowCount').value) || 0;
+
+    // 저장된 입력행 개수만큼 입력행 추가 (서버 요청 없이)
+    for(var i = 0; i < savedInputRowCount; i++) {
+      addInputRowSilent(); // 페이지 새로고침하지 않는 버전
+    }
+  });
+
+  // 페이지 새로고침 없이 입력행만 추가하는 함수
+  function addInputRowSilent() {
+    // addInputRow()와 동일하지만 updatePageWithInputRows() 호출 제외
+    var tbody = document.getElementById('boardListBody');
+    var currentInputRows = tbody.querySelectorAll('.dynamic-input-row').length;
+
+    if(currentInputRows >= maxRowsPerPage) {
+        return;
+    }
+
+    inputRowCounter++;
+    var template = document.getElementById('inputRowTemplate');
+    var newRow = template.cloneNode(true);
+
+    newRow.id = 'inputRow_' + inputRowCounter;
+    newRow.style.display = 'table-row';
+    newRow.classList.add('dynamic-input-row');
+
+    var titleInput = newRow.querySelector('input[name="title"]');
+    var regDateInput = newRow.querySelector('input[name="regDate"]');
+    var writerInput = newRow.querySelector('input[name="writer"]');
+    var checkbox = newRow.querySelector('.tempCheck');
+    var button = newRow.querySelector('button');
+
+    titleInput.id = 'inputTitle_' + inputRowCounter;
+    regDateInput.id = 'inputRegDate_' + inputRowCounter;
+    writerInput.id = 'inputWriter_' + inputRowCounter;
+    checkbox.setAttribute('data-row-id', inputRowCounter);
+
+    var today = new Date().toISOString().split('T')[0];
+    regDateInput.value = today;
+    writerInput.value = '${loginUser.userName}';
+
+    button.onclick = function () { addRowFromInput(inputRowCounter); };
+
+    var firstDataRow = tbody.querySelector('.data-row');
+    if(firstDataRow) {
+        tbody.insertBefore(newRow, firstDataRow);
+    } else {
+        tbody.appendChild(newRow);
+    }
+  }
+
+  // 전역 변수 추가
+  var inputRowCounter = 0;
+  var maxRowsPerPage = 10;
+
   // 현재 페이지 정보
   var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
-
   var inputRowVisible = false;
+
   // 입력행 가시성 토글
   function toggleInputRow() {
     resetInputRow(); // 입력행의 내용 초기화 설정(수정모드 등에서 남아있는 값 초기화)
@@ -143,6 +204,105 @@
     }
   }
 
+  // ** 추가 - 새로운 행추가 함수
+  function addInputRow() {
+    var tbody = document.getElementById('boardListBody');
+    // var currentDataRows = tbody.querySelectorAll('.data-row').length;
+    var currentInputRows = tbody.querySelectorAll('.dynamic-input-row').length;
+
+    // 페이지당 최대 행 수 체크 (페이지당 최대 10개까지 가능)
+    if(currentInputRows >= maxRowsPerPage) {
+      alert('한 페이지에 최대 ' + maxRowsPerPage + '개의 행만 표시할 수 있습니다.');
+      return;
+    }
+
+    inputRowCounter++;
+    var template = document.getElementById('inputRowTemplate');
+    var newRow = template.cloneNode(true);
+
+    // 새 행의 속성 설정
+    newRow.id = 'inputRow_' + inputRowCounter;
+    newRow.style.display = 'table-row';
+    newRow.classList.add('dynamic-input-row');
+
+    // 입력 필드들의 ID 변경
+    var titleInput = newRow.querySelector('input[name="title"]');
+    var regDateInput = newRow.querySelector('input[name="regDate"]');
+    var writerInput = newRow.querySelector('input[name="writer"]');
+    var checkbox = newRow.querySelector('.tempCheck');
+    var button = newRow.querySelector('button');
+
+    titleInput.id = 'inputTitle_' + inputRowCounter;
+    regDateInput.id = 'inputRegDate_' + inputRowCounter;
+    writerInput.id = 'inputWriter_' + inputRowCounter;
+    checkbox.setAttribute('data-row-id', inputRowCounter);
+
+    // 현재 날짜 설정
+    var today = new Date().toISOString().split('T')[0];
+    regDateInput.value = today;
+    writerInput.value = '${loginUser.userName}';
+
+    // 등록 버튼 이벤트 수정
+    button.onclick = function () { addRowFromInput(inputRowCounter); };
+
+    // 첫번째 데이터 행 앞에 삽입
+    var firstDataRow = tbody.querySelector('.data-row');
+    if(firstDataRow) {
+      tbody.insertBefore(newRow, firstDataRow);
+    } else {
+      tbody.appendChild(newRow);
+    }
+
+    // 서버에 입력행 개수 업데이트 요청
+    updatePageWithInputRows();
+
+    // 포커스 설정
+    titleInput.focus();
+  }
+
+  // 입력행 개수를 고려한 페이지 새로고침
+  function updatePageWithInputRows() {
+    var currentInputRows = document.querySelectorAll('.dynamic-input-row').length;
+    var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
+
+    // 현재 페이지를 입력행 개수와 함께 새로고침
+    window.location.href = '/board/boardList.do?pageIndex=' + currentPage + '&inputRowCount=' + currentInputRows;
+  }
+
+  // 입력행에서 실제 데이터 등록
+  function addRowFromInput(rowId) {
+    var titleInput = document.getElementById('inputTitle_' + rowId);
+
+    if (!titleInput.value.trim()) {
+      alert('내용을 입력해주세요.');
+      titleInput.focus();
+      return false;
+    }
+
+    var formData = {
+      title: titleInput.value.trim()
+    };
+
+    var xhr = createXHR();
+    xhr.open('POST', '/board/save.do', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        if(response.success) {
+          alert(response.message);
+          window.location.reload();
+        } else {
+          alert(response.message);
+        }
+      }
+    };
+
+    xhr.send(serializeForm(formData));
+  }
+
+
   // 새 글 등록을 위한 input 초기화 설정
   function resetInputRow() {
     document.getElementById('inputTitle').value = '';
@@ -162,10 +322,19 @@
   }
 
   // 페이지 이동
-  function goPage(pageNo) {
-    window.location.href = '/board/boardList.do?pageIndex=' + pageNo;
-  }
+  // function goPage(pageNo) {
+  //   window.location.href = '/board/boardList.do?pageIndex=' + pageNo;
+  // }
 
+  function goPage(pageNo) {
+    var currentInputRows = document.querySelectorAll('.dynamic-input-row').length;
+    var url = '/board/boardList.do?pageIndex=' + pageNo;
+
+    if(currentInputRows > 0) {
+      url += '&inputRowCount=' + currentInputRows;
+    }
+    window.location.href = url;
+  }
 
   // 폼 유효성 검증
   function validateBoard() {
@@ -237,44 +406,126 @@
     return params.join('&');
   }
 
+  // 전체선택 함수
+  function selectAll(button) {
+    // 현재 페이지의 게시글 체크박스만 선택 (input[type=checkbox].rowCheck, tempCheck 제외)
+    var isSelected = button.getAttribute('data-selected') === 'true'; // 버튼의 data-selected 속성으로 선택/해제 상태 판별
+    var checkboxes = document.querySelectorAll('.rowCheck'); // 현재 페이지의 게시글 체크박스만 선택
+
+    // 전체선택 -> 전체해제, 전체해제 -> 전체선택
+    checkboxes.forEach(function(checkbox) {
+      checkbox.checked = !isSelected;
+    });
+
+    // 버튼 상태 및 텍스트 업데이트
+    if(isSelected) {
+      button.textContent = '전체선택';
+      button.setAttribute('data-selected', 'false');
+    } else {
+      button.textContent = '전체해제';
+      button.setAttribute('data-selected', 'true');
+    }
+  }
+
   // 행 삭제
   function deleteRows() {
     var checkedBoxes = document.querySelectorAll('.rowCheck:checked');
-    if(checkedBoxes.length === 0) {
-      alert('삭제할 게시글을 선택해주세요.');
-      return;
-    }
+    // var checkedBoxes = document.querySelectorAll('.rowCheck:checked:not(.tempCheck)');
 
-    if(!confirm(checkedBoxes.length + '개의 게시글을 삭제하시겠습니까?')) {
-      return;
-    }
+    // 실제 데이터와 임시 입력행 분리
+    var realDataBoxes = [];
+    var tempInputBoxes = [];
+    var cannotDeleteTemp = [];
 
-    // 선택된 게시글의 식별자 추출
-    var seqs = [];
-    checkedBoxes.forEach(function(checkbox) { // 선택된 각 체크박스를 순회하며 해당 체크박스의 value(게시글 식별자)를 seqs 배열에 추가
-      seqs.push(checkbox.value);
+    checkedBoxes.forEach(function(checkbox) {
+      if(checkbox.classList.contains('tempCheck')) {
+        var row = checkbox.closest('tr');
+        var titleInput = row.querySelector('input[name="title"]');
+        if(titleInput && titleInput.value.trim()) {
+          cannotDeleteTemp.push('입력된 내용이 있는 행');
+        } else {
+          tempInputBoxes.push(checkbox);
+        }
+      } else {
+        realDataBoxes.push(checkbox);
+      }
     });
 
-    // XMLHttpRequest 객체 생성 및 요청 준비
-    var xhr = createXHR();
-    xhr.open('POST', '/board/delete.do', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    // 1. 임시 입력행 먼저 삭제 (dom에서 삭제)
+    tempInputBoxes.forEach(function(checkbox) {
+      var row = checkbox.closest('tr');
+      row.remove();
+    });
 
-    xhr.onreadystatechange = function() {
-      if(xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        if(response.success) {
-          alert(response.message);
-          window.location.reload();
-        } else {
-          alert(response.message);
+    // 2. 실제 데이터가 있으면 서버 요청
+    if(realDataBoxes.length > 0) {
+      var seqs = [];
+      realDataBoxes.forEach(function(checkbox) {
+        seqs.push(checkbox.value);
+      });
+
+      var xhr = createXHR();
+      xhr.open('POST', '/board/delete.do', true);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4 && xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          if(response.success) {
+            alert(response.message);
+            window.location.reload();
+          } else {
+            alert(response.message);
+          }
         }
-      }
-    };
+      };
 
-    var formData = 'seqs=' + seqs.join('&seqs=');
-    xhr.send(formData);
+      var formData = 'seqs=' + seqs.join('&seqs=');
+      xhr.send(formData);
+    } else {
+      // 임시 입력행만 삭제한 경우
+      alert('선택한 입력행이 삭제되었습니다.');
+    }
   }
+
+
+
+    // before
+  //   if(checkedBoxes.length === 0) {
+  //     alert('삭제할 게시글을 선택해주세요.');
+  //     return;
+  //   }
+  //
+  //   if(!confirm(checkedBoxes.length + '개의 게시글을 삭제하시겠습니까?')) {
+  //     return;
+  //   }
+  //
+  //   // 선택된 게시글의 식별자 추출
+  //   var seqs = [];
+  //   checkedBoxes.forEach(function(checkbox) { // 선택된 각 체크박스를 순회하며 해당 체크박스의 value(게시글 식별자)를 seqs 배열에 추가
+  //     seqs.push(checkbox.value);
+  //   });
+  //
+  //   // XMLHttpRequest 객체 생성 및 요청 준비
+  //   var xhr = createXHR();
+  //   xhr.open('POST', '/board/delete.do', true);
+  //   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  //
+  //   xhr.onreadystatechange = function() {
+  //     if(xhr.readyState === 4 && xhr.status === 200) {
+  //       var response = JSON.parse(xhr.responseText);
+  //       if(response.success) {
+  //         alert(response.message);
+  //         window.location.reload();
+  //       } else {
+  //         alert(response.message);
+  //       }
+  //     }
+  //   };
+  //
+  //   var formData = 'seqs=' + seqs.join('&seqs=');
+  //   xhr.send(formData);
+  // }
 
   // 행 수정
   function editRow() {

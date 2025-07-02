@@ -16,9 +16,7 @@
             BOARD_TB
         ORDER BY
             BOARD_SEQ DESC
-        <if test="firstIndex != null and recordCountPerPage != null">
-            LIMIT #{firstIndex}, #{recordCountPerPage}
-        </if>
+        LIMIT #{firstIndex}, #{recordCountPerPage}
     </select>
 
     <!-- 게시글 상세 조회 -->
