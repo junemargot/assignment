@@ -5,6 +5,7 @@ import com.lime.board.service.BoardService;
 import com.lime.util.SessionUtil;
 import com.lime.user.vo.UserVO;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/board")
 public class BoardController {
@@ -32,46 +34,26 @@ public class BoardController {
                           @RequestParam(value = "inputRowCount", defaultValue = "0") int inputRowCount,
                           HttpServletRequest request,
                           Model model) throws Exception {
-    // 디버깅 로그
-    System.out.println("=== DEBUG: inputRowCount: " + inputRowCount);
+
+    log.info("inputRowCount: {}", inputRowCount);  // 추가된 입력행 확인
 
     // 입력행 개수를 고려한 실제 조회할 데이터 개수 계산
     int defaultPageSize = 10; // 기본 페이지 사이즈
     int actualPageSize = defaultPageSize - inputRowCount; // 실제 데이터 조회 개수
 
-    if(actualPageSize <= 0) {
-      actualPageSize = 1; // 최소 1개는 조회 ?
-    }
-
-    // 디버깅용 로그
-    System.out.println("=== DEBUG: actualPageSize = " + actualPageSize);
+    // 실제 페이지 사이즈 확인
+    log.info("actualPageSize: {}", actualPageSize);
 
     // 페이지네이션 정보 설정
     PaginationInfo paginationInfo = new PaginationInfo();
     paginationInfo.setCurrentPageNo(boardVo.getPageIndex());
     paginationInfo.setRecordCountPerPage(actualPageSize);  // 페이지당 게시글 수: 10개
-    paginationInfo.setPageSize(10);            // 페이징 블록 크기: 10개
+    paginationInfo.setPageSize(10);                        // 페이징 블록 크기: 10개
 
     // SQL 쿼리를 위한 시작/종료 인덱스 계산
     boardVo.setFirstIndex(paginationInfo.getFirstRecordIndex());
     boardVo.setLastIndex(paginationInfo.getLastRecordIndex());
     boardVo.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
-
-    // 디버깅 로그 추가
-    System.out.println("=== DEBUG: PaginationInfo ===");
-    System.out.println("getFirstRecordIndex(): " + paginationInfo.getFirstRecordIndex());
-    System.out.println("getLastRecordIndex(): " + paginationInfo.getLastRecordIndex());
-    System.out.println("getRecordCountPerPage(): " + paginationInfo.getRecordCountPerPage());
-
-    System.out.println("=== DEBUG: BoardVo ===");
-    System.out.println("boardVo.getFirstIndex(): " + boardVo.getFirstIndex());
-    System.out.println("boardVo.getLastIndex(): " + boardVo.getLastIndex());
-    System.out.println("boardVo.getRecordCountPerPage(): " + boardVo.getRecordCountPerPage());
-
-    // DB 조회 전
-    System.out.println("=== DEBUG: DB 조회 전 boardVo 상태 ===");
-    System.out.println("firstIndex 값: " + boardVo.getFirstIndex());
-    System.out.println("recordCountPerPage 값: " + boardVo.getRecordCountPerPage());
 
     // 게시글 목록 조회
     List<BoardVo> boardList = boardService.selectBoardList(boardVo);
@@ -80,9 +62,6 @@ public class BoardController {
     int totalCount = boardService.selectBoardListCount(boardVo); // 전체 게시글 수 카운트
     paginationInfo.setTotalRecordCount(totalCount); // 총 페이지 수 계산 및 이전, 다음 버튼 활성화에 필요
     model.addAttribute("paginationInfo", paginationInfo);
-
-    // 디버깅용 로그
-    System.out.println("=== DEBUG: 조회된 데이터 개수 = " + boardList.size());
 
     // 로그인 사용자 정보 전달
     UserVO loginUser = SessionUtil.getLoginUser(request);

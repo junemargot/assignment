@@ -10,7 +10,7 @@
   <style>
     th, td {
       text-align: center;
-      vertical-align: middle;
+      vertical-align: middle !important;
     }
 
     .pagination {
@@ -71,9 +71,6 @@
           <td>
             <input type="checkbox" class="rowCheck tempCheck" data-temp="true" />
           </td>
-<%--        <tr class="input-row" id="inputRow" >--%>
-<%--          <td></td>--%>
-<%--          <td></td>--%>
           <td>
             <input type="text" id="inputTitle" name="title" class="form-control" placeholder="내용을 입력해주세요" style="width: 100%;" />
           </td>
@@ -92,7 +89,9 @@
       <c:forEach var="board" items="${boardList}">
         <tr class="data-row">
           <td>${board.boardSeq}</td>
-          <td><input type="checkbox" class="rowCheck" value="${board.boardSeq}" /></td>
+          <td>
+            <input type="checkbox" class="rowCheck" value="${board.boardSeq}" />
+          </td>
           <td>
             <span class="title-link"
                   onclick="titleClickHandler(event, ${board.boardSeq}, this)"
@@ -120,62 +119,98 @@
   </div>
 
 <script type="text/javascript">
-  // 페이지 로드 시 입력행 복원
+  // 전역 변수 추가
+  let inputRowCounter = 0; // 동적으로 추가되는 행들의 고유 ID를 부여하기 위한 카운터
+  const maxInputRows= 5; // 한 페이지에 최대로 표시할 수 있는 입력 행의 개수
+
   document.addEventListener('DOMContentLoaded', function() {
     var savedInputRowCount = parseInt(document.getElementById('inputRowCount').value) || 0;
 
-    // 저장된 입력행 개수만큼 입력행 추가 (서버 요청 없이)
-    for(var i = 0; i < savedInputRowCount; i++) {
-      addInputRowSilent(); // 페이지 새로고침하지 않는 버전
+    // 새로고침 감지
+    var isRefresh = (
+      performance.navigation.type === 1 ||  // 새로고침
+      (performance.getEntriesByType('navigation')[0] &&
+        performance.getEntriesByType('navigation')[0].type === 'reload')
+    );
+
+    if(isRefresh) {
+      // 새로고침이고 inputRowCount가 있으면 깨끗한 URL로 리다이렉트
+      var urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.has('inputRowCount')) {
+        var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
+        var cleanUrl = '/board/boardList.do?pageIndex=' + currentPage;
+        window.location.replace(cleanUrl);
+        return;
+      }
+    } else {
+      // 새로고침이 아니면 기존 로직 수행
+      var urlParams = new URLSearchParams(window.location.search);
+      var hasInputRowParam = urlParams.has('inputRowCount');
+
+      if(savedInputRowCount > 0 && hasInputRowParam) {
+        for(var i = 0; i < savedInputRowCount; i++) {
+          addInputRowToDOM(false);
+        }
+      }
     }
   });
 
-  // 페이지 새로고침 없이 입력행만 추가하는 함수
-  function addInputRowSilent() {
-    // addInputRow()와 동일하지만 updatePageWithInputRows() 호출 제외
-    var tbody = document.getElementById('boardListBody');
-    var currentInputRows = tbody.querySelectorAll('.dynamic-input-row').length;
+  // 동적 입력 행을 DOM에 추가하는 핵심 함수
+  // saveToServer: true이면 서버에 입력 행 개수 업데이트 요청, false이면 요청 안함 (페이지 로드 시 사용)
+  function addInputRowToDOM(saveToServer) {
+      const tbody = document.getElementById('boardListBody');
+      const currentInputRows = tbody.querySelectorAll('.dynamic-input-row, .edit-input-row').length;
 
-    if(currentInputRows >= maxRowsPerPage) {
-        return;
-    }
+      if(currentInputRows >= maxInputRows) {
+          if(saveToServer) alert('한 페이지에 최대 ' + maxInputRows + '개의 행만 표시할 수 있습니다.');
+          return null; // 추가 실패
+      }
 
-    inputRowCounter++;
-    var template = document.getElementById('inputRowTemplate');
-    var newRow = template.cloneNode(true);
+      inputRowCounter++; // 새 행에 부여할 고유 ID 증가
+      const template = document.getElementById('inputRowTemplate');
+      const newRow = template.cloneNode(true); // 템플릿 복제 (자식 요소 포함)
 
-    newRow.id = 'inputRow_' + inputRowCounter;
-    newRow.style.display = 'table-row';
-    newRow.classList.add('dynamic-input-row');
+      // 새 행의 ID와 클래스 설정
+      newRow.id = 'inputRow_' + inputRowCounter;
+      newRow.style.display = 'table-row'; // 보이도록 설정
+      newRow.classList.add('dynamic-input-row'); // 동적 입력 행임을 표시
 
-    var titleInput = newRow.querySelector('input[name="title"]');
-    var regDateInput = newRow.querySelector('input[name="regDate"]');
-    var writerInput = newRow.querySelector('input[name="writer"]');
-    var checkbox = newRow.querySelector('.tempCheck');
-    var button = newRow.querySelector('button');
+      // 복제된 행 내부 요소들의 ID 및 속성 변경
+      const titleInput = newRow.querySelector('input[name="title"]');
+      const regDateInput = newRow.querySelector('input[name="regDate"]');
+      const writerInput = newRow.querySelector('input[name="writer"]');
+      const checkbox = newRow.querySelector('.tempCheck'); // 템플릿의 tempCheck 이용
+      const button = newRow.querySelector('button');
 
-    titleInput.id = 'inputTitle_' + inputRowCounter;
-    regDateInput.id = 'inputRegDate_' + inputRowCounter;
-    writerInput.id = 'inputWriter_' + inputRowCounter;
-    checkbox.setAttribute('data-row-id', inputRowCounter);
+      // 각 입력 필드에 고유 ID 부여
+      titleInput.id = 'inputTitle_' + inputRowCounter;
+      regDateInput.id = 'inputRegDate_' + inputRowCounter;
+      writerInput.id = 'inputWriter_' + inputRowCounter;
+      checkbox.setAttribute('data-row-id', inputRowCounter); // 체크박스에 연결된 행 ID 저장
 
-    var today = new Date().toISOString().split('T')[0];
-    regDateInput.value = today;
-    writerInput.value = '${loginUser.userName}';
+      // 기본 값 설정 (등록일은 현재 날짜, 작성자는 로그인 유저)
+      const today = new Date().toISOString().split('T')[0];
+      regDateInput.value = today;
+      writerInput.value = '${loginUser.userName}';
 
-    button.onclick = function () { addRowFromInput(inputRowCounter); };
+      // 등록 버튼에 클릭 이벤트 연결 (현재 생성된 행의 ID를 넘겨줌)
+      button.onclick = function () { addRowFromInput(newRow.id); };
 
-    var firstDataRow = tbody.querySelector('.data-row');
-    if(firstDataRow) {
-        tbody.insertBefore(newRow, firstDataRow);
-    } else {
-        tbody.appendChild(newRow);
-    }
+      // DOM에 삽입: 첫 번째 실제 데이터 행 앞에 삽입
+      const firstDataRow = tbody.querySelector('.data-row');
+      if(firstDataRow) {
+          tbody.insertBefore(newRow, firstDataRow);
+      } else {
+          tbody.appendChild(newRow); // 데이터 행이 없으면 tbody 마지막에 추가
+      }
+
+      if(saveToServer) {
+          updatePageWithInputRows(); // 서버에 입력 행 개수 업데이트 요청
+      }
+      return newRow; // 새로 생성된 행 반환
   }
 
-  // 전역 변수 추가
-  var inputRowCounter = 0;
-  var maxRowsPerPage = 10;
+
 
   // 현재 페이지 정보
   var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
@@ -206,58 +241,11 @@
 
   // ** 추가 - 새로운 행추가 함수
   function addInputRow() {
-    var tbody = document.getElementById('boardListBody');
-    // var currentDataRows = tbody.querySelectorAll('.data-row').length;
-    var currentInputRows = tbody.querySelectorAll('.dynamic-input-row').length;
-
-    // 페이지당 최대 행 수 체크 (페이지당 최대 10개까지 가능)
-    if(currentInputRows >= maxRowsPerPage) {
-      alert('한 페이지에 최대 ' + maxRowsPerPage + '개의 행만 표시할 수 있습니다.');
-      return;
-    }
-
-    inputRowCounter++;
-    var template = document.getElementById('inputRowTemplate');
-    var newRow = template.cloneNode(true);
-
-    // 새 행의 속성 설정
-    newRow.id = 'inputRow_' + inputRowCounter;
-    newRow.style.display = 'table-row';
-    newRow.classList.add('dynamic-input-row');
-
-    // 입력 필드들의 ID 변경
-    var titleInput = newRow.querySelector('input[name="title"]');
-    var regDateInput = newRow.querySelector('input[name="regDate"]');
-    var writerInput = newRow.querySelector('input[name="writer"]');
-    var checkbox = newRow.querySelector('.tempCheck');
-    var button = newRow.querySelector('button');
-
-    titleInput.id = 'inputTitle_' + inputRowCounter;
-    regDateInput.id = 'inputRegDate_' + inputRowCounter;
-    writerInput.id = 'inputWriter_' + inputRowCounter;
-    checkbox.setAttribute('data-row-id', inputRowCounter);
-
-    // 현재 날짜 설정
-    var today = new Date().toISOString().split('T')[0];
-    regDateInput.value = today;
-    writerInput.value = '${loginUser.userName}';
-
-    // 등록 버튼 이벤트 수정
-    button.onclick = function () { addRowFromInput(inputRowCounter); };
-
-    // 첫번째 데이터 행 앞에 삽입
-    var firstDataRow = tbody.querySelector('.data-row');
-    if(firstDataRow) {
-      tbody.insertBefore(newRow, firstDataRow);
-    } else {
-      tbody.appendChild(newRow);
-    }
-
-    // 서버에 입력행 개수 업데이트 요청
-    updatePageWithInputRows();
-
-    // 포커스 설정
-    titleInput.focus();
+    const newRow = addInputRowToDOM(true); // 서버에 개수 업데이트 요청
+    //
+    // if(newRow) {
+    //   newRow.querySelector('input[name="title"]').focus(); // 새로 추가된 행의 제목 필드 포커스
+    // }
   }
 
   // 입력행 개수를 고려한 페이지 새로고침
@@ -271,7 +259,8 @@
 
   // 입력행에서 실제 데이터 등록
   function addRowFromInput(rowId) {
-    var titleInput = document.getElementById('inputTitle_' + rowId);
+    const rowElement = document.getElementById(rowId);
+    const titleInput = rowElement.querySelector('input[name="title"]');
 
     if (!titleInput.value.trim()) {
       alert('내용을 입력해주세요.');
@@ -292,7 +281,9 @@
         var response = JSON.parse(xhr.responseText);
         if(response.success) {
           alert(response.message);
-          window.location.reload();
+          // 등록 성공 시 입력행 초기화해서 페이지 이동
+          var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
+          window.location.href = '/board/boardList.do?pageIndex=' + currentPage;
         } else {
           alert(response.message);
         }
@@ -321,20 +312,23 @@
     btn.onclick = function() { addRow(); };
   }
 
-  // 페이지 이동
-  // function goPage(pageNo) {
-  //   window.location.href = '/board/boardList.do?pageIndex=' + pageNo;
-  // }
-
   function goPage(pageNo) {
     var currentInputRows = document.querySelectorAll('.dynamic-input-row').length;
     var url = '/board/boardList.do?pageIndex=' + pageNo;
 
-    if(currentInputRows > 0) {
+    // 현재 페이지에만 입력행 개수 전달 (다른 페이지로 이동 시에는 0)
+    if(pageNo == getCurrentPageNo()) {
       url += '&inputRowCount=' + currentInputRows;
     }
+
     window.location.href = url;
   }
+
+  function getCurrentPageNo() {
+    return parseInt(document.getElementById('currentPageIndex').value) || 1;
+  }
+
+  //==================== OK
 
   // 폼 유효성 검증
   function validateBoard() {
@@ -362,36 +356,6 @@
 
     // 3. 지원하지 않는 브라우저인 경우
     return null;
-  }
-
-  // 새로운 데이터를 서버에 저장하는 역할을 하는 함수
-  function addRow() {
-    if(!validateBoard()) return false;
-
-    // 폼 데이터 객체 생성
-    var formData = {
-      title: document.getElementById('inputTitle').value.trim()
-    };
-
-    // XMLHttpRequest 객체 생성
-    var xhr = createXHR();
-    xhr.open('POST', '/board/save.do', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); // 요청 헤더에 데이터를 폼 전송 방식(쿼리스트링)으로 설정
-
-    // 응답 처리 함수 등록
-    xhr.onreadystatechange = function() {
-      if(xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        if(response.success) {
-            alert(response.message);
-            window.location.reload();
-        } else {
-            alert(response.message);
-        }
-      }
-    };
-
-    xhr.send(serializeForm(formData));
   }
 
   // 폼 데이터를 URL 인코딩 형식으로 변환
@@ -430,19 +394,23 @@
   // 행 삭제
   function deleteRows() {
     var checkedBoxes = document.querySelectorAll('.rowCheck:checked');
-    // var checkedBoxes = document.querySelectorAll('.rowCheck:checked:not(.tempCheck)');
+    if(checkedBoxes.length === 0) {
+      alert('삭제할 게시글을 선택해주세요.');
+      return;
+    }
 
     // 실제 데이터와 임시 입력행 분리
-    var realDataBoxes = [];
-    var tempInputBoxes = [];
-    var cannotDeleteTemp = [];
+    var realDataBoxes = []; // 실제 데이터행 체크박스
+    var tempInputBoxes = []; // 임시 입력행 체크박스
+    var tempInputWithContent = []; // 내용이 입력된 임시 행
 
     checkedBoxes.forEach(function(checkbox) {
+      const row = checkbox.closest('tr');
+
       if(checkbox.classList.contains('tempCheck')) {
-        var row = checkbox.closest('tr');
         var titleInput = row.querySelector('input[name="title"]');
         if(titleInput && titleInput.value.trim()) {
-          cannotDeleteTemp.push('입력된 내용이 있는 행');
+          tempInputWithContent.push('입력된 내용이 있는 행');
         } else {
           tempInputBoxes.push(checkbox);
         }
@@ -451,40 +419,55 @@
       }
     });
 
-    // 1. 임시 입력행 먼저 삭제 (dom에서 삭제)
+    // 1. 내용이 입력된 임시 행에 대한 경고
+    if(tempInputWithContent.length > 0) {
+      alert('내용이 입력된 입력 행은 삭제할 수 없습니다. 내용을 비우거나 먼저 등록해주세요.');
+      return;
+    }
+
+    // 2. 내용 없는 임시 입력행 DOM에서 삭제
     tempInputBoxes.forEach(function(checkbox) {
-      var row = checkbox.closest('tr');
-      row.remove();
+      checkbox.closest('tr').remove();
     });
 
-    // 2. 실제 데이터가 있으면 서버 요청
+    // 입력행 개수 서버 업데이트
+    updatePageWithInputRows();
+
+    // 3. 실제 데이터 행 서버 삭제 요청
     if(realDataBoxes.length > 0) {
-      var seqs = [];
+      if(!confirm(realDataBoxes.length + '개의 게시글을 삭제하시겠습니까?')) {
+        return;
+      }
+
+      const seqs = [];
       realDataBoxes.forEach(function(checkbox) {
         seqs.push(checkbox.value);
       });
 
-      var xhr = createXHR();
+      const xhr = createXHR();
       xhr.open('POST', '/board/delete.do', true);
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
       xhr.onreadystatechange = function() {
         if(xhr.readyState === 4 && xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
+          const response = JSON.parse(xhr.responseText);
+          alert(response.message);
+
           if(response.success) {
             alert(response.message);
             window.location.reload();
-          } else {
-            alert(response.message);
           }
         }
       };
 
       var formData = 'seqs=' + seqs.join('&seqs=');
       xhr.send(formData);
-    } else {
-      // 임시 입력행만 삭제한 경우
+    } else if(tempInputBoxes.length > 0) {
+      // 실제 데이터 삭제 없이, 내용 없는 임시 입력 행만 삭제한 경우
       alert('선택한 입력행이 삭제되었습니다.');
+    } else {
+      // 아무것도 삭제되지 않은 경우 (ex: 내용 있는 임시행만 선택하고 삭제 시도했을 때)
+      // 위에서 이미 alert가 떴으므로 여기는 실행되지 않을 것
     }
   }
 
@@ -541,73 +524,120 @@
       return;
     }
 
-    // 이미 입력행이 열려있으면 닫고, 필드 초기화
-    if(inputRowVisible) toggleInputRow();
-    resetInputRow();
-
-    // 선택한 게시글의 정보
-    // console.log(checkedList);
-    // console.log(checkedList[0]);
     const checkbox  = checkedList[0];
     const tr        = checkbox.closest('tr');
+
+    // 이미 수정 행이 열려있는지 확인 (중복 방지)
+    if(tr.nextElementSibling && tr.nextElementSibling.classList.contains('edit-input-row')) {
+      alert('이미 수정 중인 게시글입니다.');
+      return;
+    }
+
+    // 새 입력행을 추가하는 addInputRowToDOM 함수를 재활용
+    const editRowElement = addInputRowToDOM(false);
+    // if(!editRowElement) {
+    //   alert('수정 행을 추가할 수 없습니다. 페이지 내 입력 행 수를 확인해주세요.');
+    //   return;
+    // }
+
+    // edit-input-row 클래스 추가 및 tempCheck 제거
+    editRowElement.classList.remove('dynamic-input-row');
+    editRowElement.classList.add('edit-input-row');
+    editRowElement.querySelector('.tempCheck').classList.remove('tempCheck');
+    editRowElement.querySelector('.row-no').textContent = tr.cells[0].textContent.trim(); // 게시글 번호 표시
+
+    // 원본 데이터 행 바로 아래로 이동
+    tr.parentNode.insertBefore(editRowElement, tr.nextSibling);
+
+    // 선택한 게시글의 정보
     const boardSeq  = tr.cells[0].textContent.trim();
-    const titleTxt  = tr.cells[2].textContent.trim();
+    // const titleTxt  = tr.cells[2].textContent.trim();
+    const titleTxt = tr.cells[2].querySelector('.title-link') ? tr.cells[2].querySelector('.title-link').textContent.trim() : tr.cells[2].textContent.trim(); // span 태그 고려
     const regDate   = tr.cells[3].textContent.trim();
     const writerTxt = tr.cells[4].textContent.trim();
 
-    // 숨겨둔 입력행을 선택된 행 바로 아래 삽입 및 표시
-    const inputTr = document.getElementById('inputRow');
-    tr.parentNode.insertBefore(inputTr, tr.nextSibling);
-    inputTr.style.display = 'table-row';
-    inputRowVisible = true;
+    // 입력 필드에 기존 게시글 값 바인딩 (동적으로 생성된 input 필드의 ID를 사용)
+    const titleInput = editRowElement.querySelector('input[name="title"]');
+    const regDateInput = editRowElement.querySelector('input[name="regDate"]');
+    const writerInput = editRowElement.querySelector('input[name="writer"]');
+    const button = editRowElement.querySelector('button');
 
-    // 입력 필드에 기존 게시글 값 바인딩
-    document.getElementById('inputTitle').value = titleTxt;
-    document.getElementById('inputRegDate').value = regDate;
-    document.getElementById('inputWriter').value = writerTxt;
+    titleInput.value = titleTxt;
+    regDateInput.value = regDate;
+    writerInput.value = writerTxt;
 
-    // boardSeq를 hidden 필드로 세팅
-    let seqHidden = document.getElementById('inputSeqHidden');
-    if(!seqHidden) {
-      seqHidden = document.createElement('input');
-      seqHidden.type = 'hidden';
-      seqHidden.id = 'inputSeqHidden';
-      seqHidden.name = 'boardSeq';
-      inputTr.appendChild(seqHidden);
-    }
+    // boardSeq를 hidden 필드로 세팅 (수정 행 내부에)
+    let seqHidden = document.createElement('input');
+    seqHidden.type = 'hidden';
+    seqHidden.id = 'inputSeqHidden_' + inputRowCounter; // 고유 ID 부여
+    seqHidden.name = 'boardSeq';
     seqHidden.value = boardSeq;
+    editRowElement.appendChild(seqHidden);
 
-    // 등록버튼의 onclick -> 업데이트
-    const btn = inputTr.querySelector('button');
-    btn.textContent = "수정완료";
-    btn.onclick = function() { updateRow(); };
+    // 버튼 텍스트 '수정완료'로 변경 및 onclick 이벤트 연결
+    button.textContent = "수정완료";
+    button.onclick = function() { updateRowFromInput(editRowElement.id); };
+
+    // 수정 필드에 포커스
+    titleInput.focus();
   }
 
-  // 수정 데이터 서버 전송
-  function updateRow() {
-    if(!validateBoard()) return;
+  // 수정 데이터 서버 전송 (updateRow 대체)
+  function updateRowFromInput(rowId) {
+    const rowElement = document.getElementById(rowId);
+    const titleInput = rowElement.querySelector('input[name="title"]');
+    const regDateInput = rowElement.querySelector('input[name="regDate"]');
+    const writerInput = rowElement.querySelector('input[name="writer"]');
+    const boardSeqHidden = rowElement.querySelector('input[name="boardSeq"][type="hidden"]');
 
-    // 수정된 게시글 데이터를 담을 객체 생성
+
+    if(!validateTitle(titleInput)) return;
+
     const formData = {
-      boardSeq: document.getElementById('inputSeqHidden').value,
-      title   : document.getElementById('inputTitle').value.trim(),
-      regDate : document.getElementById('inputRegDate').value,
-      writer  : document.getElementById('inputWriter').value.trim()
+        boardSeq: boardSeqHidden.value,
+        title   : titleInput.value.trim(),
+        regDate : regDateInput.value,
+        writer  : writerInput.value.trim()
     };
 
     const xhr = createXHR();
     xhr.open('POST', '/board/update.do', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-        if (res.success) location.reload();
-      }
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            const res = JSON.parse(xhr.responseText);
+            alert(res.message);
+            if (res.success) location.reload();
+        }
     };
-
     xhr.send(serializeForm(formData));
-  }
+}
+
+  // 수정 데이터 서버 전송
+  // function updateRow() {
+  //   if(!validateBoard()) return;
+  //
+  //   // 수정된 게시글 데이터를 담을 객체 생성
+  //   const formData = {
+  //     boardSeq: document.getElementById('inputSeqHidden').value,
+  //     title   : document.getElementById('inputTitle').value.trim(),
+  //     regDate : document.getElementById('inputRegDate').value,
+  //     writer  : document.getElementById('inputWriter').value.trim()
+  //   };
+  //
+  //   const xhr = createXHR();
+  //   xhr.open('POST', '/board/update.do', true);
+  //   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  //   xhr.onreadystatechange = function () {
+  //     if (xhr.readyState === 4 && xhr.status === 200) {
+  //       const res = JSON.parse(xhr.responseText);
+  //       alert(res.message);
+  //       if (res.success) location.reload();
+  //     }
+  //   };
+  //
+  //   xhr.send(serializeForm(formData));
+  // }
 
   // 단일 클릭 처리 로직 (더블 클릭 방지)
   let clickTimer = null; // 단일클릭, 더블클릭 구분하는 용도의 변수
