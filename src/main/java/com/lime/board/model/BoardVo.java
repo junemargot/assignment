@@ -10,6 +10,7 @@ public class BoardVo extends SampleDefaultVO {
   private String writer;
   private int viewCount;
   private String regDate;
+  private String useYn;
 
   // 테이블과 매핑 X, 쿼리 조건용
   private String roleType;
@@ -61,6 +62,14 @@ public class BoardVo extends SampleDefaultVO {
 
   public void setRegDate(String regDate) {
     this.regDate = regDate;
+  }
+
+  public String getUseYn() {
+    return useYn;
+  }
+
+  public void setUseYn(String useYn) {
+    this.useYn = useYn;
   }
 
   public String getRoleType() {
