@@ -32,12 +32,36 @@
       padding: 4px;
       height: 30px;
     }
+
+    .admin-notice {
+      background-color: #d4edda;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .user-notice {
+      background-color: #fff3cd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container" style="max-width: 1400px; margin: 0 auto;">
     <div id="wrap" class="col-md-offset col-sm-15" style="margin-top: 50px;">
-      <div align="center"><h2>게시물 리스트</h2></div>
+      <div align="center">
+        <h2>게시물 리스트</h2>
+      </div>
+      <c:if test="${loginUser.roleType == 'ADMIN'}">
+        <div class="admin-notice">관리자 모드: 모든 게시물이 표시됩니다.</div>
+      </c:if>
+      <c:if test="${loginUser.roleType == 'USER'}">
+        <div class="user-notice">작성한 게시물만 표시됩니다.</div>
+      </c:if>
       <!-- 버튼 그룹 -->
       <div class="form_box2" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <div class="left">

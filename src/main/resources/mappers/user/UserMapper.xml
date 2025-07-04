@@ -6,7 +6,8 @@
 
     <!-- 회원가입: 사용자 정보 저장 -->
     <insert id="insertUser" parameterType="com.lime.user.vo.UserVO">
-        INSERT INTO user (user_id, pwd, user_name, rrn, zipcode, address, company_address, email, file_names, reg_dt)
+        INSERT INTO
+            USER (user_id, pwd, user_name, rrn, zipcode, address, company_address, email, file_names, reg_dt)
         VALUES (
             #{userId}, #{pwd}, #{userName}, #{rrn}, #{zipcode}, #{address}, #{companyAddress}, #{email}, #{fileNames}, NOW()
         )
@@ -15,7 +16,7 @@
     <!-- ID 중복 체크 -->
     <select id="countByUserId" parameterType="String" resultType="int">
         SELECT COUNT(*)
-        FROM user
+        FROM USER
         WHERE user_id = #{userId}
     </select>
 
@@ -32,21 +33,28 @@
             company_address  AS companyAddress,
             email,
             file_names       AS fileNames,
-            reg_dt           AS regDt
-        FROM user
-        WHERE user_id = #{userId}
+            reg_dt           AS regDt,
+            role_type        AS roleType
+        FROM
+            USER
+        WHERE
+            user_id = #{userId}
     </select>
 
     <!-- 비밀번호 변경 -->
     <update id="updateUserPwd">
-        UPDATE user
-        SET pwd = #{newPwd}
-        WHERE user_id = #{userId}
+        UPDATE
+            USER
+        SET
+            pwd = #{newPwd}
+        WHERE
+            user_id = #{userId}
     </update>
 
     <!-- 회원정보 변경 -->
     <update id="updateUser" parameterType="UserVO">
-        UPDATE user
+        UPDATE
+            USER
         SET
             user_id = #{userId},
             pwd = COALESCE(#{pwd}, pwd),
@@ -57,7 +65,8 @@
             company_address = #{companyAddress},
             email = #{email},
             file_names = COALESCE(#{fileNames}, file_names)
-        WHERE user_id = #{userId}
+        WHERE
+            user_id = #{userId}
     </update>
 
 </mapper>

@@ -35,7 +35,12 @@ public class BoardController {
                           HttpServletRequest request,
                           Model model) throws Exception {
 
-    log.info("inputRowCount: {}", inputRowCount);  // 추가된 입력행 확인
+    UserVO loginUser = SessionUtil.getLoginUser(request);
+
+    // 권한 정보 설정
+    boardVo.setRoleType(loginUser.getRoleType());
+    boardVo.setCurrentUserName(loginUser.getUserName());
+    System.out.println("roleType: " + loginUser.getRoleType());
 
     // 입력행 개수를 고려한 실제 조회할 데이터 개수 계산
     int defaultPageSize = 10; // 기본 페이지 사이즈
@@ -62,11 +67,10 @@ public class BoardController {
     int totalCount = boardService.selectBoardListCount(boardVo); // 전체 게시글 수 카운트
     paginationInfo.setTotalRecordCount(totalCount); // 총 페이지 수 계산 및 이전, 다음 버튼 활성화에 필요
     model.addAttribute("paginationInfo", paginationInfo);
+    model.addAttribute("inputRowCount", inputRowCount);
 
     // 로그인 사용자 정보 전달
-    UserVO loginUser = SessionUtil.getLoginUser(request);
     model.addAttribute("loginUser", loginUser);
-    model.addAttribute("inputRowCount", inputRowCount);
 
     return "/board/boardList";
   }

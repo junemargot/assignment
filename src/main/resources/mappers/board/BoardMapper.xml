@@ -16,7 +16,7 @@
             BOARD_TB
         <where>
             <!-- 일반 사용자인 경우 본인 작성글만 조회 -->
-            <if test="roleType != null and roleType == 'USER">
+            <if test="roleType != null and roleType == 'USER'">
                 AND WRITER = #{currentUserName}
             </if>
         </where>
@@ -46,7 +46,7 @@
         FROM
             BOARD_TB
         <where>
-            <if test="roleType != null and roleType == 'USER">
+            <if test="roleType != null and roleType == 'USER'">
                 AND WRITER = #{currentUserName}
             </if>
         </where>
