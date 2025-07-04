@@ -44,7 +44,6 @@
           <button type="button" class="btn btn-default" id="selectAllBtn" onclick="selectAll(this)" data-selected="false">전체선택</button>
         </div>
         <div class="right">
-<%--          <button type="button" class="btn btn-default" onclick="toggleInputRow()">행추가</button>--%>
           <button type="button" class="btn btn-default" onclick="addInputRow()">행추가</button>
           <button type="button" class="btn btn-default" onclick="editRow()">행수정</button>
           <button type="button" class="btn btn-default" onclick="deleteRows()">행삭제</button>
@@ -81,7 +80,7 @@
             <input type="text" id="inputWriter" name="writer" class="form-control" value="${loginUser.userName}" style="width: 100%; background-color: #f8f9fa;" disabled />
           </td>
           <td>
-            <button type="button" class="btn btn-default btn-sm" onclick="addRow()">등록</button>
+            <button type="button" class="btn btn-default btn-sm">등록</button>
           </td>
         </tr>
 
@@ -123,6 +122,7 @@
   let inputRowCounter = 0; // 동적으로 추가되는 행들의 고유 ID를 부여하기 위한 카운터
   const maxInputRows= 5; // 한 페이지에 최대로 표시할 수 있는 입력 행의 개수
 
+  // DOM 문서 로드되면 실행됨
   document.addEventListener('DOMContentLoaded', function() {
     var savedInputRowCount = parseInt(document.getElementById('inputRowCount').value) || 0;
 
@@ -158,56 +158,56 @@
   // 동적 입력 행을 DOM에 추가하는 핵심 함수
   // saveToServer: true이면 서버에 입력 행 개수 업데이트 요청, false이면 요청 안함 (페이지 로드 시 사용)
   function addInputRowToDOM(saveToServer) {
-      const tbody = document.getElementById('boardListBody');
-      const currentInputRows = tbody.querySelectorAll('.dynamic-input-row, .edit-input-row').length;
+    const tbody = document.getElementById('boardListBody');
+    const currentInputRows = tbody.querySelectorAll('.dynamic-input-row, .edit-input-row').length;
 
-      if(currentInputRows >= maxInputRows) {
-          if(saveToServer) alert('한 페이지에 최대 ' + maxInputRows + '개의 행만 표시할 수 있습니다.');
-          return null; // 추가 실패
-      }
+    if(currentInputRows >= maxInputRows) {
+      if(saveToServer) alert('한 페이지에 최대 ' + maxInputRows + '개의 행만 표시할 수 있습니다.');
+      return null; // 추가 실패
+    }
 
-      inputRowCounter++; // 새 행에 부여할 고유 ID 증가
-      const template = document.getElementById('inputRowTemplate');
-      const newRow = template.cloneNode(true); // 템플릿 복제 (자식 요소 포함)
+    inputRowCounter++; // 새 행에 부여할 고유 ID 증가
+    const template = document.getElementById('inputRowTemplate');
+    const newRow = template.cloneNode(true); // 템플릿 복제 (자식 요소 포함)
 
-      // 새 행의 ID와 클래스 설정
-      newRow.id = 'inputRow_' + inputRowCounter;
-      newRow.style.display = 'table-row'; // 보이도록 설정
-      newRow.classList.add('dynamic-input-row'); // 동적 입력 행임을 표시
+    // 새 행의 ID와 클래스 설정
+    newRow.id = 'inputRow_' + inputRowCounter; // newRow라는 전체 <tr> 요소 자체에 id를 부여하는 것.
+    newRow.style.display = 'table-row';        // 보이도록 설정
+    newRow.classList.add('dynamic-input-row'); // 동적 입력 행임을 표시
 
-      // 복제된 행 내부 요소들의 ID 및 속성 변경
-      const titleInput = newRow.querySelector('input[name="title"]');
-      const regDateInput = newRow.querySelector('input[name="regDate"]');
-      const writerInput = newRow.querySelector('input[name="writer"]');
-      const checkbox = newRow.querySelector('.tempCheck'); // 템플릿의 tempCheck 이용
-      const button = newRow.querySelector('button');
+    // 복제된 행 newRow 내부 요소에 접근하여 각 변수에 할당
+    const titleInput = newRow.querySelector('input[name="title"]'); // newRow 안에서 name이 "title"인 input 태그를 찾아 titleInput 변수에 연결
+    const regDateInput = newRow.querySelector('input[name="regDate"]');
+    const writerInput = newRow.querySelector('input[name="writer"]');
+    const checkbox = newRow.querySelector('.tempCheck'); // newRow 안에서 class가 "tempCheck"인 요소를 찾아 checkbox 변수에 연결
+    const button = newRow.querySelector('button');
 
-      // 각 입력 필드에 고유 ID 부여
-      titleInput.id = 'inputTitle_' + inputRowCounter;
-      regDateInput.id = 'inputRegDate_' + inputRowCounter;
-      writerInput.id = 'inputWriter_' + inputRowCounter;
-      checkbox.setAttribute('data-row-id', inputRowCounter); // 체크박스에 연결된 행 ID 저장
+    // 각 입력 필드에 고유 ID 부여
+    titleInput.id = 'inputTitle_' + inputRowCounter;
+    regDateInput.id = 'inputRegDate_' + inputRowCounter;
+    writerInput.id = 'inputWriter_' + inputRowCounter;
+    checkbox.setAttribute('data-row-id', inputRowCounter); // 체크박스에 연결된 행 ID 저장
 
-      // 기본 값 설정 (등록일은 현재 날짜, 작성자는 로그인 유저)
-      const today = new Date().toISOString().split('T')[0];
-      regDateInput.value = today;
-      writerInput.value = '${loginUser.userName}';
+    // 기본 값 설정 (등록일은 현재 날짜, 작성자는 로그인 유저)
+    const today = new Date().toISOString().split('T')[0];
+    regDateInput.value = today;
+    writerInput.value = '${loginUser.userName}';
 
-      // 등록 버튼에 클릭 이벤트 연결 (현재 생성된 행의 ID를 넘겨줌)
-      button.onclick = function () { addRowFromInput(newRow.id); };
+    // 등록 버튼에 클릭 이벤트 연결 (현재 생성된 행의 ID를 넘겨줌)
+    button.onclick = function () { addRowFromInput(newRow.id); };
 
-      // DOM에 삽입: 첫 번째 실제 데이터 행 앞에 삽입
-      const firstDataRow = tbody.querySelector('.data-row');
-      if(firstDataRow) {
-          tbody.insertBefore(newRow, firstDataRow);
-      } else {
-          tbody.appendChild(newRow); // 데이터 행이 없으면 tbody 마지막에 추가
-      }
+    // DOM에 삽입: 첫 번째 실제 데이터 행 앞에 삽입
+    const firstDataRow = tbody.querySelector('.data-row');
+    if(firstDataRow) {
+      tbody.insertBefore(newRow, firstDataRow);
+    } else {
+      tbody.appendChild(newRow); // 데이터 행이 없으면 tbody 마지막에 추가
+    }
 
-      if(saveToServer) {
-          updatePageWithInputRows(); // 서버에 입력 행 개수 업데이트 요청
-      }
-      return newRow; // 새로 생성된 행 반환
+    if(saveToServer) {
+      updatePageWithInputRows(); // 서버에 입력 행 개수 업데이트 요청
+    }
+    return newRow; // 새로 생성된 행 반환
   }
 
 
@@ -216,36 +216,9 @@
   var currentPage = parseInt(document.getElementById('currentPageIndex').value) || 1;
   var inputRowVisible = false;
 
-  // 입력행 가시성 토글
-  function toggleInputRow() {
-    resetInputRow(); // 입력행의 내용 초기화 설정(수정모드 등에서 남아있는 값 초기화)
-
-    var inputRow = document.getElementById('inputRow');
-    if(inputRowVisible) {
-      inputRow.style.display = 'none';
-      inputRowVisible = false;
-    } else {
-      var tbody = document.getElementById('boardListBody');
-      var firstDataRow = tbody.querySelector('.data-row');
-      tbody.insertBefore(inputRow, firstDataRow); // insertBefore(삽입할_노드, 기준_노드)
-
-      inputRow.style.display = 'table-row';
-      inputRowVisible = true;
-      document.getElementById('inputTitle').focus();
-
-      // 현재 날짜 설정
-      var today = new Date().toISOString().split('T')[0]; // "2025-06-28T12:34:56.789Z";
-      document.getElementById('inputRegDate').value = today;
-    }
-  }
-
   // ** 추가 - 새로운 행추가 함수
   function addInputRow() {
-    const newRow = addInputRowToDOM(true); // 서버에 개수 업데이트 요청
-    //
-    // if(newRow) {
-    //   newRow.querySelector('input[name="title"]').focus(); // 새로 추가된 행의 제목 필드 포커스
-    // }
+    addInputRowToDOM(true); // 서버에 개수 업데이트 요청
   }
 
   // 입력행 개수를 고려한 페이지 새로고침
@@ -293,25 +266,6 @@
     xhr.send(serializeForm(formData));
   }
 
-
-  // 새 글 등록을 위한 input 초기화 설정
-  function resetInputRow() {
-    document.getElementById('inputTitle').value = '';
-    document.getElementById('inputRegDate').value = '';
-    document.getElementById('inputWriter').value = '${loginUser.userName}';
-
-    // hidden 필드 제거
-    var seqHidden = document.getElementById('inputSeqHidden');
-    if(seqHidden) {
-      seqHidden.remove();
-    }
-
-    // 버튼 상태 초기화
-    var btn = document.querySelector('#inputRow button');
-    btn.textContent = '등록';
-    btn.onclick = function() { addRow(); };
-  }
-
   function goPage(pageNo) {
     var currentInputRows = document.querySelectorAll('.dynamic-input-row').length;
     var url = '/board/boardList.do?pageIndex=' + pageNo;
@@ -331,12 +285,10 @@
   //==================== OK
 
   // 폼 유효성 검증
-  function validateBoard() {
-    var title = document.getElementById('inputTitle').value.trim();
-
-    if(!title) {
+  function validateBoard(titleInput) {
+    if(!titleInput.value.trim()) {
       alert('내용을 입력해주세요.');
-      document.getElementById('inputTitle').focus();
+      titleInput.focus();
       return false;
     }
 
@@ -421,7 +373,7 @@
 
     // 1. 내용이 입력된 임시 행에 대한 경고
     if(tempInputWithContent.length > 0) {
-      alert('내용이 입력된 입력 행은 삭제할 수 없습니다. 내용을 비우거나 먼저 등록해주세요.');
+      alert('내용이 입력된 입력 행은 삭제할 수 없습니다.');
       return;
     }
 
@@ -429,9 +381,6 @@
     tempInputBoxes.forEach(function(checkbox) {
       checkbox.closest('tr').remove();
     });
-
-    // 입력행 개수 서버 업데이트
-    updatePageWithInputRows();
 
     // 3. 실제 데이터 행 서버 삭제 요청
     if(realDataBoxes.length > 0) {
@@ -451,11 +400,17 @@
       xhr.onreadystatechange = function() {
         if(xhr.readyState === 4 && xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          alert(response.message);
-
           if(response.success) {
             alert(response.message);
-            window.location.reload();
+
+            // 입력행도 함께 삭제되었으면 입력행 개수 업데이트 후 새로고침
+            if(tempInputBoxes.length > 0) {
+              updatePageWithInputRows();
+            } else {
+              window.location.reload();
+            }
+          } else {
+            alert(response.message);
           }
         }
       };
@@ -463,52 +418,10 @@
       var formData = 'seqs=' + seqs.join('&seqs=');
       xhr.send(formData);
     } else if(tempInputBoxes.length > 0) {
-      // 실제 데이터 삭제 없이, 내용 없는 임시 입력 행만 삭제한 경우
       alert('선택한 입력행이 삭제되었습니다.');
-    } else {
-      // 아무것도 삭제되지 않은 경우 (ex: 내용 있는 임시행만 선택하고 삭제 시도했을 때)
-      // 위에서 이미 alert가 떴으므로 여기는 실행되지 않을 것
+      updatePageWithInputRows(); // 입력행 개수 서버 업데이트
     }
   }
-
-
-
-    // before
-  //   if(checkedBoxes.length === 0) {
-  //     alert('삭제할 게시글을 선택해주세요.');
-  //     return;
-  //   }
-  //
-  //   if(!confirm(checkedBoxes.length + '개의 게시글을 삭제하시겠습니까?')) {
-  //     return;
-  //   }
-  //
-  //   // 선택된 게시글의 식별자 추출
-  //   var seqs = [];
-  //   checkedBoxes.forEach(function(checkbox) { // 선택된 각 체크박스를 순회하며 해당 체크박스의 value(게시글 식별자)를 seqs 배열에 추가
-  //     seqs.push(checkbox.value);
-  //   });
-  //
-  //   // XMLHttpRequest 객체 생성 및 요청 준비
-  //   var xhr = createXHR();
-  //   xhr.open('POST', '/board/delete.do', true);
-  //   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  //
-  //   xhr.onreadystatechange = function() {
-  //     if(xhr.readyState === 4 && xhr.status === 200) {
-  //       var response = JSON.parse(xhr.responseText);
-  //       if(response.success) {
-  //         alert(response.message);
-  //         window.location.reload();
-  //       } else {
-  //         alert(response.message);
-  //       }
-  //     }
-  //   };
-  //
-  //   var formData = 'seqs=' + seqs.join('&seqs=');
-  //   xhr.send(formData);
-  // }
 
   // 행 수정
   function editRow() {
@@ -590,54 +503,27 @@
     const writerInput = rowElement.querySelector('input[name="writer"]');
     const boardSeqHidden = rowElement.querySelector('input[name="boardSeq"][type="hidden"]');
 
-
-    if(!validateTitle(titleInput)) return;
+    if(!validateBoard(titleInput)) return;
 
     const formData = {
-        boardSeq: boardSeqHidden.value,
-        title   : titleInput.value.trim(),
-        regDate : regDateInput.value,
-        writer  : writerInput.value.trim()
+      boardSeq: boardSeqHidden.value,
+      title   : titleInput.value.trim(),
+      regDate : regDateInput.value,
+      writer  : writerInput.value.trim()
     };
 
     const xhr = createXHR();
     xhr.open('POST', '/board/update.do', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            const res = JSON.parse(xhr.responseText);
-            alert(res.message);
-            if (res.success) location.reload();
-        }
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+        if (res.success) location.reload();
+      }
     };
     xhr.send(serializeForm(formData));
-}
-
-  // 수정 데이터 서버 전송
-  // function updateRow() {
-  //   if(!validateBoard()) return;
-  //
-  //   // 수정된 게시글 데이터를 담을 객체 생성
-  //   const formData = {
-  //     boardSeq: document.getElementById('inputSeqHidden').value,
-  //     title   : document.getElementById('inputTitle').value.trim(),
-  //     regDate : document.getElementById('inputRegDate').value,
-  //     writer  : document.getElementById('inputWriter').value.trim()
-  //   };
-  //
-  //   const xhr = createXHR();
-  //   xhr.open('POST', '/board/update.do', true);
-  //   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  //   xhr.onreadystatechange = function () {
-  //     if (xhr.readyState === 4 && xhr.status === 200) {
-  //       const res = JSON.parse(xhr.responseText);
-  //       alert(res.message);
-  //       if (res.success) location.reload();
-  //     }
-  //   };
-  //
-  //   xhr.send(serializeForm(formData));
-  // }
+  }
 
   // 단일 클릭 처리 로직 (더블 클릭 방지)
   let clickTimer = null; // 단일클릭, 더블클릭 구분하는 용도의 변수
