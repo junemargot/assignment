@@ -11,6 +11,10 @@ public class BoardVo extends SampleDefaultVO {
   private int viewCount;
   private String regDate;
 
+  // 테이블과 매핑 X, 쿼리 조건용
+  private String roleType;
+  private String currentUserName;
+
   public BoardVo() {}
 
   public BoardVo(String title, String writer) {
@@ -59,6 +63,22 @@ public class BoardVo extends SampleDefaultVO {
     this.regDate = regDate;
   }
 
+  public String getRoleType() {
+    return roleType;
+  }
+
+  public void setRoleType(String roleType) {
+    this.roleType = roleType;
+  }
+
+  public String getCurrentUserName() {
+    return currentUserName;
+  }
+
+  public void setCurrentUserName(String currentUserName) {
+    this.currentUserName = currentUserName;
+  }
+
   @Override
   public String toString() {
     return "BoardVo{" +
@@ -67,6 +87,8 @@ public class BoardVo extends SampleDefaultVO {
             ", writer='" + writer + '\'' +
             ", viewCount=" + viewCount +
             ", regDate=" + regDate +
+            ", roleType='" + roleType + '\'' +
+            ", currentUserName='" + currentUserName + '\'' +
             '}';
   }
 }

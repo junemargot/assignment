@@ -13,6 +13,7 @@ public class UserVO {
 	private String email;
 	private String fileNames;
 	private String regDt;
+	private String roleType;
 
 	@Override
 	public String toString() {
@@ -28,6 +29,7 @@ public class UserVO {
 						", email='" + email + '\'' +
 						", fileNames='" + fileNames + '\'' +
 						", regDt='" + regDt + '\'' +
+						", roleType='" + roleType + '\'' +
 						'}';
 	}
 
@@ -117,5 +119,13 @@ public class UserVO {
 
 	public void setRegDt(String regDt) {
 		this.regDt = regDt;
+	}
+
+	public String getRoleType() {
+		return roleType;
+	}
+
+	public void setRoleType(String roleType) {
+		this.roleType = roleType;
 	}
 }

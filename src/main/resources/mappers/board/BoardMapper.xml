@@ -14,6 +14,12 @@
             REG_DATE AS regDate
         FROM
             BOARD_TB
+        <where>
+            <!-- 일반 사용자인 경우 본인 작성글만 조회 -->
+            <if test="roleType != null and roleType == 'USER">
+                AND WRITER = #{currentUserName}
+            </if>
+        </where>
         ORDER BY
             BOARD_SEQ DESC
         LIMIT #{firstIndex}, #{recordCountPerPage}
@@ -39,6 +45,11 @@
             COUNT(*) AS cnt
         FROM
             BOARD_TB
+        <where>
+            <if test="roleType != null and roleType == 'USER">
+                AND WRITER = #{currentUserName}
+            </if>
+        </where>
     </select>
 
     <!-- 게시글 등록 -->
@@ -84,7 +95,7 @@
     <!-- 게시글 삭제 -->
     <delete id="deleteBoard" parameterType="int">
         DELETE FROM
-                   BOARD_TB
+            BOARD_TB
         WHERE
             BOARD_SEQ = #{boardSeq}
     </delete>
@@ -92,7 +103,7 @@
     <!-- 게시글 다중 삭제 -->
     <delete id="deleteBoardList" parameterType="java.util.List">
         DELETE FROM
-                   BOARD_TB
+            BOARD_TB
         WHERE
             BOARD_SEQ IN
             <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
