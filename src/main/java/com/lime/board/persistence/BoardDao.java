@@ -53,4 +53,14 @@ public class BoardDao extends EgovAbstractMapper {
   public int deleteBoardList(List<Integer> boardSeqs) throws Exception {
     return delete("boardDao.deleteBoardList", boardSeqs);
   }
+
+  // 삭제된 게시물 목록 조회
+  public List<BoardVo> selectDeletedBoardList(BoardVo boardVo) throws Exception {
+    return selectList("boardDao.selectDeletedBoardList", boardVo);
+  }
+
+  // 삭제된 게시물 총 개수 조회
+  public int selectDeletedBoardListCount(BoardVo boardVo) throws Exception {
+    return selectOne("boardDao.selectDeletedBoardListCount", boardVo);
+  }
 }

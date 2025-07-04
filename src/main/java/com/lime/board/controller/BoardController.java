@@ -167,4 +167,45 @@ public class BoardController {
 
     return result;
   }
+
+  /**
+   * 삭제된 게시물 관리 페이지 (관리자 전용)
+   * */
+  @GetMapping("/deletedList.do")
+  public String deletedBoardList(@ModelAttribute("boardVo") BoardVo boardVo,
+                                  HttpServletRequest request,
+                                  Model model) throws Exception {
+
+    UserVO loginUser = SessionUtil.getLoginUser(request);
+
+    if(!"ADMIN".equals(loginUser.getRoleType())) {
+      return "redirect:/board/boardList.do";
+    }
+
+    boardVo.setRoleType(loginUser.getRoleType());
+
+    // 페이징 처리 (고정 페이지 사이즈)
+    int pageSize = 10;  // 고정값
+
+    PaginationInfo paginationInfo = new PaginationInfo();
+    paginationInfo.setCurrentPageNo(boardVo.getPageIndex());
+    paginationInfo.setRecordCountPerPage(pageSize);  // 고정값 사용
+    paginationInfo.setPageSize(10);
+
+    boardVo.setFirstIndex(paginationInfo.getFirstRecordIndex());
+    boardVo.setLastIndex(paginationInfo.getLastRecordIndex());
+    boardVo.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+    // 삭제된 게시물 목록 조회
+    List<BoardVo> deletedBoardList = boardService.selectDeletedBoardList(boardVo);
+    model.addAttribute("boardList", deletedBoardList);
+
+    int totalCount = boardService.selectDeletedBoardListCount(boardVo);
+    paginationInfo.setTotalRecordCount(totalCount);
+    model.addAttribute("paginationInfo", paginationInfo);
+
+    model.addAttribute("loginUser", loginUser);
+
+    return "/board/deletedList";
+  }
 }

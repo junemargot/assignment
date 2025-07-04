@@ -32,4 +32,10 @@ public interface BoardService {
 
   // 게시글 다중 삭제
   boolean deleteBoardList(List<Integer> boardSeqs) throws Exception;
+
+  // 삭제된 게시물 목록 조회
+  List<BoardVo> selectDeletedBoardList(BoardVo boardVo) throws Exception;
+
+  // 삭제된 게시물 총 개수 조회
+  int selectDeletedBoardListCount(BoardVo boardVo) throws Exception;
 }
