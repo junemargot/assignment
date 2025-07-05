@@ -208,4 +208,72 @@ public class BoardController {
 
     return "/board/deletedList";
   }
+
+  /**
+   * 게시물 복원 (단일)
+   * */
+  @PostMapping("/restore.do")
+  @ResponseBody
+  public Map<String, Object> restoreBoard(@RequestParam("boardSeq") int boardSeq,
+                                          HttpServletRequest request) throws Exception {
+
+    Map<String, Object> result = new HashMap<>();
+
+    try {
+      UserVO loginUser = SessionUtil.getLoginUser(request);
+      if(!"ADMIN".equals(loginUser.getRoleType())) {
+        result.put("success", false);
+        result.put("message", "관리자만 복원할 수 있습니다.");
+        return result;
+      }
+
+      boolean success = boardService.restoreBoard(boardSeq);
+      result.put("success", success);
+      result.put("message", success ? "게시물이 복원이 처리되었습니다." : "게시물 복원에 실패했습니다.");
+
+    } catch(Exception e) {
+      result.put("success", false);
+      result.put("message", "오류가 발생했습니다: " + e.getMessage());
+    }
+
+    return result;
+  }
+
+  /**
+   * 게시물 다중 복원
+   * */
+  @PostMapping("restoreList")
+  @ResponseBody
+  public Map<String, Object> restoreBoardList(@RequestParam("seqs") List<Integer> boardSeqs,
+                                              HttpServletRequest request) throws Exception {
+
+    Map<String, Object> result = new HashMap<>();
+
+    try {
+      UserVO loginUser = SessionUtil.getLoginUser(request);
+      if(!"ADMIN".equals(loginUser.getRoleType())) {
+        result.put("success", false);
+        result.put("message", "관리자만 복원할 수 있습니다.");
+        return result;
+      }
+
+      boolean success = boardService.restoreBoardList(boardSeqs);
+      result.put("success", success);
+
+      if(success) {
+        result.put("message", boardSeqs.size() + "개의 게시물이 복원되었습니다.");
+      } else {
+        result.put("message", "게시물 복원에 실패했습니다.");
+      }
+    } catch(Exception e) {
+      result.put("success", false);
+      result.put("message", "오류가 발생했습니다: " + e.getMessage());
+    }
+
+    return result;
+  }
+
+
+
+
 }

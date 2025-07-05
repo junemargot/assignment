@@ -147,4 +147,29 @@
             USE_YN = 'N'
     </select>
 
+    <!-- 게시물 복원 (단일) -->
+    <update id="restoreBoard" parameterType="int">
+        UPDATE
+            BOARD_TB
+        SET
+            USE_YN = 'Y'
+        WHERE
+            BOARD_SEQ = #{boardSeq}
+            AND USE_YN = 'N'
+    </update>
+
+    <!-- 게시물 다중 복원 -->
+    <update id="restoreBoardList" parameterType="java.util.List">
+        UPDATE
+            BOARD_TB
+        SET
+            USE_YN = 'Y'
+        WHERE
+            USE_YN = 'N'
+            AND BOARD_SEQ IN
+            <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
+                #{boardSeq}
+            </foreach>
+    </update>
+
 </mapper>

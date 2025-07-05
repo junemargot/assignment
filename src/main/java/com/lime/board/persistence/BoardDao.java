@@ -63,4 +63,14 @@ public class BoardDao extends EgovAbstractMapper {
   public int selectDeletedBoardListCount(BoardVo boardVo) throws Exception {
     return selectOne("boardDao.selectDeletedBoardListCount", boardVo);
   }
+
+  // 게시물 복원 (단일)
+  public int restoreBoard(int boardSeq) throws Exception {
+    return update("boardDao.restoreBoard", boardSeq);
+  }
+
+  // 게시물 다중 복원
+  public int restoreBoardList(List<Integer> boardSeqs) throws Exception {
+    return update("boardDao.restoreBoardList", boardSeqs);
+  }
 }

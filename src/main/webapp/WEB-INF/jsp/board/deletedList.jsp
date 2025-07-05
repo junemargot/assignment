@@ -10,7 +10,7 @@
   <style>
     th, td {
       text-align: center;
-      vertical-align: middle;
+      vertical-align: middle !important;
     }
 
     .pagination {
@@ -39,11 +39,10 @@
       <!-- 버튼 그룹 (행추가 관련 기능 제거) -->
       <div class="form_box2" style="margin-bottom: 10px;">
         <div class="left">
-          <button type="button" class="btn btn-secondary" onclick="location.href='/board/boardList.do'">일반 게시판</button>
+<%--          <button type="button" class="btn btn-secondary" onclick="selectAll()">전체 선택</button>--%>
         </div>
         <div class="right">
-          <button type="button" class="btn btn-success" onclick="restoreBoards()">복원</button>
-          <button type="button" class="btn btn-danger" onclick="permanentDeleteBoards()">영구삭제</button>
+          <button type="button" class="btn btn-secondary" onclick="location.href='/board/boardList.do'">일반 게시판</button>
         </div>
       </div>
     </div>
@@ -54,11 +53,12 @@
         <tr>
           <th width="5%">번호</th>
           <th width="5%">선택</th>
-          <th width="40%">제목</th>
+          <th width="25%">제목</th>
           <th width="15%">등록일</th>
           <th width="15%">작성자</th>
           <th width="10%">조회수</th>
           <th width="10%">상태</th>
+          <th width="15%">관리</th>
         </tr>
       </thead>
       <tbody>
@@ -73,7 +73,13 @@
           <td>${board.regDate}</td>
           <td>${board.writer}</td>
           <td>${board.viewCount}</td>
-          <td><span style="color: red;">삭제됨</span></td>
+          <td>
+            <span style="color: red;">삭제됨</span>
+          </td>
+          <td>
+            <button type="button" class="btn btn-success btn-sm" onclick="restoreBoard(${board.boardSeq})">복원</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="permanentBoard()">영구삭제</button>
+          </td>
         </tr>
       </c:forEach>
       </tbody>
@@ -86,6 +92,59 @@
     <!-- 페이징용 히든 필드 -->
     <input type="hidden" id="currentPageIndex" value="${boardVo.pageIndex}" />
   </div>
+
+<script>
+  function restoreBoard(boardSeq) {
+    if(!confirm('해당 게시물을 복원하시겠습니까?')) {
+      return;
+    }
+
+    const xhr = createXHR();
+    xhr.open('POST', '/board/restore.do', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4 && xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        alert(response.message);
+
+        if(response.success) {
+          window.location.reload();
+        }
+      }
+    };
+
+    xhr.send('boardSeq=' + boardSeq);
+  }
+
+  // 서버와 비동기적으로 통신하기 위한 XMLHttpRequest를 생성하는 함수
+  function createXHR() {
+    // 1. 최신/표준 브라우저 확인
+    if(window.XMLHttpRequest) {
+      return new XMLHttpRequest();
+
+    // 2. 구형 Internet Explorer 브라우저 확인 (ActiveXObject 사용)
+    } else if(window.ActiveXObject) {
+      return new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    // 3. 지원하지 않는 브라우저인 경우
+    return null;
+  }
+
+  // 폼 데이터를 URL 인코딩 형식으로 변환
+  function serializeForm(formData) {
+    var params = []; // 쿼리스트링을 담을 빈 배열 선언
+    for(var key in formData) {
+      if(formData.hasOwnProperty(key)) {
+        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(formData[key]))
+      }
+    }
+
+    return params.join('&');
+  }
+
+</script>
 </body>
 </html>
 

@@ -38,4 +38,11 @@ public interface BoardService {
 
   // 삭제된 게시물 총 개수 조회
   int selectDeletedBoardListCount(BoardVo boardVo) throws Exception;
+
+  // 게시물 복원 (단일)
+  boolean restoreBoard(int boardSeq) throws Exception;
+
+  // 게시물 복원 (다중)
+  boolean restoreBoardList(List<Integer> boardSeqs) throws Exception;
+
 }

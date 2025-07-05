@@ -75,4 +75,16 @@ public class BoardServiceImpl extends EgovAbstractServiceImpl implements BoardSe
   public int selectDeletedBoardListCount(BoardVo boardVo) throws Exception {
     return boardDao.selectDeletedBoardListCount(boardVo);
   }
+
+  @Override
+  public boolean restoreBoard(int boardSeq) throws Exception {
+    int result = boardDao.restoreBoard(boardSeq);
+    return result > 0;
+  }
+
+  @Override
+  public boolean restoreBoardList(List<Integer> boardSeqs) throws Exception {
+    int result = boardDao.restoreBoardList(boardSeqs);
+    return result > 0;
+  }
 }
