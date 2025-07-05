@@ -87,4 +87,16 @@ public class BoardServiceImpl extends EgovAbstractServiceImpl implements BoardSe
     int result = boardDao.restoreBoardList(boardSeqs);
     return result > 0;
   }
+
+  @Override
+  public boolean permanentDeleteBoard(int boardSeq) throws Exception {
+    int result = boardDao.permanentDeleteBoard(boardSeq);
+    return result > 0;
+  }
+
+  @Override
+  public boolean permanetDeleteBoardList(List<Integer> boardSeqs) throws Exception {
+    int result = boardDao.permanentDeleteBoardList(boardSeqs);
+    return result > 0;
+  }
 }

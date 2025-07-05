@@ -78,7 +78,7 @@
           </td>
           <td>
             <button type="button" class="btn btn-success btn-sm" onclick="restoreBoard(${board.boardSeq})">복원</button>
-            <button type="button" class="btn btn-danger btn-sm" onclick="permanentBoard()">영구삭제</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="permanentDeleteBoard(${board.boardSeq})">영구삭제</button>
           </td>
         </tr>
       </c:forEach>
@@ -117,6 +117,43 @@
     xhr.send('boardSeq=' + boardSeq);
   }
 
+  function permanentDeleteBoard(boardSeq) {
+    if(!confirm("해당 게시물을 영구삭제하시겠습니까?\n영구삭제된 게시물은 복구할 수 없습니다.")) {
+      return;
+    }
+
+    if(!confirm("정말로 영구삭제하시겠습니까? 이 작업을 되돌릴 수 없습니다.")) {
+      return;
+    }
+
+    const xhr = createXHR();
+    xhr.open('POST', '/board/permanentDelete.do', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4) {
+        if(xhr.status === 200) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            alert(response.message);
+
+            if(response.success) {
+              window.location.reload();
+            }
+          } catch(e) {
+            alert('서버 응답 처리 중 오류가 발생했습니다.');
+          }
+        } else {
+          alert('서버 오류가 발생했습니다. (상태 코드: ' + xhr.status + ')');
+        }
+      }
+    };
+
+    xhr.send('boardSeq=' + boardSeq);
+  }
+
+
+
   // 서버와 비동기적으로 통신하기 위한 XMLHttpRequest를 생성하는 함수
   function createXHR() {
     // 1. 최신/표준 브라우저 확인
@@ -143,6 +180,11 @@
 
     return params.join('&');
   }
+
+// 페이지 이동 함수
+function goPage(pageNo) {
+  window.location.href = '/board/deletedList.do?pageIndex=' + pageNo;
+}
 
 </script>
 </body>

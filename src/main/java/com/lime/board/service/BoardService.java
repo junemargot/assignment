@@ -45,4 +45,9 @@ public interface BoardService {
   // 게시물 복원 (다중)
   boolean restoreBoardList(List<Integer> boardSeqs) throws Exception;
 
+  // 게시물 영구 삭제 (단일)
+  boolean permanentDeleteBoard(int boardSeq) throws Exception;
+
+  // 게시물 영구 삭제 (다중)
+  boolean permanetDeleteBoardList(List<Integer> boardSeqs) throws Exception;
 }

@@ -73,4 +73,14 @@ public class BoardDao extends EgovAbstractMapper {
   public int restoreBoardList(List<Integer> boardSeqs) throws Exception {
     return update("boardDao.restoreBoardList", boardSeqs);
   }
+
+  // 게시물 영구 삭제 (단일)
+  public int permanentDeleteBoard(int boardSeq) throws Exception {
+    return delete("boardDao.permanentDeleteBoard", boardSeq);
+  }
+
+  // 게시물 영구 삭제 (다중)
+  public int permanentDeleteBoardList(List<Integer> boardSeqs) throws Exception {
+    return delete("boardDao.permanentDeleteBoardList", boardSeqs);
+  }
 }

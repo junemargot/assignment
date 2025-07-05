@@ -172,4 +172,25 @@
             </foreach>
     </update>
 
+    <!-- 영구삭제 (단일) -->
+    <delete id="permanentDeleteBoard" parameterType="int">
+        DELETE FROM
+            BOARD_TB
+        WHERE
+            BOARD_SEQ = #{boardSeq}
+            AND USE_YN = 'N' <!-- 이미 삭제된 게시물만 영구 삭제 가능 -->
+    </delete>
+
+    <!-- 영구삭제 (다중) -->
+    <delete id="permanentDeleteBoardList" parameterType="java.util.List">
+        DELETE FROM
+            BOARD_TB
+        WHERE
+            USE_YN = 'N'
+            AND BOARD_SEQ IN
+            <foreach item="boardSeq" collection="list" open="(" separator="," close=")">
+                #{boardSeq}
+            </foreach>
+    </delete>
+
 </mapper>
