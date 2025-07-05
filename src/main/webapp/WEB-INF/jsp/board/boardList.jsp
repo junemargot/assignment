@@ -67,14 +67,14 @@
         <div class="left">
           <button type="button" class="btn btn-default" id="selectAllBtn" onclick="selectAll(this)" data-selected="false">전체선택</button>
         </div>
-        <div class="right">
+        <div class="btn-group right" role="group">
           <button type="button" class="btn btn-default" onclick="addInputRow()">행추가</button>
           <button type="button" class="btn btn-default" onclick="editRow()">행수정</button>
           <button type="button" class="btn btn-default" onclick="deleteRows()">행삭제</button>
 
           <!-- 관리자만 볼 수 있는 삭제된 게시물 관리 버튼 -->
           <c:if test="${loginUser.roleType == 'ADMIN'}">
-            <button type="button" class="btn btn-warning" onclick="location.href='/board/deletedList.do'">삭제된 게시물 관리</button>
+            <button type="button" class="btn btn-warning" onclick="location.href='/board/deletedList.do'">게시물 관리</button>
           </c:if>
         </div>
       </div>

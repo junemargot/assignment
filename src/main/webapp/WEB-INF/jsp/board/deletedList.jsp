@@ -6,7 +6,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <html>
 <head>
-  <title>삭제 게시물 관리</title>
+  <title>게시물 관리</title>
   <style>
     th, td {
       text-align: center;
@@ -35,11 +35,10 @@
 <body>
   <div class="container" style="max-width: 1400px; margin: 0 auto;">
     <div id="wrap" class="col-md-offset col-sm-15" style="margin-top: 50px;">
-      <h2 align="center">삭제된 게시물 리스트</h2>
+      <h2 align="center">게시물 관리</h2>
       <!-- 버튼 그룹 (행추가 관련 기능 제거) -->
       <div class="form_box2" style="margin-bottom: 10px;">
         <div class="left">
-<%--          <button type="button" class="btn btn-secondary" onclick="selectAll()">전체 선택</button>--%>
         </div>
         <div class="right">
           <button type="button" class="btn btn-secondary" onclick="location.href='/board/boardList.do'">일반 게시판</button>
@@ -52,8 +51,7 @@
       <thead>
         <tr>
           <th width="5%">번호</th>
-          <th width="5%">선택</th>
-          <th width="25%">제목</th>
+          <th width="30%">제목</th>
           <th width="15%">등록일</th>
           <th width="15%">작성자</th>
           <th width="10%">조회수</th>
@@ -66,9 +64,6 @@
       <c:forEach var="board" items="${boardList}">
         <tr style="background-color: #ffe6e6;">
           <td>${board.boardSeq}</td>
-          <td>
-            <input type="checkbox" class="rowCheck" value="${board.boardSeq}" />
-          </td>
           <td>${board.title}</td>
           <td>${board.regDate}</td>
           <td>${board.writer}</td>
